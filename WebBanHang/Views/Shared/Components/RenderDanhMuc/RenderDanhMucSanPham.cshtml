@@ -1,0 +1,8 @@
+﻿@using WebBanHang.DTOs
+@model IEnumerable<DanhMucDTO>
+<ul>
+@foreach(var item in Model)
+{
+        <li><a href="#">@item.Name</a></li>
+}
+</ul>

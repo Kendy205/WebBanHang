@@ -1,8 +1,10 @@
+using WebBanHang.FileUpload.IFileUpload;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddTransient<IBufferedFileUploadService,BufferedFileUploadService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
