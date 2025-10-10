@@ -1,0 +1,641 @@
+// =============================================
+// PHẦN 3: BUSINESS LOGIC LAYER (BLL)
+// Services - Giao tiếp với Repository
+// =============================================
+
+// =============================================
+// WebBanHang.BLL/Services/ICategoryService.cs
+// =============================================
+using System.Collections.Generic;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public interface ICategoryService
+    {
+        IEnumerable<Category> GetAllCategories();
+        IEnumerable<Category> GetActiveCategories();
+        Category GetCategoryById(int id);
+        void AddCategory(Category category);
+        void UpdateCategory(Category category);
+        void DeleteCategory(int id);
+        bool CategoryExists(int id);
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/CategoryService.cs
+// =============================================
+using System.Collections.Generic;
+using System.Linq;
+using WebBanHang.DAL.Repository;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public class CategoryService : ICategoryService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CategoryService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public IEnumerable<Category> GetAllCategories()
+        {
+            return _unitOfWork.Categories.GetAll().OrderBy(c => c.CategoryName);
+        }
+
+        public IEnumerable<Category> GetActiveCategories()
+        {
+            return _unitOfWork.Categories.Find(c => c.IsActive).OrderBy(c => c.CategoryName);
+        }
+
+        public Category GetCategoryById(int id)
+        {
+            return _unitOfWork.Categories.GetById(id);
+        }
+
+        public void AddCategory(Category category)
+        {
+            _unitOfWork.Categories.Add(category);
+            _unitOfWork.Complete();
+        }
+
+        public void UpdateCategory(Category category)
+        {
+            _unitOfWork.Categories.Update(category);
+            _unitOfWork.Complete();
+        }
+
+        public void DeleteCategory(int id)
+        {
+            var category = _unitOfWork.Categories.GetById(id);
+            if (category != null)
+            {
+                _unitOfWork.Categories.Remove(category);
+                _unitOfWork.Complete();
+            }
+        }
+
+        public bool CategoryExists(int id)
+        {
+            return _unitOfWork.Categories.Any(c => c.CategoryId == id);
+        }
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/IFoodService.cs
+// =============================================
+using System.Collections.Generic;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public interface IFoodService
+    {
+        IEnumerable<Food> GetAllFoods();
+        IEnumerable<Food> GetFoodsByCategory(int categoryId);
+        IEnumerable<Food> GetAvailableFoods();
+        IEnumerable<Food> SearchFoods(string keyword);
+        IEnumerable<Food> GetTopRatedFoods(int count);
+        IEnumerable<Food> GetFoodsPaged(int pageNumber, int pageSize, out int totalRecords);
+        IEnumerable<Food> GetFoodsByFilter(int? categoryId, decimal? minPrice, decimal? maxPrice, 
+            string sortBy, int pageNumber, int pageSize, out int totalRecords);
+        Food GetFoodById(int id);
+        void AddFood(Food food);
+        void UpdateFood(Food food);
+        void DeleteFood(int id);
+        bool FoodExists(int id);
+        void UpdateRating(int foodId);
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/FoodService.cs
+// =============================================
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using WebBanHang.DAL.Repository;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public class FoodService : IFoodService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public FoodService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public IEnumerable<Food> GetAllFoods()
+        {
+            return _unitOfWork.Foods.GetAllQueryable()
+                .Include("Category")
+                .OrderBy(f => f.FoodName)
+                .ToList();
+        }
+
+        public IEnumerable<Food> GetFoodsByCategory(int categoryId)
+        {
+            return _unitOfWork.Foods.Find(f => f.CategoryId == categoryId && f.IsAvailable);
+        }
+
+        public IEnumerable<Food> GetAvailableFoods()
+        {
+            return _unitOfWork.Foods.Find(f => f.IsAvailable);
+        }
+
+        public IEnumerable<Food> SearchFoods(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return GetAvailableFoods();
+
+            keyword = keyword.ToLower();
+            return _unitOfWork.Foods.Find(f => 
+                f.IsAvailable && 
+                (f.FoodName.ToLower().Contains(keyword) || 
+                 f.Description.ToLower().Contains(keyword)));
+        }
+
+        public IEnumerable<Food> GetTopRatedFoods(int count)
+        {
+            return _unitOfWork.Foods.Find(f => f.IsAvailable)
+                .OrderByDescending(f => f.Rating)
+                .ThenByDescending(f => f.TotalReviews)
+                .Take(count)
+                .ToList();
+        }
+
+        public IEnumerable<Food> GetFoodsPaged(int pageNumber, int pageSize, out int totalRecords)
+        {
+            var query = _unitOfWork.Foods.GetAllQueryable()
+                .Include("Category")
+                .Where(f => f.IsAvailable);
+
+            totalRecords = query.Count();
+
+            return query.OrderBy(f => f.FoodName)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public IEnumerable<Food> GetFoodsByFilter(int? categoryId, decimal? minPrice, decimal? maxPrice, 
+            string sortBy, int pageNumber, int pageSize, out int totalRecords)
+        {
+            var query = _unitOfWork.Foods.GetAllQueryable()
+                .Include("Category")
+                .Where(f => f.IsAvailable);
+
+            // Filter by category
+            if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                query = query.Where(f => f.CategoryId == categoryId.Value);
+            }
+
+            // Filter by price range
+            if (minPrice.HasValue)
+            {
+                query = query.Where(f => f.Price >= minPrice.Value);
+            }
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(f => f.Price <= maxPrice.Value);
+            }
+
+            // Sort
+            switch (sortBy)
+            {
+                case "price_asc":
+                    query = query.OrderBy(f => f.Price);
+                    break;
+                case "price_desc":
+                    query = query.OrderByDescending(f => f.Price);
+                    break;
+                case "rating":
+                    query = query.OrderByDescending(f => f.Rating);
+                    break;
+                case "name":
+                default:
+                    query = query.OrderBy(f => f.FoodName);
+                    break;
+            }
+
+            totalRecords = query.Count();
+
+            return query.Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public Food GetFoodById(int id)
+        {
+            return _unitOfWork.Foods.GetAllQueryable()
+                .Include("Category")
+                .FirstOrDefault(f => f.FoodId == id);
+        }
+
+        public void AddFood(Food food)
+        {
+            food.CreatedAt = DateTime.Now;
+            food.UpdatedAt = DateTime.Now;
+            _unitOfWork.Foods.Add(food);
+            _unitOfWork.Complete();
+        }
+
+        public void UpdateFood(Food food)
+        {
+            food.UpdatedAt = DateTime.Now;
+            _unitOfWork.Foods.Update(food);
+            _unitOfWork.Complete();
+        }
+
+        public void DeleteFood(int id)
+        {
+            var food = _unitOfWork.Foods.GetById(id);
+            if (food != null)
+            {
+                _unitOfWork.Foods.Remove(food);
+                _unitOfWork.Complete();
+            }
+        }
+
+        public bool FoodExists(int id)
+        {
+            return _unitOfWork.Foods.Any(f => f.FoodId == id);
+        }
+
+        public void UpdateRating(int foodId)
+        {
+            var food = _unitOfWork.Foods.GetById(foodId);
+            if (food != null)
+            {
+                var reviews = _unitOfWork.Reviews.Find(r => r.FoodId == foodId);
+                if (reviews.Any())
+                {
+                    food.Rating = (decimal)reviews.Average(r => r.Rating);
+                    food.TotalReviews = reviews.Count();
+                    _unitOfWork.Foods.Update(food);
+                    _unitOfWork.Complete();
+                }
+            }
+        }
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/ICartService.cs
+// =============================================
+using System.Collections.Generic;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public interface ICartService
+    {
+        Cart GetCartByUserId(string userId);
+        void AddToCart(string userId, int foodId, int quantity);
+        void UpdateCartItem(int cartItemId, int quantity);
+        void RemoveFromCart(int cartItemId);
+        void ClearCart(string userId);
+        int GetCartItemCount(string userId);
+        decimal GetCartTotal(string userId);
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/CartService.cs
+// =============================================
+using System;
+using System.Linq;
+using WebBanHang.DAL.Repository;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public class CartService : ICartService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CartService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public Cart GetCartByUserId(string userId)
+        {
+            var cart = _unitOfWork.Carts.FirstOrDefault(c => c.UserId == userId);
+            
+            if (cart == null)
+            {
+                cart = new Cart
+                {
+                    UserId = userId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                _unitOfWork.Carts.Add(cart);
+                _unitOfWork.Complete();
+            }
+
+            // Load cart items with food details
+            cart.CartItems = _unitOfWork.CartItems.GetAllQueryable()
+                .Include("Food")
+                .Where(ci => ci.CartId == cart.CartId)
+                .ToList();
+
+            return cart;
+        }
+
+        public void AddToCart(string userId, int foodId, int quantity)
+        {
+            var cart = GetCartByUserId(userId);
+            var food = _unitOfWork.Foods.GetById(foodId);
+
+            if (food == null || !food.IsAvailable)
+                throw new Exception("Món ăn không tồn tại hoặc không còn bán");
+
+            var existingItem = _unitOfWork.CartItems.FirstOrDefault(
+                ci => ci.CartId == cart.CartId && ci.FoodId == foodId);
+
+            if (existingItem != null)
+            {
+                existingItem.Quantity += quantity;
+                _unitOfWork.CartItems.Update(existingItem);
+            }
+            else
+            {
+                var cartItem = new CartItem
+                {
+                    CartId = cart.CartId,
+                    FoodId = foodId,
+                    Quantity = quantity,
+                    Price = food.Price,
+                    AddedAt = DateTime.Now
+                };
+                _unitOfWork.CartItems.Add(cartItem);
+            }
+
+            cart.UpdatedAt = DateTime.Now;
+            _unitOfWork.Carts.Update(cart);
+            _unitOfWork.Complete();
+        }
+
+        public void UpdateCartItem(int cartItemId, int quantity)
+        {
+            var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
+            if (cartItem != null)
+            {
+                if (quantity <= 0)
+                {
+                    RemoveFromCart(cartItemId);
+                }
+                else
+                {
+                    cartItem.Quantity = quantity;
+                    _unitOfWork.CartItems.Update(cartItem);
+                    
+                    var cart = _unitOfWork.Carts.GetById(cartItem.CartId);
+                    cart.UpdatedAt = DateTime.Now;
+                    _unitOfWork.Carts.Update(cart);
+                    
+                    _unitOfWork.Complete();
+                }
+            }
+        }
+
+        public void RemoveFromCart(int cartItemId)
+        {
+            var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
+            if (cartItem != null)
+            {
+                var cart = _unitOfWork.Carts.GetById(cartItem.CartId);
+                
+                _unitOfWork.CartItems.Remove(cartItem);
+                
+                cart.UpdatedAt = DateTime.Now;
+                _unitOfWork.Carts.Update(cart);
+                
+                _unitOfWork.Complete();
+            }
+        }
+
+        public void ClearCart(string userId)
+        {
+            var cart = _unitOfWork.Carts.FirstOrDefault(c => c.UserId == userId);
+            if (cart != null)
+            {
+                var cartItems = _unitOfWork.CartItems.Find(ci => ci.CartId == cart.CartId);
+                _unitOfWork.CartItems.RemoveRange(cartItems);
+                
+                cart.UpdatedAt = DateTime.Now;
+                _unitOfWork.Carts.Update(cart);
+                
+                _unitOfWork.Complete();
+            }
+        }
+
+        public int GetCartItemCount(string userId)
+        {
+            var cart = _unitOfWork.Carts.FirstOrDefault(c => c.UserId == userId);
+            if (cart == null) return 0;
+
+            return _unitOfWork.CartItems.Count(ci => ci.CartId == cart.CartId);
+        }
+
+        public decimal GetCartTotal(string userId)
+        {
+            var cart = GetCartByUserId(userId);
+            return cart.TotalAmount;
+        }
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/IOrderService.cs
+// =============================================
+using System.Collections.Generic;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public interface IOrderService
+    {
+        IEnumerable<Order> GetAllOrders();
+        IEnumerable<Order> GetOrdersByUserId(string userId);
+        IEnumerable<Order> GetOrdersByStatus(string status);
+        Order GetOrderById(int id);
+        Order GetOrderByCode(string orderCode);
+        int CreateOrderFromCart(string userId, string shippingAddress, string phoneNumber, 
+            string paymentMethod, string notes);
+        void UpdateOrderStatus(int orderId, string status);
+        void CancelOrder(int orderId);
+        bool UserOwnsOrder(string userId, int orderId);
+    }
+}
+
+// =============================================
+// WebBanHang.BLL/Services/OrderService.cs
+// =============================================
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using WebBanHang.DAL.Repository;
+using WebBanHang.Models;
+
+namespace WebBanHang.BLL.Services
+{
+    public class OrderService : IOrderService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICartService _cartService;
+
+        public OrderService(IUnitOfWork unitOfWork, ICartService cartService)
+        {
+            _unitOfWork = unitOfWork;
+            _cartService = cartService;
+        }
+
+        public IEnumerable<Order> GetAllOrders()
+        {
+            return _unitOfWork.Orders.GetAllQueryable()
+                .Include("User")
+                .Include("OrderDetails")
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+        }
+
+        public IEnumerable<Order> GetOrdersByUserId(string userId)
+        {
+            return _unitOfWork.Orders.GetAllQueryable()
+                .Include("OrderDetails.Food")
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+        }
+
+        public IEnumerable<Order> GetOrdersByStatus(string status)
+        {
+            return _unitOfWork.Orders.Find(o => o.Status == status)
+                .OrderByDescending(o => o.OrderDate);
+        }
+
+        public Order GetOrderById(int id)
+        {
+            return _unitOfWork.Orders.GetAllQueryable()
+                .Include("User")
+                .Include("OrderDetails.Food")
+                .Include("Payment")
+                .FirstOrDefault(o => o.OrderId == id);
+        }
+
+        public Order GetOrderByCode(string orderCode)
+        {
+            return _unitOfWork.Orders.FirstOrDefault(o => o.OrderCode == orderCode);
+        }
+
+        public int CreateOrderFromCart(string userId, string shippingAddress, string phoneNumber, 
+            string paymentMethod, string notes)
+        {
+            var cart = _cartService.GetCartByUserId(userId);
+            
+            if (cart.CartItems == null || !cart.CartItems.Any())
+                throw new Exception("Giỏ hàng trống");
+
+            // Generate Order Code
+            var orderCode = "ORD" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            // Create Order
+            var order = new Order
+            {
+                OrderCode = orderCode,
+                UserId = userId,
+                OrderDate = DateTime.Now,
+                TotalAmount = cart.TotalAmount,
+                Status = "Pending",
+                PaymentMethod = paymentMethod,
+                ShippingAddress = shippingAddress,
+                PhoneNumber = phoneNumber,
+                Notes = notes,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+
+            _unitOfWork.Orders.Add(order);
+            _unitOfWork.Complete();
+
+            // Create Order Details
+            foreach (var item in cart.CartItems)
+            {
+                var orderDetail = new OrderDetail
+                {
+                    OrderId = order.OrderId,
+                    FoodId = item.FoodId,
+                    FoodName = item.Food.FoodName,
+                    Quantity = item.Quantity,
+                    Price = item.Price
+                };
+                _unitOfWork.OrderDetails.Add(orderDetail);
+            }
+
+            // Create Payment Record
+            var payment = new Payment
+            {
+                OrderId = order.OrderId,
+                PaymentMethod = paymentMethod,
+                Amount = cart.TotalAmount,
+                Status = "Pending",
+                CreatedAt = DateTime.Now
+            };
+            _unitOfWork.Payments.Add(payment);
+
+            _unitOfWork.Complete();
+
+            // Clear cart
+            _cartService.ClearCart(userId);
+
+            return order.OrderId;
+        }
+
+        public void UpdateOrderStatus(int orderId, string status)
+        {
+            var order = _unitOfWork.Orders.GetById(orderId);
+            if (order != null)
+            {
+                order.Status = status;
+                order.UpdatedAt = DateTime.Now;
+                _unitOfWork.Orders.Update(order);
+
+                // Update payment status if order is completed
+                if (status == "Completed")
+                {
+                    var payment = _unitOfWork.Payments.FirstOrDefault(p => p.OrderId == orderId);
+                    if (payment != null)
+                    {
+                        payment.Status = "Completed";
+                        payment.PaymentDate = DateTime.Now;
+                        _unitOfWork.Payments.Update(payment);
+                    }
+                }
+
+                _unitOfWork.Complete();
+            }
+        }
+
+        public void CancelOrder(int orderId)
+        {
+            UpdateOrderStatus(orderId, "Cancelled");
+        }
+
+        public bool UserOwnsOrder(string userId, int orderId)
+        {
+            return _unitOfWork.Orders.Any(o => o.OrderId == orderId && o.UserId == userId);
+        }
+    }
+}
