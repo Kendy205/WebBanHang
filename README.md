@@ -48,10 +48,9 @@
 │   │
 │   ├── Views/
 │   │   ├── Shared/
-│   │   │   ├── _Layout.cshtml
-│   │   │   ├── _AdminLayout.cshtml
-│   │   │   └── _LoginPartial.cshtml
-│   │   └── Account/
+│   │       ├── _Layout.cshtml
+│   │       ├── _AdminLayout.cshtml
+│   │       ├── _LoginPartial.cshtml
 │   │       ├── Login.cshtml
 │   │       └── Register.cshtml
 │   │
