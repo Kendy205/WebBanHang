@@ -1,0 +1,236 @@
+// =============================================
+// PHẦN 2: DATA ACCESS LAYER (DAL)
+// Repository Pattern + Unit of Work
+// =============================================
+
+// =============================================
+// WebBanHang.DAL/Data/ApplicationDbContext.cs
+// =============================================
+using Microsoft.AspNet.Identity.EntityFramework;
+using System.Data.Entity;
+using WebBanHang.Models;
+
+namespace WebBanHang.DAL.Data
+{
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    {
+        public ApplicationDbContext() : base("DefaultConnection", throwIfV1Schema: false)
+        {
+            // Configuration
+            Configuration.LazyLoadingEnabled = true;
+            Configuration.ProxyCreationEnabled = true;
+        }
+
+        // DbSets
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Food> Foods { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+
+        public static ApplicationDbContext Create()
+        {
+            return new ApplicationDbContext();
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // ApplicationUser - Cart (1-1)
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOptional(u => u.Cart)
+                .WithRequired(c => c.User)
+                .WillCascadeOnDelete(true);
+
+            // Food - Category (N-1)
+            modelBuilder.Entity<Food>()
+                .HasRequired(f => f.Category)
+                .WithMany(c => c.Foods)
+                .HasForeignKey(f => f.CategoryId)
+                .WillCascadeOnDelete(false);
+
+            // CartItem - Cart (N-1)
+            modelBuilder.Entity<CartItem>()
+                .HasRequired(ci => ci.Cart)
+                .WithMany(c => c.CartItems)
+                .HasForeignKey(ci => ci.CartId)
+                .WillCascadeOnDelete(true);
+
+            // CartItem - Food (N-1)
+            modelBuilder.Entity<CartItem>()
+                .HasRequired(ci => ci.Food)
+                .WithMany(f => f.CartItems)
+                .HasForeignKey(ci => ci.FoodId)
+                .WillCascadeOnDelete(false);
+
+            // Unique constraint: CartId + FoodId
+            modelBuilder.Entity<CartItem>()
+                .HasIndex(ci => new { ci.CartId, ci.FoodId })
+                .IsUnique();
+
+            // Order - ApplicationUser (N-1)
+            modelBuilder.Entity<Order>()
+                .HasRequired(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId)
+                .WillCascadeOnDelete(false);
+
+            // OrderDetail - Order (N-1)
+            modelBuilder.Entity<OrderDetail>()
+                .HasRequired(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId)
+                .WillCascadeOnDelete(true);
+
+            // OrderDetail - Food (N-1)
+            modelBuilder.Entity<OrderDetail>()
+                .HasRequired(od => od.Food)
+                .WithMany(f => f.OrderDetails)
+                .HasForeignKey(od => od.FoodId)
+                .WillCascadeOnDelete(false);
+
+            // Payment - Order (1-1)
+            modelBuilder.Entity<Payment>()
+                .HasRequired(p => p.Order)
+                .WithOptional(o => o.Payment)
+                .WillCascadeOnDelete(true);
+
+            // Review - ApplicationUser (N-1)
+            modelBuilder.Entity<Review>()
+                .HasRequired(r => r.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.UserId)
+                .WillCascadeOnDelete(false);
+
+            // Review - Food (N-1)
+            modelBuilder.Entity<Review>()
+                .HasRequired(r => r.Food)
+                .WithMany(f => f.Reviews)
+                .HasForeignKey(r => r.FoodId)
+                .WillCascadeOnDelete(true);
+
+            // Review - Order (N-0..1)
+            modelBuilder.Entity<Review>()
+                .HasOptional(r => r.Order)
+                .WithMany(o => o.Reviews)
+                .HasForeignKey(r => r.OrderId)
+                .WillCascadeOnDelete(false);
+
+            // ActivityLog - ApplicationUser (N-0..1)
+            modelBuilder.Entity<ActivityLog>()
+                .HasOptional(al => al.User)
+                .WithMany(u => u.ActivityLogs)
+                .HasForeignKey(al => al.UserId)
+                .WillCascadeOnDelete(false);
+        }
+    }
+}
+
+// =============================================
+// WebBanHang.DAL/Repository/IRepository.cs
+// Generic Repository Interface
+// =============================================
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+
+namespace WebBanHang.DAL.Repository
+{
+    public interface IRepository<T> where T : class
+    {
+        // Get operations
+        T GetById(object id);
+        IEnumerable<T> GetAll();
+        IQueryable<T> GetAllQueryable();
+        IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
+        T FirstOrDefault(Expression<Func<T, bool>> predicate);
+        
+        // CRUD operations
+        void Add(T entity);
+        void AddRange(IEnumerable<T> entities);
+        void Update(T entity);
+        void Remove(T entity);
+        void RemoveRange(IEnumerable<T> entities);
+        
+        // Count
+        int Count();
+        int Count(Expression<Func<T, bool>> predicate);
+        
+        // Exists
+        bool Any(Expression<Func<T, bool>> predicate);
+    }
+}
+
+// =============================================
+// WebBanHang.DAL/Repository/Repository.cs
+// Generic Repository Implementation
+// =============================================
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Linq.Expressions;
+using WebBanHang.DAL.Data;
+
+namespace WebBanHang.DAL.Repository
+{
+    public class Repository<T> : IRepository<T> where T : class
+    {
+        protected readonly ApplicationDbContext _context;
+        protected readonly DbSet<T> _dbSet;
+
+        public Repository(ApplicationDbContext context)
+        {
+            _context = context;
+            _dbSet = context.Set<T>();
+        }
+
+        public T GetById(object id)
+        {
+            return _dbSet.Find(id);
+        }
+
+        public IEnumerable<T> GetAll()
+        {
+            return _dbSet.ToList();
+        }
+
+        public IQueryable<T> GetAllQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
+        {
+            return _dbSet.Where(predicate).ToList();
+        }
+
+        public T FirstOrDefault(Expression<Func<T, bool>> predicate)
+        {
+            return _dbSet.FirstOrDefault(predicate);
+        }
+
+        public void Add(T entity)
+        {
+            _dbSet.Add(entity);
+        }
+
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _dbSet.AddRange(entities);
+        }
+
+        public void Update(T entity)
+        {
+            _dbSet.Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+        }
+
+        public void Remove(T entity)
