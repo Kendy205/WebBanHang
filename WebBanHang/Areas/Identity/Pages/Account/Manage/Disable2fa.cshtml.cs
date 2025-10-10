@@ -8,17 +8,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using WebBanHang.DataAccess.Entities;
+using WebBanHang.DAL.Data;
 
 namespace WebBanHang.Areas.Identity.Pages.Account.Manage
 {
     public class Disable2faModel : PageModel
     {
-        private readonly UserManager<AccountIdentity> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<Disable2faModel> _logger;
 
         public Disable2faModel(
-            UserManager<AccountIdentity> userManager,
+            UserManager<ApplicationUser> userManager,
             ILogger<Disable2faModel> logger)
         {
             _userManager = userManager;

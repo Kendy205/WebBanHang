@@ -1,5 +1,6 @@
-﻿@using WebBanHang.DataAccess.Entities
-@inject SignInManager<AccountIdentity> SignInManager
+﻿@using WebBanHang.DAL.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebBanHang.DataAccess.Repository.IRepository
+namespace WebBanHang.DAL.Repository.IRepository
 {
     public interface IRepository<T> where T : class
     {

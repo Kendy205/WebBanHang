@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebBanHang.DataAccess.Data;
-using WebBanHang.DataAccess.Repository.IRepository;
+using WebBanHang.DAL.Data;
+using WebBanHang.DAL.Repository.IRepository;
 
-namespace WebBanHang.DataAccess.Repository
+namespace WebBanHang.DAL.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {

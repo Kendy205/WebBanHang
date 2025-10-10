@@ -19,23 +19,24 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using WebBanHang.BLL.Util;
-using WebBanHang.DataAccess.Entities;
+using WebBanHang.DAL.Data;
+
 
 namespace WebBanHang.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<AccountIdentity> _signInManager;
-        private readonly UserManager<AccountIdentity> _userManager;
-        private readonly IUserStore<AccountIdentity> _userStore;
-        private readonly IUserEmailStore<AccountIdentity> _emailStore;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
         public RegisterModel(
-            UserManager<AccountIdentity> userManager,
-            IUserStore<AccountIdentity> userStore,
-            SignInManager<AccountIdentity> signInManager,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager)
@@ -79,6 +80,8 @@ namespace WebBanHang.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
+            public string UserName { get; set; }
+            [Required]
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
@@ -101,6 +104,12 @@ namespace WebBanHang.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+           
+            public string? Address { get; set; }
+            public string? PhoneNumber { get; set; }
+            public DateTime? BirthDay { get; set; }
+
+            //public string? Role { get; set; } 
         }
 
 
@@ -126,12 +135,20 @@ namespace WebBanHang.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                //them cac truong con lai cua lop ApplicationUser vao day
+                user.UserName = Input.UserName;
+                user.Address = Input.Address;
+                user.PhoneNumber = Input.PhoneNumber;
+                user.BirthDay = Input.BirthDay;
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-
+                    //mac dinh them vao role customer
+                    await _userManager.AddToRoleAsync(user,SD.CUSTOMERROLE);
+                    //
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -164,27 +181,27 @@ namespace WebBanHang.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private AccountIdentity CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<AccountIdentity>();
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(AccountIdentity)}'. " +
-                    $"Ensure that '{nameof(AccountIdentity)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
-        private IUserEmailStore<AccountIdentity> GetEmailStore()
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<AccountIdentity>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
     }
 }

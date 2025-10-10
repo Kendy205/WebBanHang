@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using WebBanHang.BLL.Util;
-using WebBanHang.DataAccess.Data;
-using WebBanHang.DataAccess.Entities;
+using WebBanHang.DAL.Data;
 using WebBanHang.FileUpload.IFileUpload;
 
 
@@ -21,7 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 
 //builder.Services.AddDefaultIdentity<AccountIdentity>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 //Setup IdentityRoles and IdentityAccounts
-builder.Services.AddIdentity<AccountIdentity, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     // Cấu hình password
     options.Password.RequireDigit = true;
@@ -39,6 +38,7 @@ builder.Services.AddIdentity<AccountIdentity, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+//fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 var app = builder.Build();
 

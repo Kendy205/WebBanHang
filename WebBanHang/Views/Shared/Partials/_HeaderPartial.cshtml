@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using WebBanHang.DataAccess.Entities
+@using WebBanHang.DAL.Data
 
-@inject SignInManager<AccountIdentity> SignInManager
-@inject UserManager<AccountIdentity> UserManager
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <header class="header">
     <div class="header__top">
@@ -17,7 +18,7 @@
                                 <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
                                 </li>
                             }
-                            <li>Free Shipping for all Order of $99</li>
+                            
                         </ul>
                     </div>
                 </div>
@@ -48,6 +49,9 @@
                             }
                             else
                             {
+                                @* <button type="button" class="btn btn-primary btn-lg fa fa-user" data-toggle="modal" data-target="#modelId">
+                                    Login
+                                </button> *@
                                 <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login"><i class="fa fa-user"></i> Login</a>
                                 @* <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register"><i class="fas fa-sign-out-alt">> Register</a> *@
                             }

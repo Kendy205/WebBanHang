@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebBanHang.BLL\WebBanHang.BLL.csproj" />
-    <ProjectReference Include="..\WebBanHang.DataAccess\WebBanHang.DataAccess.csproj" />
+    <ProjectReference Include="..\WebBanHang.DAL\WebBanHang.DAL.csproj" />
     <ProjectReference Include="..\WebBanHang.Models\WebBanHang.Models.csproj" />
   </ItemGroup>
 

@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using WebBanHang.DataAccess.Entities
+@using WebBanHang.DAL.Data
 
-@inject SignInManager<AccountIdentity> SignInManager
-@inject UserManager<AccountIdentity> UserManager
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
