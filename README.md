@@ -95,3 +95,7 @@
     ├── Review.cs
     ├── Voucher.cs
     └── ActivityLog.cs
+
+Step Clone:
+    clone -> pakage console -> (lệnh) update-database
+    
