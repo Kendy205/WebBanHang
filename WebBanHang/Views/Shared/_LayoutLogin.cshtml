@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Ogani Template">
+    <meta name="keywords" content="Ogani, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>@ViewBag.Title</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <!-- Css Styles -->
+    
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebBanHang.styles.css" asp-append-version="true" />
+    
+</head>
+ @* ThanhTung 05-10-25 : Sua layout den phan featured product  *@
+ @* ThanhTung 08-10-25 : Hoàn thành layout Home  *@
+<body>
+
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Humberger Begin -->
+    @* <partial name="~/Views/Shared/Partials/_HumbergerPartial.cshtml" />  *@
+    <!-- Humberger End -->
+    <!-- Header Section Begin -->
+    @* <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" /> *@
+    <!-- Header Section End -->
+    <!-- Hero Section Begin -->
+    <div class="m-2 p-2">
+    @RenderBody()
+    </div>
+    @* <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" /> *@
+    
+    <!-- Js Plugins -->
+    
+    @await RenderSectionAsync("Scripts", required: false)
+  
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

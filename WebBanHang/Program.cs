@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using WebBanHang.BLL.Util;
 using WebBanHang.DAL.Data;
+using WebBanHang.DAL.Repository.UnitOfWork;
 using WebBanHang.FileUpload.IFileUpload;
 
 
@@ -40,6 +41,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 //fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
