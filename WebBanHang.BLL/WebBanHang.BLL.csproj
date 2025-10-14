@@ -21,6 +21,11 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WebBanHang.DAL\WebBanHang.DAL.csproj" />
+    <ProjectReference Include="..\WebBanHang.Models\WebBanHang.Models.csproj" />
+  </ItemGroup>
+
   
 
 </Project>

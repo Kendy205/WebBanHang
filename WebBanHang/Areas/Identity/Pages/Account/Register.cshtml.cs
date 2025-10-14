@@ -133,10 +133,10 @@ namespace WebBanHang.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 //them cac truong con lai cua lop ApplicationUser vao day
-                user.UserName = Input.UserName;
+               // user.UserName = Input.UserName;
                 user.Address = Input.Address;
                 user.PhoneNumber = Input.PhoneNumber;
                 user.BirthDay = Input.BirthDay;
