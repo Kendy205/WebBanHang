@@ -1,0 +1,660 @@
+// =============================================
+// PHẦN 4: AREA CUSTOMER - CONTROLLERS
+// Areas/Customer/Controllers/
+// =============================================
+
+// =============================================
+// Areas/Customer/CustomerAreaRegistration.cs
+// =============================================
+using System.Web.Mvc;
+
+
+// =============================================
+// Areas/Customer/Controllers/HomeController.cs
+// Trang chủ khách hàng
+// =============================================
+using System.Linq;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+using Microsoft.AspNet.Identity;
+
+namespace WebBanHang.Areas.Customer.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ICategoryService _categoryService;
+        private readonly IFoodService _foodService;
+
+        public HomeController(ICategoryService categoryService, IFoodService foodService)
+        {
+            _categoryService = categoryService;
+            _foodService = foodService;
+        }
+
+        // GET: Customer/Home
+        public ActionResult Index()
+        {
+            ViewBag.Categories = _categoryService.GetActiveCategories();
+            ViewBag.TopRatedFoods = _foodService.GetTopRatedFoods(8);
+            
+            var allFoods = _foodService.GetAvailableFoods();
+            
+            return View(allFoods);
+        }
+
+        // GET: Customer/Home/About
+        public ActionResult About()
+        {
+            return View();
+        }
+
+        // GET: Customer/Home/Contact
+        public ActionResult Contact()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Contact(string name, string email, string message)
+        {
+            // Logic gửi email liên hệ
+            TempData["Success"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.";
+            return RedirectToAction("Contact");
+        }
+    }
+}
+
+// =============================================
+// Areas/Customer/Controllers/FoodsController.cs
+// Quản lý hiển thị món ăn, tìm kiếm, lọc
+// =============================================
+using System.Linq;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+using PagedList;
+
+namespace WebBanHang.Areas.Customer.Controllers
+{
+    public class FoodsController : Controller
+    {
+        private readonly IFoodService _foodService;
+        private readonly ICategoryService _categoryService;
+
+        public FoodsController(IFoodService foodService, ICategoryService categoryService)
+        {
+            _foodService = foodService;
+            _categoryService = categoryService;
+        }
+
+        // GET: Customer/Foods
+        // Hiển thị danh sách món ăn với Paging và Filtering
+        public ActionResult Index(int? categoryId, decimal? minPrice, decimal? maxPrice, 
+            string sortBy = "name", int page = 1, int pageSize = 12)
+        {
+            int totalRecords;
+            var foods = _foodService.GetFoodsByFilter(
+                categoryId, 
+                minPrice, 
+                maxPrice, 
+                sortBy, 
+                page, 
+                pageSize, 
+                out totalRecords
+            );
+
+            ViewBag.Categories = _categoryService.GetActiveCategories();
+            ViewBag.CurrentCategory = categoryId;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.SortBy = sortBy;
+            
+            ViewBag.TotalPages = (int)System.Math.Ceiling((double)totalRecords / pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+
+            return View(foods);
+        }
+
+        // GET: Customer/Foods/Details/5
+        // Chi tiết món ăn
+        public ActionResult Details(int id)
+        {
+            var food = _foodService.GetFoodById(id);
+            
+            if (food == null || !food.IsAvailable)
+            {
+                TempData["Error"] = "Món ăn không tồn tại hoặc không còn bán";
+                return RedirectToAction("Index");
+            }
+
+            // Lấy món ăn liên quan (cùng danh mục)
+            ViewBag.RelatedFoods = _foodService.GetFoodsByCategory(food.CategoryId)
+                .Where(f => f.FoodId != id)
+                .Take(4)
+                .ToList();
+
+            return View(food);
+        }
+
+        // GET: Customer/Foods/Search
+        // Tìm kiếm món ăn với AJAX
+        public ActionResult Search(string keyword, int page = 1, int pageSize = 12)
+        {
+            var foods = _foodService.SearchFoods(keyword);
+            
+            var pagedFoods = foods
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.Keyword = keyword;
+            ViewBag.TotalPages = (int)System.Math.Ceiling((double)foods.Count() / pageSize);
+            ViewBag.CurrentPage = page;
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_FoodListPartial", pagedFoods);
+            }
+
+            return View(pagedFoods);
+        }
+
+        // GET: Customer/Foods/Category/5
+        // Món ăn theo danh mục
+        public ActionResult Category(int id, int page = 1, int pageSize = 12)
+        {
+            var category = _categoryService.GetCategoryById(id);
+            
+            if (category == null || !category.IsActive)
+            {
+                TempData["Error"] = "Danh mục không tồn tại";
+                return RedirectToAction("Index");
+            }
+
+            var foods = _foodService.GetFoodsByCategory(id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.Category = category;
+            ViewBag.TotalPages = (int)System.Math.Ceiling(
+                (double)_foodService.GetFoodsByCategory(id).Count() / pageSize);
+            ViewBag.CurrentPage = page;
+
+            return View(foods);
+        }
+
+        // POST: Customer/Foods/QuickView (AJAX)
+        // Xem nhanh món ăn
+        [HttpPost]
+        public JsonResult QuickView(int id)
+        {
+            var food = _foodService.GetFoodById(id);
+            
+            if (food == null || !food.IsAvailable)
+            {
+                return Json(new { success = false, message = "Món ăn không tồn tại" });
+            }
+
+            return Json(new 
+            { 
+                success = true, 
+                data = new 
+                {
+                    foodId = food.FoodId,
+                    foodName = food.FoodName,
+                    description = food.Description,
+                    price = food.Price,
+                    imageUrl = food.ImageUrl,
+                    rating = food.Rating,
+                    categoryName = food.Category?.CategoryName
+                }
+            });
+        }
+    }
+}
+
+// =============================================
+// Areas/Customer/Controllers/CartController.cs
+// Quản lý giỏ hàng với Session & Cookies
+// =============================================
+using System;
+using System.Web;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+using Microsoft.AspNet.Identity;
+using Newtonsoft.Json;
+
+namespace WebBanHang.Areas.Customer.Controllers
+{
+    [Authorize(Roles = "Customer")]
+    public class CartController : Controller
+    {
+        private readonly ICartService _cartService;
+        private readonly IFoodService _foodService;
+
+        public CartController(ICartService cartService, IFoodService foodService)
+        {
+            _cartService = cartService;
+            _foodService = foodService;
+        }
+
+        // GET: Customer/Cart
+        public ActionResult Index()
+        {
+            var userId = User.Identity.GetUserId();
+            var cart = _cartService.GetCartByUserId(userId);
+            
+            // Lưu vào Session
+            Session["CartItemCount"] = cart.TotalItems;
+            Session["CartTotal"] = cart.TotalAmount;
+
+            return View(cart);
+        }
+
+        // POST: Customer/Cart/AddToCart (AJAX)
+        [HttpPost]
+        public JsonResult AddToCart(int foodId, int quantity = 1)
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                var food = _foodService.GetFoodById(foodId);
+
+                if (food == null || !food.IsAvailable)
+                {
+                    return Json(new { success = false, message = "Món ăn không tồn tại hoặc không còn bán" });
+                }
+
+                _cartService.AddToCart(userId, foodId, quantity);
+
+                // Cập nhật Session
+                var itemCount = _cartService.GetCartItemCount(userId);
+                var cartTotal = _cartService.GetCartTotal(userId);
+                Session["CartItemCount"] = itemCount;
+                Session["CartTotal"] = cartTotal;
+
+                // Lưu vào Cookie (7 ngày)
+                SaveCartToCookie(userId);
+
+                return Json(new 
+                { 
+                    success = true, 
+                    message = "Đã thêm vào giỏ hàng",
+                    cartItemCount = itemCount,
+                    cartTotal = cartTotal
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: Customer/Cart/UpdateQuantity (AJAX)
+        [HttpPost]
+        public JsonResult UpdateQuantity(int cartItemId, int quantity)
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                _cartService.UpdateCartItem(cartItemId, quantity);
+
+                var itemCount = _cartService.GetCartItemCount(userId);
+                var cartTotal = _cartService.GetCartTotal(userId);
+                Session["CartItemCount"] = itemCount;
+                Session["CartTotal"] = cartTotal;
+
+                SaveCartToCookie(userId);
+
+                return Json(new 
+                { 
+                    success = true, 
+                    cartItemCount = itemCount,
+                    cartTotal = cartTotal
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: Customer/Cart/RemoveItem (AJAX)
+        [HttpPost]
+        public JsonResult RemoveItem(int cartItemId)
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                _cartService.RemoveFromCart(cartItemId);
+
+                var itemCount = _cartService.GetCartItemCount(userId);
+                var cartTotal = _cartService.GetCartTotal(userId);
+                Session["CartItemCount"] = itemCount;
+                Session["CartTotal"] = cartTotal;
+
+                SaveCartToCookie(userId);
+
+                return Json(new 
+                { 
+                    success = true, 
+                    message = "Đã xóa khỏi giỏ hàng",
+                    cartItemCount = itemCount,
+                    cartTotal = cartTotal
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: Customer/Cart/ClearCart
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ClearCart()
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                _cartService.ClearCart(userId);
+
+                Session["CartItemCount"] = 0;
+                Session["CartTotal"] = 0;
+                
+                // Xóa Cookie
+                if (Request.Cookies["CartData"] != null)
+                {
+                    var cookie = new HttpCookie("CartData")
+                    {
+                        Expires = DateTime.Now.AddDays(-1)
+                    };
+                    Response.Cookies.Add(cookie);
+                }
+
+                TempData["Success"] = "Đã xóa tất cả món trong giỏ hàng";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // GET: Customer/Cart/GetCartSummary (AJAX)
+        // Widget giỏ hàng ở header
+        public JsonResult GetCartSummary()
+        {
+            var userId = User.Identity.GetUserId();
+            var cart = _cartService.GetCartByUserId(userId);
+
+            var items = new System.Collections.Generic.List<object>();
+            foreach (var item in cart.CartItems)
+            {
+                items.Add(new
+                {
+                    cartItemId = item.CartItemId,
+                    foodName = item.Food.FoodName,
+                    quantity = item.Quantity,
+                    price = item.Price,
+                    subtotal = item.Subtotal,
+                    imageUrl = item.Food.ImageUrl
+                });
+            }
+
+            return Json(new
+            {
+                totalItems = cart.TotalItems,
+                totalAmount = cart.TotalAmount,
+                items = items
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        // Helper: Lưu giỏ hàng vào Cookie
+        private void SaveCartToCookie(string userId)
+        {
+            var cart = _cartService.GetCartByUserId(userId);
+            var cartData = new
+            {
+                ItemCount = cart.TotalItems,
+                Total = cart.TotalAmount,
+                UpdatedAt = DateTime.Now
+            };
+
+            var cookie = new HttpCookie("CartData")
+            {
+                Value = JsonConvert.SerializeObject(cartData),
+                Expires = DateTime.Now.AddDays(7),
+                HttpOnly = true
+            };
+            Response.Cookies.Add(cookie);
+        }
+    }
+}
+
+// =============================================
+// Areas/Customer/Controllers/OrdersController.cs
+// Quản lý đơn hàng của khách hàng
+// =============================================
+using System;
+using System.Linq;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+using Microsoft.AspNet.Identity;
+
+namespace WebBanHang.Areas.Customer.Controllers
+{
+    [Authorize(Roles = "Customer")]
+    public class OrdersController : Controller
+    {
+        private readonly IOrderService _orderService;
+        private readonly ICartService _cartService;
+
+        public OrdersController(IOrderService orderService, ICartService cartService)
+        {
+            _orderService = orderService;
+            _cartService = cartService;
+        }
+
+        // GET: Customer/Orders
+        // Danh sách đơn hàng của user
+        public ActionResult Index(string status = "")
+        {
+            var userId = User.Identity.GetUserId();
+            var orders = _orderService.GetOrdersByUserId(userId);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                orders = orders.Where(o => o.Status == status);
+            }
+
+            ViewBag.SelectedStatus = status;
+            
+            return View(orders);
+        }
+
+        // GET: Customer/Orders/Details/5
+        // Chi tiết đơn hàng
+        public ActionResult Details(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var order = _orderService.GetOrderById(id);
+
+            if (order == null)
+            {
+                TempData["Error"] = "Đơn hàng không tồn tại";
+                return RedirectToAction("Index");
+            }
+
+            // Kiểm tra quyền truy cập
+            if (order.UserId != userId)
+            {
+                TempData["Error"] = "Bạn không có quyền xem đơn hàng này";
+                return RedirectToAction("Index");
+            }
+
+            return View(order);
+        }
+
+        // GET: Customer/Orders/Checkout
+        // Trang thanh toán
+        public ActionResult Checkout()
+        {
+            var userId = User.Identity.GetUserId();
+            var cart = _cartService.GetCartByUserId(userId);
+
+            if (cart.CartItems == null || !cart.CartItems.Any())
+            {
+                TempData["Error"] = "Giỏ hàng trống. Vui lòng thêm món ăn trước khi đặt hàng.";
+                return RedirectToAction("Index", "Cart");
+            }
+
+            // Lấy thông tin user từ database
+            ViewBag.Cart = cart;
+            
+            return View();
+        }
+
+        // POST: Customer/Orders/Checkout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Checkout(string shippingAddress, string phoneNumber, 
+            string paymentMethod, string notes)
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                var cart = _cartService.GetCartByUserId(userId);
+
+                if (cart.CartItems == null || !cart.CartItems.Any())
+                {
+                    TempData["Error"] = "Giỏ hàng trống";
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                // Validate
+                if (string.IsNullOrWhiteSpace(shippingAddress))
+                {
+                    ModelState.AddModelError("shippingAddress", "Địa chỉ giao hàng không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(phoneNumber))
+                {
+                    ModelState.AddModelError("phoneNumber", "Số điện thoại không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(paymentMethod))
+                {
+                    ModelState.AddModelError("paymentMethod", "Vui lòng chọn phương thức thanh toán");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.Cart = cart;
+                    return View();
+                }
+
+                // Tạo đơn hàng
+                var orderId = _orderService.CreateOrderFromCart(
+                    userId, 
+                    shippingAddress, 
+                    phoneNumber, 
+                    paymentMethod, 
+                    notes
+                );
+
+                // Xóa Session và Cookie
+                Session["CartItemCount"] = 0;
+                Session["CartTotal"] = 0;
+
+                TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua hàng.";
+                
+                return RedirectToAction("OrderSuccess", new { id = orderId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Có lỗi xảy ra: " + ex.Message;
+                var userId = User.Identity.GetUserId();
+                var cart = _cartService.GetCartByUserId(userId);
+                ViewBag.Cart = cart;
+                return View();
+            }
+        }
+
+        // GET: Customer/Orders/OrderSuccess/5
+        public ActionResult OrderSuccess(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var order = _orderService.GetOrderById(id);
+
+            if (order == null || order.UserId != userId)
+            {
+                return RedirectToAction("Index");
+            }
+
+            return View(order);
+        }
+
+        // POST: Customer/Orders/CancelOrder/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CancelOrder(int id)
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                var order = _orderService.GetOrderById(id);
+
+                if (order == null || order.UserId != userId)
+                {
+                    TempData["Error"] = "Đơn hàng không tồn tại hoặc bạn không có quyền hủy";
+                    return RedirectToAction("Index");
+                }
+
+                // Chỉ cho phép hủy đơn hàng Pending
+                if (order.Status != "Pending")
+                {
+                    TempData["Error"] = "Chỉ có thể hủy đơn hàng đang chờ xử lý";
+                    return RedirectToAction("Details", new { id = id });
+                }
+
+                _orderService.CancelOrder(id);
+                TempData["Success"] = "Đã hủy đơn hàng thành công";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Có lỗi xảy ra: " + ex.Message;
+            }
+
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        // GET: Customer/Orders/TrackOrder/ORD20251010001
+        public ActionResult TrackOrder(string orderCode)
+        {
+            if (string.IsNullOrWhiteSpace(orderCode))
+            {
+                TempData["Error"] = "Vui lòng nhập mã đơn hàng";
+                return RedirectToAction("Index");
+            }
+
+            var order = _orderService.GetOrderByCode(orderCode);
+
+            if (order == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng với mã: " + orderCode;
+                return RedirectToAction("Index");
+            }
+
+            var userId = User.Identity.GetUserId();
+            if (order.UserId != userId)
+            {
+                TempData["Error"] = "Bạn không có quyền xem đơn hàng này";
+                return RedirectToAction("Index");
+            }
+
+            return View("Details", order);
+        }
+    }
+}
