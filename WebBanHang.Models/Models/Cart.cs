@@ -18,5 +18,30 @@ namespace WebBanHang.Models.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public virtual ApplicationUser User { get; set; }
         public virtual ICollection<CartItem> CartItems { get; set; }
+        [NotMapped]
+        public decimal TotalAmount
+        {
+            get
+            {
+                decimal total = 0;
+                if (CartItems != null)
+                {
+                    foreach (var item in CartItems)
+                    {
+                        total += item.Subtotal;
+                    }
+                }
+                return total;
+            }
+        }
+
+        [NotMapped]
+        public int TotalItems
+        {
+            get
+            {
+                return CartItems?.Count ?? 0;
+            }
+        }
     }
 }

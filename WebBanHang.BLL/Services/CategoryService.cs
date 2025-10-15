@@ -34,9 +34,9 @@ namespace WebBanHang.BLL.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public Task<IEnumerable<Category>> GetActiveCategories()
+        public async Task<IEnumerable<Category>> GetActiveCategories()
         {
-            throw new NotImplementedException();
+           return await _unitOfWork.Categories.FindAsync(f => f.IsActive);
         }
 
         public async Task<IEnumerable<Category>> GetAllCategories()

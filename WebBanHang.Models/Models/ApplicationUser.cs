@@ -6,7 +6,7 @@ namespace WebBanHang.DAL.Data
 {
     public class ApplicationUser : IdentityUser
     {
-        //public string UserName { get; set; }
+        public string? FulName { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? Address { get; set; }

@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using WebBanHang.BLL.IServices;
+using WebBanHang.BLL.Services;
 using WebBanHang.BLL.Util;
+using WebBanHang.DAL;
 using WebBanHang.DAL.Data;
+using WebBanHang.DAL.Repository.IRepository;
 using WebBanHang.DAL.Repository.UnitOfWork;
 using WebBanHang.FileUpload.IFileUpload;
 
@@ -41,9 +45,26 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 //fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+//Register UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Register Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IFoodService, FoodService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 var app = builder.Build();
+//setup 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var logger = services.GetRequiredService<ILogger<DbSeeder>>();
 
+    var seeder = new DbSeeder(context, userManager, roleManager, logger);
+    await seeder.SeedAsync();
+}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -68,3 +89,4 @@ app.MapControllerRoute(
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+

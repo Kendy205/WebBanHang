@@ -20,14 +20,68 @@ namespace WebBanHang.BLL.Services
             _cartService = cartService;
         }
 
-        public Task CancelOrder(int orderId)
+        public async Task CancelOrder(int orderId)
         {
-            throw new NotImplementedException();
+            await UpdateOrderStatus(orderId, "Cancelled");
         }
 
-        public Task<int> CreateOrderFromCart(string userId, string shippingAddress, string phoneNumber, string paymentMethod, string notes)
+        public async Task<int> CreateOrderFromCart(string userId, string shippingAddress, string phoneNumber, string paymentMethod, string notes)
         {
-            throw new NotImplementedException();
+            //lay gio hang tu userid qua services
+            var cart = await _cartService.GetCartByUserId(userId);
+            if (cart.CartItems == null || cart.CartItems.Count == 0)
+            {
+                throw new Exception("Gio hang trong");
+            }
+            //tao Order tu Cart
+            var orderCode = "ORD" + DateTime.UtcNow.ToString("ddmmyyyy");
+            var orderId = await _unitOfWork.Orders.Count() + 1;
+            var order = new Order
+            {
+                OrderId = orderId,
+                UserId = userId,
+                OrderDate = DateTime.UtcNow,
+                ShippingAddress = shippingAddress,
+                PhoneNumber = phoneNumber,
+                PaymentMethod = paymentMethod,
+                Notes = notes,
+                OrderCode = orderCode,
+                Status = "Pending",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                TotalAmount=cart.TotalAmount,
+            };
+            await _unitOfWork.Orders.AddAsync(order);
+            await _unitOfWork.SaveAsync();
+
+            //create orderdetail
+            foreach(var i in cart.CartItems)
+            {
+                var orderDetail = new OrderDetail
+                { 
+                    OrderId=order.OrderId,
+                    FoodId=i.FoodId,
+                    FoodName=i.Food.FoodName,
+                    Quantity=i.Quantity,
+                    Price=i.Price,
+                };
+                await _unitOfWork.OrderDetails.AddAsync(orderDetail);
+            }
+            // tao phuong thuc thanh toan
+            var payment = new Payment
+            { 
+                OrderId=order.OrderId,
+                PaymentMethod=paymentMethod,
+                Amount=cart.TotalAmount,
+                Status="Pending",
+                CreatedAt= DateTime.UtcNow,
+            };
+            await _unitOfWork.Payments.AddAsync(payment);
+            await _unitOfWork.SaveAsync();
+            //xoa tat ca san pham trong cart
+            await _cartService.ClearCart(userId);
+            return order.OrderId;
+
         }
 
         public  async Task<IEnumerable<Order>> GetAllOrders()
@@ -68,14 +122,34 @@ namespace WebBanHang.BLL.Services
                 .ToListAsync();
         }
 
-        public Task UpdateOrderStatus(int orderId, string status)
+        public async Task UpdateOrderStatus(int orderId, string status)
         {
-            throw new NotImplementedException();
+            var order = await _unitOfWork.Orders.GetByIdAsync(orderId);
+            if (order != null)
+            {
+                order.Status = status;
+                order.UpdatedAt = DateTime.Now;
+                _unitOfWork.Orders.Update(order);
+
+                // Update payment status if order is completed
+                if (status == "Completed")
+                {
+                    var payment =await _unitOfWork.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId);
+                    if (payment != null)
+                    {
+                        payment.Status = "Completed";
+                        payment.PaymentDate = DateTime.Now;
+                        _unitOfWork.Payments.Update(payment);
+                    }
+                }
+                await _unitOfWork.SaveAsync();
+                
+            }
         }
 
         public Task<bool> UserOwnsOrder(string userId, int orderId)
         {
-            throw new NotImplementedException();
+            return _unitOfWork.Orders.GetAllQueryable().AnyAsync(o => o.OrderId == orderId && o.UserId == userId);
         }
     }
 }
