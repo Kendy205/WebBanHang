@@ -103,18 +103,13 @@ SQL Server 2017 hoặc cao hơn
 .NET Framework 4.7.2 trở lên
 
 Bước 1: Clone Repository
-bashgit clone https://github.com/your-repo/webbanhang.git
-cd webbanhang
+git clone https://github.com/your-repo/webbanhang.git
 Bước 2: Restore NuGet Packages
-bash# Trong Package Manager Console (Visual Studio)
+Trong Package Manager Console (Visual Studio)
+chuyển qua webbanhang.DAL
 Update-Package
 Bước 3: Cập nhật Connection String
-Mở Web.config và cập nhật connection string:
-xml<connectionStrings>
-    <add name="DefaultConnection" 
-         connectionString="Server=YOUR_SERVER;Database=FoodOrderDB;User Id=sa;Password=YOUR_PASSWORD;" 
-         providerName="System.Data.SqlClient" />
-</connectionStrings>
+Mở app.config và cập nhật connection string:
 Bước 4: Tạo Database
 bash# Trong Package Manager Console
 Enable-Migrations
