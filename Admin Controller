@@ -1,0 +1,1339 @@
+// =============================================
+// PHẦN 5: AREA ADMIN - CONTROLLERS
+// Areas/Admin/Controllers/
+// =============================================
+
+// =============================================
+// =============================================
+// Areas/Admin/Controllers/BaseAdminController.cs
+// Base Controller cho Admin Area
+// =============================================
+using System.Web.Mvc;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class BaseAdminController : Controller
+    {
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            // Kiểm tra authentication
+            if (!User.Identity.IsAuthenticated)
+            {
+                filterContext.Result = new RedirectResult("~/Account/Login");
+            }
+
+            // Có thể thêm logic logging, activity tracking ở đây
+            base.OnActionExecuting(filterContext);
+        }
+
+        // Helper methods
+        protected void ShowSuccessMessage(string message)
+        {
+            TempData["Success"] = message;
+        }
+
+        protected void ShowErrorMessage(string message)
+        {
+            TempData["Error"] = message;
+        }
+
+        protected void ShowWarningMessage(string message)
+        {
+            TempData["Warning"] = message;
+        }
+    }
+}
+// =============================================
+// Areas/Admin/Controllers/UsersController.cs
+// Quản lý người dùng
+// =============================================
+using System;
+using System.Linq;
+using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using WebBanHang.DAL.Data;
+using WebBanHang.Models;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class UsersController : BaseAdminController
+    {
+        private ApplicationDbContext _context;
+        private UserManager<ApplicationUser> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
+
+        public UsersController()
+        {
+            _context = new ApplicationDbContext();
+            _userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_context));
+            _roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(_context));
+        }
+
+        // GET: Admin/Users
+        public ActionResult Index(string role = "", string searchTerm = "", int page = 1, int pageSize = 20)
+        {
+            var users = _context.Users.AsQueryable();
+
+            // Filter by role
+            if (!string.IsNullOrEmpty(role))
+            {
+                var roleId = _roleManager.FindByName(role)?.Id;
+                if (roleId != null)
+                {
+                    var userIdsInRole = _context.Users
+                        .Where(u => u.Roles.Any(r => r.RoleId == roleId))
+                        .Select(u => u.Id)
+                        .ToList();
+                    users = users.Where(u => userIdsInRole.Contains(u.Id));
+                }
+            }
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                users = users.Where(u => u.UserName.Contains(searchTerm) || 
+                                        u.Email.Contains(searchTerm) ||
+                                        u.FullName.Contains(searchTerm));
+            }
+
+            var totalUsers = users.Count();
+            var pagedUsers = users.OrderBy(u => u.UserName)
+                                  .Skip((page - 1) * pageSize)
+                                  .Take(pageSize)
+                                  .ToList();
+
+            ViewBag.Roles = _roleManager.Roles.ToList();
+            ViewBag.SelectedRole = role;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalUsers / pageSize);
+            ViewBag.CurrentPage = page;
+
+            return View(pagedUsers);
+        }
+
+        // GET: Admin/Users/Details/userId
+        public ActionResult Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                ShowErrorMessage("ID người dùng không hợp lệ");
+                return RedirectToAction("Index");
+            }
+
+            var user = _userManager.FindById(id);
+            if (user == null)
+            {
+                ShowErrorMessage("Người dùng không tồn tại");
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.UserRoles = _userManager.GetRoles(id);
+            return View(user);
+        }
+
+        // GET: Admin/Users/Create
+        public ActionResult Create()
+        {
+            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Name", "Name");
+            return View();
+        }
+
+        // POST: Admin/Users/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(ApplicationUser model, string password, string role)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var user = new ApplicationUser
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        FullName = model.FullName,
+                        PhoneNumber = model.PhoneNumber,
+                        Address = model.Address,
+                        IsActive = true,
+                        EmailConfirmed = true
+                    };
+
+                    var result = _userManager.Create(user, password);
+
+                    if (result.Succeeded)
+                    {
+                        // Assign role
+                        if (!string.IsNullOrEmpty(role))
+                        {
+                            _userManager.AddToRole(user.Id, role);
+                        }
+
+                        ShowSuccessMessage("Thêm người dùng thành công");
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Name", "Name");
+            return View(model);
+        }
+
+        // GET: Admin/Users/Edit/userId
+        public ActionResult Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                ShowErrorMessage("ID người dùng không hợp lệ");
+                return RedirectToAction("Index");
+            }
+
+            var user = _userManager.FindById(id);
+            if (user == null)
+            {
+                ShowErrorMessage("Người dùng không tồn tại");
+                return RedirectToAction("Index");
+            }
+
+            var userRoles = _userManager.GetRoles(id);
+            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Name", "Name");
+            ViewBag.CurrentRole = userRoles.FirstOrDefault();
+
+            return View(user);
+        }
+
+        // POST: Admin/Users/Edit/userId
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(ApplicationUser model, string role)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var user = _userManager.FindById(model.Id);
+                    if (user == null)
+                    {
+                        ShowErrorMessage("Người dùng không tồn tại");
+                        return RedirectToAction("Index");
+                    }
+
+                    user.FullName = model.FullName;
+                    user.PhoneNumber = model.PhoneNumber;
+                    user.Address = model.Address;
+                    user.IsActive = model.IsActive;
+                    user.UpdatedAt = DateTime.Now;
+
+                    var result = _userManager.Update(user);
+
+                    if (result.Succeeded)
+                    {
+                        // Update role
+                        if (!string.IsNullOrEmpty(role))
+                        {
+                            var currentRoles = _userManager.GetRoles(user.Id);
+                            _userManager.RemoveFromRoles(user.Id, currentRoles.ToArray());
+                            _userManager.AddToRole(user.Id, role);
+                        }
+
+                        ShowSuccessMessage("Cập nhật người dùng thành công");
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            var userRoles = _userManager.GetRoles(model.Id);
+            ViewBag.Roles = new SelectList(_roleManager.Roles.ToList(), "Name", "Name");
+            ViewBag.CurrentRole = userRoles.FirstOrDefault();
+
+            return View(model);
+        }
+
+        // GET: Admin/Users/Delete/userId
+        public ActionResult Delete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                ShowErrorMessage("ID người dùng không hợp lệ");
+                return RedirectToAction("Index");
+            }
+
+            var user = _userManager.FindById(id);
+            if (user == null)
+            {
+                ShowErrorMessage("Người dùng không tồn tại");
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.UserRoles = _userManager.GetRoles(id);
+            return View(user);
+        }
+
+        // POST: Admin/Users/Delete/userId
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(string id)
+        {
+            try
+            {
+                var user = _userManager.FindById(id);
+                if (user == null)
+                {
+                    ShowErrorMessage("Người dùng không tồn tại");
+                    return RedirectToAction("Index");
+                }
+
+                // Không cho phép xóa chính mình
+                var currentUserId = User.Identity.GetUserId();
+                if (id == currentUserId)
+                {
+                    ShowErrorMessage("Không thể xóa tài khoản của chính bạn");
+                    return RedirectToAction("Index");
+                }
+
+                var result = _userManager.Delete(user);
+                if (result.Succeeded)
+                {
+                    ShowSuccessMessage("Xóa người dùng thành công");
+                }
+                else
+                {
+                    ShowErrorMessage("Không thể xóa người dùng: " + string.Join(", ", result.Errors));
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // POST: Admin/Users/ToggleActive (AJAX)
+        [HttpPost]
+        public JsonResult ToggleActive(string id)
+        {
+            try
+            {
+                var user = _userManager.FindById(id);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Người dùng không tồn tại" });
+                }
+
+                user.IsActive = !user.IsActive;
+                user.UpdatedAt = DateTime.Now;
+                _userManager.Update(user);
+
+                return Json(new 
+                { 
+                    success = true, 
+                    isActive = user.IsActive,
+                    message = user.IsActive ? "Đã kích hoạt tài khoản" : "Đã vô hiệu hóa tài khoản"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // GET: Admin/Users/ResetPassword/userId
+        public ActionResult ResetPassword(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                ShowErrorMessage("ID người dùng không hợp lệ");
+                return RedirectToAction("Index");
+            }
+
+            var user = _userManager.FindById(id);
+            if (user == null)
+            {
+                ShowErrorMessage("Người dùng không tồn tại");
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.UserId = id;
+            ViewBag.UserName = user.UserName;
+            return View();
+        }
+
+        // POST: Admin/Users/ResetPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResetPassword(string userId, string newPassword, string confirmPassword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(newPassword))
+                {
+                    ModelState.AddModelError("", "Mật khẩu không được để trống");
+                }
+                else if (newPassword != confirmPassword)
+                {
+                    ModelState.AddModelError("", "Mật khẩu xác nhận không khớp");
+                }
+                else
+                {
+                    var user = _userManager.FindById(userId);
+                    if (user == null)
+                    {
+                        ShowErrorMessage("Người dùng không tồn tại");
+                        return RedirectToAction("Index");
+                    }
+
+                    // Remove old password and add new one
+                    _userManager.RemovePassword(userId);
+                    var result = _userManager.AddPassword(userId, newPassword);
+
+                    if (result.Succeeded)
+                    {
+                        ShowSuccessMessage("Đặt lại mật khẩu thành công");
+                        return RedirectToAction("Details", new { id = userId });
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            ViewBag.UserId = userId;
+            var userInfo = _userManager.FindById(userId);
+            ViewBag.UserName = userInfo?.UserName;
+            return View();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _context?.Dispose();
+                _userManager?.Dispose();
+                _roleManager?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}
+
+// =============================================
+// Areas/Admin/Controllers/ReportsController.cs
+// Báo cáo và thống kê
+// =============================================
+using System;
+using System.Linq;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    public class ReportsController : BaseAdminController
+    {
+        private readonly IOrderService _orderService;
+        private readonly IFoodService _foodService;
+
+        public ReportsController(IOrderService orderService, IFoodService foodService)
+        {
+            _orderService = orderService;
+            _foodService = foodService;
+        }
+
+        // GET: Admin/Reports
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        // GET: Admin/Reports/Sales
+        public ActionResult Sales(DateTime? startDate, DateTime? endDate)
+        {
+            if (!startDate.HasValue)
+                startDate = DateTime.Today.AddMonths(-1);
+            
+            if (!endDate.HasValue)
+                endDate = DateTime.Today;
+
+            var orders = _orderService.GetAllOrders()
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate);
+
+            // Doanh thu theo ngày
+            var dailyRevenue = orders
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    TotalOrders = g.Count(),
+                    TotalRevenue = g.Sum(o => o.TotalAmount)
+                })
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.TotalOrders = orders.Count();
+            ViewBag.TotalRevenue = orders.Sum(o => o.TotalAmount);
+            ViewBag.AverageOrderValue = orders.Any() ? orders.Average(o => o.TotalAmount) : 0;
+
+            return View(dailyRevenue);
+        }
+
+        // GET: Admin/Reports/TopFoods
+        public ActionResult TopFoods(DateTime? startDate, DateTime? endDate, int top = 10)
+        {
+            if (!startDate.HasValue)
+                startDate = DateTime.Today.AddMonths(-1);
+            
+            if (!endDate.HasValue)
+                endDate = DateTime.Today;
+
+            var orders = _orderService.GetAllOrders()
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate);
+
+            var topFoods = orders
+                .SelectMany(o => o.OrderDetails)
+                .GroupBy(od => new { od.FoodId, od.FoodName })
+                .Select(g => new
+                {
+                    FoodId = g.Key.FoodId,
+                    FoodName = g.Key.FoodName,
+                    TotalQuantity = g.Sum(od => od.Quantity),
+                    TotalRevenue = g.Sum(od => od.Subtotal),
+                    OrderCount = g.Count()
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(top)
+                .ToList();
+
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.Top = top;
+
+            return View(topFoods);
+        }
+
+        // GET: Admin/Reports/CustomerOrders
+        public ActionResult CustomerOrders(DateTime? startDate, DateTime? endDate)
+        {
+            if (!startDate.HasValue)
+                startDate = DateTime.Today.AddMonths(-1);
+            
+            if (!endDate.HasValue)
+                endDate = DateTime.Today;
+
+            var orders = _orderService.GetAllOrders()
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate);
+
+            var customerStats = orders
+                .GroupBy(o => new { o.UserId, o.User.FullName, o.User.Email })
+                .Select(g => new
+                {
+                    UserId = g.Key.UserId,
+                    FullName = g.Key.FullName,
+                    Email = g.Key.Email,
+                    TotalOrders = g.Count(),
+                    TotalSpent = g.Sum(o => o.TotalAmount),
+                    AverageOrderValue = g.Average(o => o.TotalAmount),
+                    LastOrderDate = g.Max(o => o.OrderDate)
+                })
+                .OrderByDescending(x => x.TotalSpent)
+                .ToList();
+
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+
+            return View(customerStats);
+        }
+
+        // GET: Admin/Reports/ExportSales (AJAX)
+        public JsonResult ExportSales(DateTime startDate, DateTime endDate)
+        {
+            var orders = _orderService.GetAllOrders()
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate);
+
+            var data = orders.Select(o => new
+            {
+                OrderCode = o.OrderCode,
+                OrderDate = o.OrderDate.ToString("dd/MM/yyyy HH:mm"),
+                CustomerName = o.User.FullName,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                PaymentMethod = o.PaymentMethod
+            }).ToList();
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+    }
+}
+
+
+// =============================================
+// Areas/Admin/Controllers/DashboardController.cs
+// Trang Dashboard Admin
+// =============================================
+using System;
+using System.Linq;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    public class DashboardController : BaseAdminController
+    {
+        private readonly IOrderService _orderService;
+        private readonly IFoodService _foodService;
+        private readonly ICategoryService _categoryService;
+
+        public DashboardController(IOrderService orderService, IFoodService foodService, 
+            ICategoryService categoryService)
+        {
+            _orderService = orderService;
+            _foodService = foodService;
+            _categoryService = categoryService;
+        }
+
+        // GET: Admin/Dashboard
+        public ActionResult Index()
+        {
+            // Thống kê tổng quan
+            var allOrders = _orderService.GetAllOrders();
+            var today = DateTime.Today;
+            var thisMonth = new DateTime(today.Year, today.Month, 1);
+
+            // Đơn hàng hôm nay
+            var todayOrders = allOrders.Where(o => o.OrderDate.Date == today);
+            ViewBag.TodayOrdersCount = todayOrders.Count();
+            ViewBag.TodayRevenue = todayOrders.Sum(o => o.TotalAmount);
+
+            // Đơn hàng tháng này
+            var monthOrders = allOrders.Where(o => o.OrderDate >= thisMonth);
+            ViewBag.MonthOrdersCount = monthOrders.Count();
+            ViewBag.MonthRevenue = monthOrders.Sum(o => o.TotalAmount);
+
+            // Tổng số liệu
+            ViewBag.TotalOrders = allOrders.Count();
+            ViewBag.TotalRevenue = allOrders.Sum(o => o.TotalAmount);
+            ViewBag.PendingOrders = allOrders.Count(o => o.Status == "Pending");
+            ViewBag.TotalFoods = _foodService.GetAllFoods().Count();
+            ViewBag.TotalCategories = _categoryService.GetAllCategories().Count();
+
+            // Đơn hàng gần đây
+            ViewBag.RecentOrders = allOrders.OrderByDescending(o => o.OrderDate).Take(10);
+
+            // Top món bán chạy
+            ViewBag.TopFoods = _foodService.GetTopRatedFoods(5);
+
+            // Biểu đồ doanh thu 7 ngày gần đây
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(i => today.AddDays(-i))
+                .Reverse()
+                .ToList();
+
+            var revenueData = last7Days.Select(date => new
+            {
+                Date = date.ToString("dd/MM"),
+                Revenue = allOrders.Where(o => o.OrderDate.Date == date).Sum(o => o.TotalAmount)
+            }).ToList();
+
+            ViewBag.RevenueChartLabels = string.Join(",", revenueData.Select(r => r.Date));
+            ViewBag.RevenueChartData = string.Join(",", revenueData.Select(r => r.Revenue));
+
+            return View();
+        }
+
+        // GET: Admin/Dashboard/Statistics (AJAX)
+        public JsonResult Statistics(string period = "week")
+        {
+            var allOrders = _orderService.GetAllOrders();
+            var today = DateTime.Today;
+            DateTime startDate;
+
+            switch (period)
+            {
+                case "today":
+                    startDate = today;
+                    break;
+                case "week":
+                    startDate = today.AddDays(-7);
+                    break;
+                case "month":
+                    startDate = today.AddMonths(-1);
+                    break;
+                case "year":
+                    startDate = today.AddYears(-1);
+                    break;
+                default:
+                    startDate = today.AddDays(-7);
+                    break;
+            }
+
+            var orders = allOrders.Where(o => o.OrderDate >= startDate);
+
+            return Json(new
+            {
+                totalOrders = orders.Count(),
+                totalRevenue = orders.Sum(o => o.TotalAmount),
+                completedOrders = orders.Count(o => o.Status == "Completed"),
+                cancelledOrders = orders.Count(o => o.Status == "Cancelled")
+            }, JsonRequestBehavior.AllowGet);
+        }
+    }
+}
+
+// =============================================
+// Areas/Admin/Controllers/CategoriesController.cs
+// Quản lý danh mục món ăn
+// =============================================
+using System;
+using System.IO;
+using System.Web;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+using WebBanHang.Models;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    public class CategoriesController : BaseAdminController
+    {
+        private readonly ICategoryService _categoryService;
+
+        public CategoriesController(ICategoryService categoryService)
+        {
+            _categoryService = categoryService;
+        }
+
+        // GET: Admin/Categories
+        public ActionResult Index()
+        {
+            var categories = _categoryService.GetAllCategories();
+            return View(categories);
+        }
+
+        // GET: Admin/Categories/Details/5
+        public ActionResult Details(int id)
+        {
+            var category = _categoryService.GetCategoryById(id);
+            if (category == null)
+            {
+                ShowErrorMessage("Danh mục không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(category);
+        }
+
+        // GET: Admin/Categories/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Admin/Categories/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Category category, HttpPostedFileBase imageFile)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Upload hình ảnh
+                    if (imageFile != null && imageFile.ContentLength > 0)
+                    {
+                        category.ImageUrl = SaveImage(imageFile);
+                    }
+
+                    _categoryService.AddCategory(category);
+                    ShowSuccessMessage("Thêm danh mục thành công");
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            return View(category);
+        }
+
+        // GET: Admin/Categories/Edit/5
+        public ActionResult Edit(int id)
+        {
+            var category = _categoryService.GetCategoryById(id);
+            if (category == null)
+            {
+                ShowErrorMessage("Danh mục không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(category);
+        }
+
+        // POST: Admin/Categories/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(Category category, HttpPostedFileBase imageFile)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingCategory = _categoryService.GetCategoryById(category.CategoryId);
+                    
+                    // Upload hình ảnh mới
+                    if (imageFile != null && imageFile.ContentLength > 0)
+                    {
+                        // Xóa ảnh cũ
+                        if (!string.IsNullOrEmpty(existingCategory.ImageUrl))
+                        {
+                            DeleteImage(existingCategory.ImageUrl);
+                        }
+                        category.ImageUrl = SaveImage(imageFile);
+                    }
+                    else
+                    {
+                        category.ImageUrl = existingCategory.ImageUrl;
+                    }
+
+                    _categoryService.UpdateCategory(category);
+                    ShowSuccessMessage("Cập nhật danh mục thành công");
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            return View(category);
+        }
+
+        // GET: Admin/Categories/Delete/5
+        public ActionResult Delete(int id)
+        {
+            var category = _categoryService.GetCategoryById(id);
+            if (category == null)
+            {
+                ShowErrorMessage("Danh mục không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(category);
+        }
+
+        // POST: Admin/Categories/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            try
+            {
+                var category = _categoryService.GetCategoryById(id);
+                
+                // Xóa ảnh
+                if (!string.IsNullOrEmpty(category.ImageUrl))
+                {
+                    DeleteImage(category.ImageUrl);
+                }
+
+                _categoryService.DeleteCategory(id);
+                ShowSuccessMessage("Xóa danh mục thành công");
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Không thể xóa danh mục: " + ex.Message);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // Helper: Lưu hình ảnh
+        private string SaveImage(HttpPostedFileBase file)
+        {
+            if (file != null && file.ContentLength > 0)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                var extension = Path.GetExtension(file.FileName);
+                fileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + extension;
+                
+                var uploadPath = Server.MapPath("~/FileUpload/Categories/");
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var path = Path.Combine(uploadPath, fileName);
+                file.SaveAs(path);
+
+                return "/FileUpload/Categories/" + fileName;
+            }
+            return null;
+        }
+
+        // Helper: Xóa hình ảnh
+        private void DeleteImage(string imageUrl)
+        {
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                var fullPath = Server.MapPath("~" + imageUrl);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+        }
+    }
+}
+
+// =============================================
+// Areas/Admin/Controllers/FoodsController.cs
+// Quản lý món ăn
+// =============================================
+using System;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+using WebBanHang.Models;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    public class FoodsController : BaseAdminController
+    {
+        private readonly IFoodService _foodService;
+        private readonly ICategoryService _categoryService;
+
+        public FoodsController(IFoodService foodService, ICategoryService categoryService)
+        {
+            _foodService = foodService;
+            _categoryService = categoryService;
+        }
+
+        // GET: Admin/Foods
+        public ActionResult Index(int? categoryId, string searchTerm, int page = 1, int pageSize = 10)
+        {
+            int totalRecords;
+            var foods = _foodService.GetFoodsByFilter(
+                categoryId, 
+                null, 
+                null, 
+                "name", 
+                page, 
+                pageSize, 
+                out totalRecords
+            );
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                foods = foods.Where(f => f.FoodName.Contains(searchTerm) || 
+                                        f.Description.Contains(searchTerm));
+            }
+
+            ViewBag.Categories = _categoryService.GetAllCategories();
+            ViewBag.CurrentCategory = categoryId;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            ViewBag.CurrentPage = page;
+
+            return View(foods);
+        }
+
+        // GET: Admin/Foods/Details/5
+        public ActionResult Details(int id)
+        {
+            var food = _foodService.GetFoodById(id);
+            if (food == null)
+            {
+                ShowErrorMessage("Món ăn không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(food);
+        }
+
+        // GET: Admin/Foods/Create
+        public ActionResult Create()
+        {
+            ViewBag.Categories = new SelectList(_categoryService.GetActiveCategories(), 
+                "CategoryId", "CategoryName");
+            return View();
+        }
+
+        // POST: Admin/Foods/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Food food, HttpPostedFileBase imageFile)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Upload hình ảnh
+                    if (imageFile != null && imageFile.ContentLength > 0)
+                    {
+                        food.ImageUrl = SaveImage(imageFile);
+                    }
+
+                    _foodService.AddFood(food);
+                    ShowSuccessMessage("Thêm món ăn thành công");
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            ViewBag.Categories = new SelectList(_categoryService.GetActiveCategories(), 
+                "CategoryId", "CategoryName", food.CategoryId);
+            return View(food);
+        }
+
+        // GET: Admin/Foods/Edit/5
+        public ActionResult Edit(int id)
+        {
+            var food = _foodService.GetFoodById(id);
+            if (food == null)
+            {
+                ShowErrorMessage("Món ăn không tồn tại");
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.Categories = new SelectList(_categoryService.GetActiveCategories(), 
+                "CategoryId", "CategoryName", food.CategoryId);
+            return View(food);
+        }
+
+        // POST: Admin/Foods/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(Food food, HttpPostedFileBase imageFile)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingFood = _foodService.GetFoodById(food.FoodId);
+                    
+                    // Upload hình ảnh mới
+                    if (imageFile != null && imageFile.ContentLength > 0)
+                    {
+                        // Xóa ảnh cũ
+                        if (!string.IsNullOrEmpty(existingFood.ImageUrl))
+                        {
+                            DeleteImage(existingFood.ImageUrl);
+                        }
+                        food.ImageUrl = SaveImage(imageFile);
+                    }
+                    else
+                    {
+                        food.ImageUrl = existingFood.ImageUrl;
+                    }
+
+                    // Giữ lại rating
+                    food.Rating = existingFood.Rating;
+                    food.TotalReviews = existingFood.TotalReviews;
+                    food.CreatedAt = existingFood.CreatedAt;
+
+                    _foodService.UpdateFood(food);
+                    ShowSuccessMessage("Cập nhật món ăn thành công");
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            ViewBag.Categories = new SelectList(_categoryService.GetActiveCategories(), 
+                "CategoryId", "CategoryName", food.CategoryId);
+            return View(food);
+        }
+
+        // GET: Admin/Foods/Delete/5
+        public ActionResult Delete(int id)
+        {
+            var food = _foodService.GetFoodById(id);
+            if (food == null)
+            {
+                ShowErrorMessage("Món ăn không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(food);
+        }
+
+        // POST: Admin/Foods/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            try
+            {
+                var food = _foodService.GetFoodById(id);
+                
+                // Xóa ảnh
+                if (!string.IsNullOrEmpty(food.ImageUrl))
+                {
+                    DeleteImage(food.ImageUrl);
+                }
+
+                _foodService.DeleteFood(id);
+                ShowSuccessMessage("Xóa món ăn thành công");
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Không thể xóa món ăn: " + ex.Message);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // POST: Admin/Foods/ToggleAvailability (AJAX)
+        [HttpPost]
+        public JsonResult ToggleAvailability(int id)
+        {
+            try
+            {
+                var food = _foodService.GetFoodById(id);
+                if (food == null)
+                {
+                    return Json(new { success = false, message = "Món ăn không tồn tại" });
+                }
+
+                food.IsAvailable = !food.IsAvailable;
+                _foodService.UpdateFood(food);
+
+                return Json(new 
+                { 
+                    success = true, 
+                    isAvailable = food.IsAvailable,
+                    message = food.IsAvailable ? "Đã bật món ăn" : "Đã tắt món ăn"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Helper methods
+        private string SaveImage(HttpPostedFileBase file)
+        {
+            if (file != null && file.ContentLength > 0)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                var extension = Path.GetExtension(file.FileName);
+                fileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + extension;
+                
+                var uploadPath = Server.MapPath("~/FileUpload/Foods/");
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var path = Path.Combine(uploadPath, fileName);
+                file.SaveAs(path);
+
+                return "/FileUpload/Foods/" + fileName;
+            }
+            return null;
+        }
+
+        private void DeleteImage(string imageUrl)
+        {
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                var fullPath = Server.MapPath("~" + imageUrl);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+        }
+    }
+}
+
+// =============================================
+// Areas/Admin/Controllers/OrdersController.cs
+// Quản lý đơn hàng
+// =============================================
+using System;
+using System.Linq;
+using System.Web.Mvc;
+using WebBanHang.BLL.Services;
+
+namespace WebBanHang.Areas.Admin.Controllers
+{
+    public class OrdersController : BaseAdminController
+    {
+        private readonly IOrderService _orderService;
+
+        public OrdersController(IOrderService orderService)
+        {
+            _orderService = orderService;
+        }
+
+        // GET: Admin/Orders
+        public ActionResult Index(string status = "", string searchTerm = "", int page = 1, int pageSize = 20)
+        {
+            var orders = _orderService.GetAllOrders();
+
+            // Filter by status
+            if (!string.IsNullOrEmpty(status))
+            {
+                orders = orders.Where(o => o.Status == status);
+            }
+
+            // Search by order code or customer name
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                orders = orders.Where(o => o.OrderCode.Contains(searchTerm) || 
+                                          o.User.FullName.Contains(searchTerm) ||
+                                          o.PhoneNumber.Contains(searchTerm));
+            }
+
+            var pagedOrders = orders.Skip((page - 1) * pageSize).Take(pageSize);
+
+            ViewBag.SelectedStatus = status;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)orders.Count() / pageSize);
+            ViewBag.CurrentPage = page;
+
+            // Thống kê
+            ViewBag.PendingCount = orders.Count(o => o.Status == "Pending");
+            ViewBag.ConfirmedCount = orders.Count(o => o.Status == "Confirmed");
+            ViewBag.DeliveringCount = orders.Count(o => o.Status == "Delivering");
+            ViewBag.CompletedCount = orders.Count(o => o.Status == "Completed");
+            ViewBag.CancelledCount = orders.Count(o => o.Status == "Cancelled");
+
+            return View(pagedOrders);
+        }
+
+        // GET: Admin/Orders/Details/5
+        public ActionResult Details(int id)
+        {
+            var order = _orderService.GetOrderById(id);
+            if (order == null)
+            {
+                ShowErrorMessage("Đơn hàng không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(order);
+        }
+
+        // POST: Admin/Orders/UpdateStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateStatus(int orderId, string status)
+        {
+            try
+            {
+                var order = _orderService.GetOrderById(orderId);
+                if (order == null)
+                {
+                    ShowErrorMessage("Đơn hàng không tồn tại");
+                    return RedirectToAction("Index");
+                }
+
+                _orderService.UpdateOrderStatus(orderId, status);
+                ShowSuccessMessage($"Đã cập nhật trạng thái đơn hàng thành {status}");
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            return RedirectToAction("Details", new { id = orderId });
+        }
+
+        // POST: Admin/Orders/UpdateStatusAjax (AJAX)
+        [HttpPost]
+        public JsonResult UpdateStatusAjax(int orderId, string status)
+        {
+            try
+            {
+                _orderService.UpdateOrderStatus(orderId, status);
+                return Json(new { success = true, message = "Cập nhật thành công" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: Admin/Orders/CancelOrder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CancelOrder(int id, string cancelReason)
+        {
+            try
+            {
+                _orderService.CancelOrder(id);
+                ShowSuccessMessage("Đã hủy đơn hàng");
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Có lỗi xảy ra: " + ex.Message);
+            }
+
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        // GET: Admin/Orders/Print/5
+        public ActionResult Print(int id)
+        {
+            var order = _orderService.GetOrderById(id);
+            if (order == null)
+            {
+                ShowErrorMessage("Đơn hàng không tồn tại");
+                return RedirectToAction("Index");
+            }
+            return View(order);
+        }
+
+        // GET: Admin/Orders/Export (Export Excel)
+        public ActionResult Export(string status = "")
+        {
+            var orders = _orderService.GetAllOrders();
+            
+            if (!string.IsNullOrEmpty(status))
+            {
+                orders = orders.Where(o => o.Status == status);
+            }
+
+            // TODO: Implement Excel export using EPPlus or ClosedXML
+            ShowWarningMessage("Chức năng xuất Excel đang được phát triển");
+            return RedirectToAction("Index");
+        }
+    }
+}
