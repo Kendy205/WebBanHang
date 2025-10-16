@@ -81,7 +81,7 @@
                         </li>
 
                         <li class="@(currentController == "Shop" ? "active" : "")">
-                            <a asp-area="Customer" asp-controller="Shop" asp-action="Index">Shop</a>
+                            <a asp-area="Customer" asp-controller="Food" asp-action="Index">Shop</a>
                         </li>
 
                         <li class="@(currentController == "Home" && currentAction == "Blog" ? "active" : "")">
@@ -97,8 +97,8 @@
             <div class="col-lg-3">
                 <div class="header__cart">
                     <ul>
-                        <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                        <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                       
+                        <li><a asp-area="Customer" asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
                     </ul>
                     <div class="header__cart__price">item: <span>$150.00</span></div>
                 </div>

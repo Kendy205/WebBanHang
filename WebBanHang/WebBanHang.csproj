@@ -30,7 +30,6 @@
     <Folder Include="Areas\Admin\Controllers\" />
     <Folder Include="Areas\Customer\Views\Shared\" />
     <Folder Include="Areas\Identity\Data\" />
-    <Folder Include="Views\Shared\Components\RenderModel\" />
     <Folder Include="wwwroot\img\food\" />
   </ItemGroup>
 

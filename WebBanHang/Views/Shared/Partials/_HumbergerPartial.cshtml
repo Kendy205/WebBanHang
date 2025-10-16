@@ -1,6 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using WebBanHang.DAL.Data
-
+@{
+    //tra ve controller action area hien tai
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -14,13 +19,12 @@
     </div>
     <div class="humberger__menu__cart">
         <ul>
-            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+            <li><a asp-area="Customer" asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
         </ul>
         <div class="header__cart__price">item: <span>$150.00</span></div>
     </div>
     <div class="humberger__menu__widget">
-        <div class="header__top__right__language">
+        @* <div class="header__top__right__language">
             <img src="img/language.png" alt="">
             <div>English</div>
             <span class="arrow_carrot-down"></span>
@@ -28,7 +32,7 @@
                 <li><a href="#">Spanis</a></li>
                 <li><a href="#">English</a></li>
             </ul>
-        </div>
+        </div> *@
         <div class="header__top__right__auth">
             @if (SignInManager.IsSignedIn(User))
             {
@@ -49,19 +53,21 @@
     </div>
     <nav class="humberger__menu__nav mobile-menu">
         <ul>
-            <li class="active"><a href="./index.html">Home</a></li>
-            <li><a href="./shop-grid.html">Shop</a></li>
-            <li>
-                <a href="#">Pages</a>
-                <ul class="header__menu__dropdown">
-                    <li><a href="./shop-details.html">Shop Details</a></li>
-                    <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                    <li><a href="./checkout.html">Check Out</a></li>
-                    <li><a href="./blog-details.html">Blog Details</a></li>
-                </ul>
+            <li class="@(currentController == "Home" && currentAction == "Index" ? "active" : "")">
+                <a asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
             </li>
-            <li><a href="./blog.html">Blog</a></li>
-            <li><a href="./contact.html">Contact</a></li>
+
+            <li class="@(currentController == "Shop" ? "active" : "")">
+                <a asp-area="Customer" asp-controller="Food" asp-action="Index">Shop</a>
+            </li>
+
+            <li class="@(currentController == "Home" && currentAction == "Blog" ? "active" : "")">
+                <a asp-area="Customer" asp-controller="Home" asp-action="Blog">Blog</a>
+            </li>
+
+            <li class="@(currentController == "Home" && currentAction == "Contact" ? "active" : "")">
+                <a asp-area="Customer" asp-controller="Home" asp-action="Contact">Contact</a>
+            </li>
         </ul>
     </nav>
     <div id="mobile-menu-wrap"></div>

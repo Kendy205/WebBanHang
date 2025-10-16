@@ -28,7 +28,7 @@ namespace WebBanHang.Areas.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null) return RedirectToPage("Account/Login", new { area ="Identity" });
 
             var cart = await _cartService.GetCartByUserId(user.Id);
             HttpContext.Session.SetInt32("CartItemCount", cart?.TotalItems ?? 0);

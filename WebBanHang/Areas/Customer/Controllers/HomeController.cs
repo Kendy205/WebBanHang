@@ -31,13 +31,13 @@ namespace WebBanHang.Areas.Customer.Controllers
 
             return View(allFoods);
         }
-<<<<<<< HEAD
+
         public IActionResult Blog()
         {
             return View();
         }
-=======
 
+        
 
         public IActionResult About()
         {
@@ -56,6 +56,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             TempData["Success"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.";
             return RedirectToAction("Contact");
         }
->>>>>>> 928a12b045535eb5ef9cfbe474c271c11aa0c740
+        
+
     }
 }
