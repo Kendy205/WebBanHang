@@ -9,6 +9,8 @@ using WebBanHang.DAL.Data;
 using WebBanHang.DAL.Repository.IRepository;
 using WebBanHang.DAL.Repository.UnitOfWork;
 using WebBanHang.FileUpload.IFileUpload;
+using Microsoft.AspNetCore.Session;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +54,17 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+
+// ===== Session configuration =====
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // thời gian sống của session
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+
 var app = builder.Build();
 //setup 
 using (var scope = app.Services.CreateScope())
@@ -75,6 +88,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession();
 
 app.UseRouting();
 app.UseAuthentication();

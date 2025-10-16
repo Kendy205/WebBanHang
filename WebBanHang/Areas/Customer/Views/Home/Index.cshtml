@@ -3,7 +3,7 @@
     ViewData["Title"] = "Trang Chủ - Đặt Đồ Ăn Online";
    Layout = "~/Views/Shared/_LayoutUser.cshtml";
     var categories = ViewBag.Categories as IEnumerable<dynamic>;
-    var topFoods = ViewBag.TopRatedFood as IEnumerable<dynamic>;
+    var topFoods = ViewBag.TopRatedFoods as IEnumerable<dynamic>;
 }
 
 @*  <div class="container"> 
@@ -48,7 +48,14 @@
                         <img src="@food.ImageUrl" class="card-img-top" alt="@food.FoodName">
                         <div class="card-body">
                             <h5 class="card-title">@food.FoodName</h5>
-                            <p class="card-text">@food.Description?.Substring(0, Math.Min(50, food.Description.Length))...</p>
+                            <p class="card-text">
+                                @(string.IsNullOrEmpty(food.Description)
+                                                            ? "Không có mô tả."
+                                                            : (food.Description.Length > 50
+                                                            ? food.Description.Substring(0, 50) + "..."
+                                                            : food.Description))
+                        </p>
+
                             <div class="rating mb-2">
                                 <span class="stars">★★★★★</span>
                                 <span class="rating-value">@food.Rating </span>
@@ -62,6 +69,10 @@
                         </div>
                     </div>
                 </div>
+            }
+            else
+            {
+            <p class="text-muted">Hiện chưa có món ăn nổi bật nào.</p>
             }
         </div>
     </div>
