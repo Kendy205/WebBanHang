@@ -19,9 +19,10 @@
     <link rel="stylesheet" href="~/_LayoutUser/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
-    
-</head>
 
+</head>
+ @* ThanhTung 05-10-25 : Sua layout den phan featured product  *@
+ @* ThanhTung 08-10-25 : Hoàn thành layout Home  *@
 <body>
 
     <!-- Page Preloder -->
@@ -30,18 +31,15 @@
     </div>
 
     <!-- Humberger Begin -->
-    <partial name="~/Views/Shared/Partials/_HumbergerPartial.cshtml" />  
+    <partial name="~/Views/Shared/Partials/_HumbergerPartial.cshtml" />
     <!-- Humberger End -->
     <!-- Header Section Begin -->
-    <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" /> 
+    <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" />
     <!-- Header Section End -->
-    <!-- Hero Section Begin -->
-    <div class="m-2 p-2">
+ 
     @RenderBody()
-    </div>
+
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
-    
-    <!-- Js Plugins -->
     @await RenderSectionAsync("Scripts", required: false)
     <!-- Js Plugins -->
     <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>

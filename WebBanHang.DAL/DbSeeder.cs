@@ -322,6 +322,8 @@ namespace WebBanHang.DAL
             var customers = await _context.Users
                 .Where(u => u.Email.StartsWith("customer"))
                 .ToListAsync();
+            //
+            //var customer = await _userManager.GetUsersInRoleAsync("Customer");
 
             // Lấy danh sách món ăn (Foods) để chọn ngẫu nhiên
             var foods = await _context.Foods.ToListAsync();

@@ -1,8 +1,9 @@
 ﻿@using WebBanHang.DTOs
-@model IEnumerable<DanhMucDTO>
+@using WebBanHang.Models.Models
+@model IEnumerable<Category>
 <ul>
 @foreach(var item in Model)
 {
-        <li><a href="#">@item.Name</a></li>
+        <li><a href="#">@item.CategoryName</a></li>
 }
 </ul>

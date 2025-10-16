@@ -23,5 +23,9 @@ namespace WebBanHang.Areas.Customer.Controllers
             var allFoods =await _foodService.GetAvailableFoods();
             return View(allFoods);
         }
+        public IActionResult Blog()
+        {
+            return View();
+        }
     }
 }
