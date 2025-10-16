@@ -1,0 +1,74 @@
+﻿@model IEnumerable<WebBanHang.Models.Models.Order>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+    var selected = (ViewBag.SelectedStatus as string) ?? "";
+}
+
+<h2 class="mb-3">Đơn hàng của tôi</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="status" class="form-select">
+            <option value="" selected="@(selected == "")">Tất cả trạng thái</option>
+            <option value="Pending" selected="@(selected == "Pending")">Pending</option>
+            <option value="Processing" selected="@(selected == "Processing")">Processing</option>
+            <option value="Completed" selected="@(selected == "Completed")">Completed</option>
+            <option value="Canceled" selected="@(selected == "Canceled")">Canceled</option>
+        </select>
+
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var order in Model)
+            {
+                string badgeClass = order.Status switch
+                {
+                    "Pending" => "badge bg-warning text-dark",
+                    "Processing" => "badge bg-info",
+                    "Completed" => "badge bg-success",
+                    "Canceled" => "badge bg-danger",
+                    _ => "badge bg-secondary"
+                };
+
+                <tr>
+                    <td>@order.OrderCode</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><span class="@badgeClass">@order.Status</span></td>
+                    <td>@string.Format("{0:N0} ₫", order.TotalAmount)</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary"
+                           asp-area="Customer"
+                           asp-controller="Order"
+                           asp-action="Details"
+                           asp-route-id="@order.OrderId">
+                            Chi tiết
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted">Chưa có đơn hàng.</td>
+            </tr>
+        }
+    </tbody>
+</table>

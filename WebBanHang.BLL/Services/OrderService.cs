@@ -151,5 +151,27 @@ namespace WebBanHang.BLL.Services
         {
             return _unitOfWork.Orders.GetAllQueryable().AnyAsync(o => o.OrderId == orderId && o.UserId == userId);
         }
+        // ==============================
+        // Lấy danh sách đơn hàng theo UserId
+        // ==============================
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
+        {
+            // Dùng IQueryable để lọc/sort rồi ToListAsync
+            return await _unitOfWork.Orders
+                .GetAllQueryable()
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<Order?> GetOrderByIdAsync(int id)
+        {
+            // Lấy kèm items + food nếu cần hiển thị chi tiết
+            return await _unitOfWork.Orders
+                .GetAllQueryable()
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(i => i.Food)     
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+        }
     }
 }

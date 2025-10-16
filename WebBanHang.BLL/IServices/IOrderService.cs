@@ -19,5 +19,7 @@ namespace WebBanHang.BLL.IServices
         Task UpdateOrderStatus(int orderId, string status);
         Task CancelOrder(int orderId);
         Task<bool> UserOwnsOrder(string userId, int orderId);
+        Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId);
+        Task<Order?> GetOrderByIdAsync(int id);
     }
 }
