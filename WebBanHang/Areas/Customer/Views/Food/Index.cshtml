@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = ViewBag.Title ?? "Danh sách món ăn";
     var categories = ViewBag.Categories as IEnumerable<WebBanHang.Models.Models.Category>;
+    var max = ViewBag.maxPrice;
+    var min = ViewBag.minPrice;
 }
 
 <div class="container mt-4">
@@ -12,17 +14,25 @@
             @* Danh mục *@
             <h5 class="fw-bold">Danh mục</h5>
             <ul class="list-group mb-4">
+                <li class="list-group-item active">
+                    <a asp-action="Index"
+                       class="text-decoration-none text-dark d-block">
+                        Tất cả
+                    </a>
+                </li>
+
                 @foreach (var c in categories)
                 {
-                    <li class="list-group-item">
+                    <li class="list-group-item @(ViewBag.CurrentCategory == c.CategoryId ? "active" : "")">
                         <a asp-action="Category" asp-route-id="@c.CategoryId"
-                           class="text-decoration-none">
+                           class="text-decoration-none text-dark d-block">
                             @c.CategoryName
                         </a>
                     </li>
                 }
             </ul>
 
+            @* Lọc theo giá *@
             <h5 class="fw-bold">Lọc theo giá</h5>
             <form asp-action="Index" asp-controller="Food" asp-area="Customer" method="get">
                 <div class="mb-2">
@@ -50,33 +60,70 @@
         <div class="col-md-9">
             <h4 class="mb-3">@ViewData["Title"]</h4>
             <div class="row">
-                @foreach (var item in Model)
+                @* @if(min != null && max != null)
                 {
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="@item.ImageUrl" class="card-img-top" alt="@item.FoodName" />
-                            <div class="card-body">
-                                <h6 class="card-title">@item.FoodName</h6>
-                                <p class="text-muted mb-1">@item.Price.ToString("N0") đ</p>
-                                <small>@item.Description</small>
+                    @foreach (var item in Model)
+                    {
+                        if(item.Price > min && item.Price < max)
+                        {
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <img src="@item.ImageUrl" class="card-img-top" alt="@item.FoodName" />
+                                    <div class="card-body">
+                                        <h6 class="card-title">@item.FoodName</h6>
+                                        <p class="text-muted mb-1">@item.Price.ToString("N0") đ</p>
+                                        <small>@item.Description</small>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-0">
+                                        <a asp-area="Customer"
+                                           asp-controller="Food"
+                                           asp-action="Details"
+                                           asp-route-id="@item.FoodId" class="btn btn-sm btn-outline-primary w-100">Chi tiết</a>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-footer bg-transparent border-0">
-                                <a href="@Url.Action("Details", "Food", new { area = "Customer", id = item.FoodId })" class="btn btn-sm btn-outline-primary w-100">Chi tiết</a>
+                        }
+                    }
+                }
+                else
+                { *@
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm border-0">
+                                <img src="@item.ImageUrl" class="card-img-top" alt="@item.FoodName" />
+                                <div class="card-body">
+                                    <h6 class="card-title">@item.FoodName</h6>
+                                    <p class="text-muted mb-1">@item.Price.ToString("N0") đ</p>
+                                    <small>@item.Description</small>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <a asp-area="Customer"
+                                       asp-controller="Food"
+                                       asp-action="Details"
+                                       asp-route-id="@item.FoodId" class="btn btn-sm btn-outline-primary w-100">Chi tiết</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
+                    }
+                @* } *@
             </div>
         </div>
-
         <!-- Phân trang -->
         <nav>
             <ul class="pagination justify-content-center">
                 @for (int i = 1; i <= ViewBag.TotalPages; i++)
                 {
                     <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", 
-                        new { area = "Customer", page = i, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice, sortBy = ViewBag.SortBy })">@i</a>
+                        <a class="page-link" asp-area="Customer"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-id="@ViewBag.CurrentCategory"
+                           asp-route-minPrice="@ViewBag.MinPrice"
+                           asp-route-maxPrice="@ViewBag.MaxPrice"
+                           asp-route-sortBy="@ViewBag.SortBy">
+                            @i
+                        </a>
                     </li>
                 }
             </ul>
