@@ -4,6 +4,6 @@
 <ul>
 @foreach(var item in Model)
 {
-        <li><a href="#">@item.CategoryName</a></li>
+        <li><a asp-arae="Customer" asp-controller="Food" asp-action="Category" asp-route-id="@item.CategoryId">@item.CategoryName</a></li>
 }
 </ul>

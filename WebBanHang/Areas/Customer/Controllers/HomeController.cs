@@ -56,7 +56,6 @@ namespace WebBanHang.Areas.Customer.Controllers
             TempData["Success"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.";
             return RedirectToAction("Contact");
         }
-        
 
     }
 }

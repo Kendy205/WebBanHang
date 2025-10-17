@@ -30,7 +30,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
             ViewBag.SortBy = sortBy;
-
+            ViewBag.TopFood = await _foodService.GetTopRatedFoods(6);
             ViewBag.TotalPages = (int)System.Math.Ceiling((double)totalRecords / pageSize);
             ViewBag.CurrentPage = page;
             ViewBag.PageSize = pageSize;
@@ -61,19 +61,25 @@ namespace WebBanHang.Areas.Customer.Controllers
 
         // GET: Customer/Foods/Search
         // Tìm kiếm món ăn với AJAX
-        public async Task<ActionResult> Search(string keyword, int page = 1, int pageSize = 12)
+        public async Task<ActionResult> Search(string keyword, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 12)
         {
             var foods = await _foodService.SearchFoods(keyword);
+            if (minPrice != null && maxPrice != null)
+            {
+                foods = foods.Where(f => f.Price >= minPrice && f.Price <= maxPrice).ToList();
+            }
 
             var pagedFoods = foods
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
             ViewBag.Keyword = keyword;
             ViewBag.TotalPages = (int)System.Math.Ceiling((double)foods.Count() / pageSize);
             ViewBag.CurrentPage = page;
-
+            ViewBag.Categories = await _categoryService.GetActiveCategories();
             //if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             //{
             //    return PartialView("_FoodListPartial", pagedFoods);
@@ -84,22 +90,24 @@ namespace WebBanHang.Areas.Customer.Controllers
 
         // GET: Customer/Foods/Category/5
         // Món ăn theo danh mục
-        public async Task<ActionResult> Category(int id, int page = 1, int pageSize = 12)
+        public async Task<ActionResult> Category(int id, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 12)
         {
             var category = await _categoryService.GetCategoryById(id);
-
-            if (category == null || !category.IsActive)
+            var foods = await _foodService.GetFoodsByCategory(id);
+            if (minPrice != null && maxPrice != null)
             {
-                TempData["Error"] = "Danh mục không tồn tại";
-                return RedirectToAction("Index");
+                foods = foods.Where(f => f.Price >= minPrice && f.Price <= maxPrice).ToList();
             }
-
-            var foods = ( await _foodService.GetFoodsByCategory(id))
+            foods = foods
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.CurrentCategory = id;
             ViewBag.Category = category;
+            ViewBag.Categories = await _categoryService.GetActiveCategories();
             ViewBag.TotalPages = (int)System.Math.Ceiling(
                 (double)(await _foodService.GetFoodsByCategory(id)).Count() / pageSize);
             ViewBag.CurrentPage = page;
