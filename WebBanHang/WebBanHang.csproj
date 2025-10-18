@@ -32,4 +32,10 @@
     <Folder Include="wwwroot\img\food\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Areas\Admin\Views\Shared\partials\_footer.cshtml" />
+    <None Include="Areas\Admin\Views\Shared\partials\_navbar.cshtml" />
+    <None Include="Areas\Admin\Views\Shared\partials\_sidebar.cshtml" />
+  </ItemGroup>
+
 </Project>
