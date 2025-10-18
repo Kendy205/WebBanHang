@@ -1,6 +1,7 @@
 ﻿@model WebBanHang.Models.Models.Cart
 @{
     ViewData["Title"] = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
 }
 
 <div class="container mt-5 mb-5">
@@ -79,7 +80,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // =======================
-        // Cập nhật số lượng
+        // Cập nhật số lượng (+ / -)
         // =======================
         $(".btn-increase, .btn-decrease").click(function () {
             const row = $(this).closest("tr");
@@ -90,13 +91,14 @@
             else if (quantity > 1) quantity--;
 
             input.val(quantity);
-            updateQuantity(row.data("id"), quantity);
+            updateQuantity(row.data("id"), quantity, row);
         });
 
+        // Khi nhập trực tiếp số lượng
         $(".quantity-input").on("change", function () {
             const row = $(this).closest("tr");
             const quantity = parseInt($(this).val());
-            updateQuantity(row.data("id"), quantity);
+            updateQuantity(row.data("id"), quantity, row);
         });
 
         // =======================
@@ -128,24 +130,41 @@
         });
 
         // =======================
-        // Hàm gọi AJAX update
+        // Gọi AJAX update
         // =======================
-        function updateQuantity(cartItemId, quantity) {
+        function updateQuantity(cartItemId, quantity, row) {
             $.post("/Customer/Cart/UpdateQuantity", { cartItemId, quantity }, function (res) {
-                if (res.success) updateCartUI(res);
+                if (res.success) {
+                    updateCartUI(res, row);
+                }
             });
         }
 
         // =======================
         // Cập nhật giao diện tổng tiền
         // =======================
-        function updateCartUI(res) {
+        function updateCartUI(res, row) {
+            // Tổng giỏ hàng
             $("#cart-total").text(formatCurrency(res.cartTotal || res.totalAmount));
+
+            // Tổng số món
             $("#cart-count").text(res.cartItemCount || res.totalItems);
+
+            // Cập nhật tổng tiền của món nếu có dữ liệu updatedItem
+            if (res.updatedItem && row) {
+                row.find(".item-subtotal").text(formatCurrency(res.updatedItem.subtotal));
+            }
         }
 
+        // =======================
+        // Hàm format tiền tệ
+        // =======================
         function formatCurrency(value) {
-            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
+            if (!value) value = 0;
+            return new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND"
+            }).format(value);
         }
     </script>
 }
