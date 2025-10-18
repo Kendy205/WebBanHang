@@ -35,63 +35,63 @@
     <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" />
     <!-- Header Section End -->
     <!-- Hero Section Begin -->
-    <div class="product spad">
-        <div class="container">
-            <div class="row">
-                <!-- ===== Sidebar ===== -->
-                <div class="col-lg-3 col-md-5">
+    <div class="row">
+        <!-- ===== Sidebar ===== -->
+        <div class="col-lg-3 col-md-2" style="margin:8px">
 
-                    <div class="hero__categories">
-                        <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>All departments</span>
-                        </div>
-                        @await Component.InvokeAsync("RenderDanhMuc", new { viewName = "RenderDanhMucSanPham" })
-                    </div>
-
-                    @* Lọc theo giá *@
-                    <h5 class="fw-bold">Lọc theo giá</h5>
-                    <form asp-action="Index" asp-controller="Food" asp-area="Customer" method="get">
-                        <div class="mb-2">
-                            <label for="minPrice" class="form-label">Giá thấp nhất</label>
-                            <input type="number" name="minPrice" id="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" />
-                        </div>
-                        <div class="mb-2">
-                            <label for="maxPrice" class="form-label">Giá cao nhất</label>
-                            <input type="number" name="maxPrice" id="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="100000" />
-                        </div>
-                        <button type="submit" class="btn btn-sm btn-primary w-100" asp-action="Index">Lọc</button>
-                    </form>
-
-
-                    <hr />
-                    @* tìm kiếm  *@
-                    <h5 class="fw-bold">Tìm kiếm</h5>
-                    <form asp-action="Search" asp-controller="Foods" asp-area="Customer" method="get">
-                        <input type="text" name="keyword" value="@ViewBag.Keyword" class="form-control" placeholder="Nhập tên món ăn..." />
-                        <button type="submit" class="btn btn-sm btn-success w-100 mt-2" asp-action="Search">Tìm kiếm</button>
-                    </form>
+            <div class="hero__categories">
+                <div class="hero__categories__all">
+                    <i class="fa fa-bars"></i>
+                    <span>All departments</span>
                 </div>
-                <!-- ===== Danh sách món ăn ===== -->
-                <div class="col-lg-9 col-md-7">
-                    <h4 class="mb-3">@ViewData["Title"]</h4>
-                    <div class="row">
-                        <div class="product__discount__slider owl-carousel m-2">
-                            @await RenderSectionAsync("DanhMuc",required:false)
-                        </div>
-                         <div class="row">
-                             @RenderBody()
-                         </div>
-                    </div>
-                    @await RenderSectionAsync("PhanTrang", required: false)
-                </div>
+                @await Component.InvokeAsync("RenderDanhMuc", new { viewName = "RenderDanhMucSanPham" })
             </div>
+
+            @* Lọc theo giá *@
+            <h5 class="fw-bold">Lọc theo giá</h5>
+            <form asp-action="Index" asp-controller="Food" asp-area="Customer" method="get">
+                <div class="mb-2">
+                    <label for="minPrice" class="form-label">Giá thấp nhất</label>
+                    <input type="number" name="minPrice" id="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" />
+                </div>
+                <div class="mb-2">
+                    <label for="maxPrice" class="form-label">Giá cao nhất</label>
+                    <input type="number" name="maxPrice" id="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="100000" />
+                </div>
+                <button type="submit" class="btn btn-sm btn-success w-100 mt-2" asp-action="Index">Lọc</button>
+            </form>
+
+
+            <hr />
+            @* tìm kiếm  *@
+            <h5 class="fw-bold">Tìm kiếm</h5>
+            <form id="searchForm" asp-action="Search" asp-controller="Food" asp-area="Customer" method="get">
+                <input id="keyword"
+                       type="text"
+                       name="keyword"
+                       value="@ViewBag.Keyword"
+                       class="form-control"
+                       placeholder="Nhập tên món ăn..." />
+                <button type="submit" class="btn btn-sm btn-success w-100 mt-2">Tìm kiếm</button>
+            </form>
+        </div>
+        <!-- ===== Danh sách món ăn ===== -->
+        <div class="col-lg-8 col-md-7">
+            <h4 class="mb-3">@ViewData["Title"]</h4>
+            <div class="row">
+         
+                
+                    @RenderBody()
+                
+            </div>
+            @await RenderSectionAsync("PhanTrang", required: false)
         </div>
     </div>
+
+
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
 
     <!-- Js Plugins -->
-    @await RenderSectionAsync("Scripts", required: false)
     <!-- Js Plugins -->
     <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>
     <script src="~/_LayoutUser/js/bootstrap.min.js"></script>
@@ -101,6 +101,7 @@
     <script src="~/_LayoutUser/js/mixitup.min.js"></script>
     <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
     <script src="~/_LayoutUser/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

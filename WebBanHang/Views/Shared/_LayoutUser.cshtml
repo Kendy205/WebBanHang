@@ -270,7 +270,7 @@
     </section>
     <!-- Latest Product Section End -->
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
-    @await RenderSectionAsync("Scripts", required: false)
+    
     <!-- Js Plugins -->
     <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>
     <script src="~/_LayoutUser/js/bootstrap.min.js"></script>
@@ -280,5 +280,6 @@
     <script src="~/_LayoutUser/js/mixitup.min.js"></script>
     <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
     <script src="~/_LayoutUser/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

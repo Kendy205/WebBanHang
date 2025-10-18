@@ -38,7 +38,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             return View(foods);
         }
 
-        // GET: Customer/Foods/Details/5
+        // GET: Customer/Food/Details/5
         // Chi tiết món ăn
         public async Task<ActionResult> Details(int id)
         {
@@ -59,10 +59,11 @@ namespace WebBanHang.Areas.Customer.Controllers
             return View(food);
         }
 
-        // GET: Customer/Foods/Search
+        // GET: Customer/Food/Search
         // Tìm kiếm món ăn với AJAX
         public async Task<ActionResult> Search(string keyword, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 12)
         {
+            
             var foods = await _foodService.SearchFoods(keyword);
             if (minPrice != null && maxPrice != null)
             {
@@ -80,15 +81,20 @@ namespace WebBanHang.Areas.Customer.Controllers
             ViewBag.TotalPages = (int)System.Math.Ceiling((double)foods.Count() / pageSize);
             ViewBag.CurrentPage = page;
             ViewBag.Categories = await _categoryService.GetActiveCategories();
-            //if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            //{
-            //    return PartialView("_FoodListPartial", pagedFoods);
-            //}
-
-            return View(pagedFoods);
+            ViewBag.Count = foods.Count();
+            // 👉 Nếu là AJAX thì chỉ render phần danh sách món ăn
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_FoodListPartial", pagedFoods);
+            }
+            else
+            {
+                return View(pagedFoods);
+            }
+                
         }
 
-        // GET: Customer/Foods/Category/5
+        // GET: Customer/Food/Category/5
         // Món ăn theo danh mục
         public async Task<ActionResult> Category(int id, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 12)
         {
