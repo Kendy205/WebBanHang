@@ -32,10 +32,10 @@
                             <td>@item.Food?.FoodName</td>
                             <td>@item.Price.ToString("N0") ₫</td>
                             <td style="width:160px;">
-                                <div class="input-group input-group-sm">
-                                    <button type="button" class="btn btn-outline-secondary btn-decrease">-</button>
-                                    <input type="number" class="form-control text-center quantity-input" min="1" value="@item.Quantity" />
-                                    <button type="button" class="btn btn-outline-secondary btn-increase">+</button>
+                                <div class="input-group" style="width:120px;">
+                                    <button class="btn btn-outline-secondary btn-decrease" type="button">−</button>
+                                    <input type="number" class="form-control text-center quantity-input" min="1" value="@item.Quantity">
+                                    <button class="btn btn-outline-secondary btn-increase" type="button">+</button>
                                 </div>
                             </td>
                             <td class="item-subtotal">@item.Subtotal.ToString("N0") ₫</td>
@@ -144,13 +144,8 @@
         // Cập nhật giao diện tổng tiền
         // =======================
         function updateCartUI(res, row) {
-            // Tổng giỏ hàng
             $("#cart-total").text(formatCurrency(res.cartTotal || res.totalAmount));
-
-            // Tổng số món
             $("#cart-count").text(res.cartItemCount || res.totalItems);
-
-            // Cập nhật tổng tiền của món nếu có dữ liệu updatedItem
             if (res.updatedItem && row) {
                 row.find(".item-subtotal").text(formatCurrency(res.updatedItem.subtotal));
             }
