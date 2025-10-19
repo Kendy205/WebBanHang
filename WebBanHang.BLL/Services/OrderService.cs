@@ -27,62 +27,79 @@ namespace WebBanHang.BLL.Services
 
         public async Task<int> CreateOrderFromCart(string userId, string shippingAddress, string phoneNumber, string paymentMethod, string notes)
         {
-            //lay gio hang tu userid qua services
             var cart = await _cartService.GetCartByUserId(userId);
-            if (cart.CartItems == null || cart.CartItems.Count == 0)
-            {
-                throw new Exception("Gio hang trong");
-            }
-            //tao Order tu Cart
-            var orderCode = "ORD" + DateTime.UtcNow.ToString("ddmmyyyy");
-            var orderId = await _unitOfWork.Orders.Count() + 1;
+            if (cart?.CartItems == null || cart.CartItems.Count == 0)
+                throw new Exception("Giỏ hàng trống");
+
             var order = new Order
             {
-                OrderId = orderId,
+                // KHÔNG tự gán OrderId nếu dùng Identity!
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 ShippingAddress = shippingAddress,
                 PhoneNumber = phoneNumber,
                 PaymentMethod = paymentMethod,
                 Notes = notes,
-                OrderCode = orderCode,
+                OrderCode = $"ORD{DateTime.UtcNow:yyMMddHHmmssfff}", // <= 20 ký tự
                 Status = "Pending",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                TotalAmount=cart.TotalAmount,
+                TotalAmount = cart.TotalAmount
             };
-            await _unitOfWork.Orders.AddAsync(order);
-            await _unitOfWork.SaveAsync();
 
-            //create orderdetail
-            foreach(var i in cart.CartItems)
+            await _unitOfWork.Orders.AddAsync(order);
+            try { await _unitOfWork.SaveAsync(); }
+            catch (DbUpdateException ex)
             {
-                var orderDetail = new OrderDetail
-                { 
-                    OrderId=order.OrderId,
-                    FoodId=i.FoodId,
-                    FoodName=i.Food.FoodName,
-                    Quantity=i.Quantity,
-                    Price=i.Price,
-                };
-                await _unitOfWork.OrderDetails.AddAsync(orderDetail);
+                throw new Exception("Save Order failed: " + (ex.InnerException?.Message ?? ex.Message), ex);
             }
-            // tao phuong thuc thanh toan
+
+            foreach (var i in cart.CartItems)
+            {
+                // Lấy tên món an toàn
+                string foodName = i.Food?.FoodName;
+                if (string.IsNullOrWhiteSpace(foodName))
+                {
+                    var food = await _unitOfWork.Foods.GetByIdAsync(i.FoodId);
+                    foodName = food?.FoodName ?? "Sản phẩm";
+                }
+
+                var od = new OrderDetail
+                {
+                    // KHÔNG gán OrderDetailId nếu dùng Identity
+                    OrderId = order.OrderId,
+                    FoodId = i.FoodId,
+                    FoodName = foodName,
+                    Quantity = i.Quantity,
+                    Price = i.Price
+                };
+                await _unitOfWork.OrderDetails.AddAsync(od);
+            }
+            try { await _unitOfWork.SaveAsync(); }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception("Save OrderDetails failed: " + (ex.InnerException?.Message ?? ex.Message), ex);
+            }
+
             var payment = new Payment
-            { 
-                OrderId=order.OrderId,
-                PaymentMethod=paymentMethod,
-                Amount=cart.TotalAmount,
-                Status="Pending",
-                CreatedAt= DateTime.UtcNow,
+            {
+                OrderId = order.OrderId,
+                PaymentMethod = paymentMethod,
+                Amount = cart.TotalAmount,
+                Status = "Pending",
+                CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.Payments.AddAsync(payment);
-            await _unitOfWork.SaveAsync();
-            //xoa tat ca san pham trong cart
+            try { await _unitOfWork.SaveAsync(); }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception("Save Payment failed: " + (ex.InnerException?.Message ?? ex.Message), ex);
+            }
+
             await _cartService.ClearCart(userId);
             return order.OrderId;
-
         }
+
 
         public  async Task<IEnumerable<Order>> GetAllOrders()
         {
@@ -173,5 +190,14 @@ namespace WebBanHang.BLL.Services
                     .ThenInclude(i => i.Food)     
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
+        public Task<int> CreateOrderFromCartAsync(string userId, string shippingAddress, string phoneNumber, string paymentMethod, string notes)
+            => CreateOrderFromCart(userId, shippingAddress, phoneNumber, paymentMethod, notes);
+
+        public Task CancelOrderAsync(int orderId)
+            => CancelOrder(orderId);
+
+        public Task<Order?> GetOrderByCodeAsync(string orderCode)
+            => GetOrderByCode(orderCode);
+
     }
 }

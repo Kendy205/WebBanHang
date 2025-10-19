@@ -21,5 +21,8 @@ namespace WebBanHang.BLL.IServices
         Task<bool> UserOwnsOrder(string userId, int orderId);
         Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId);
         Task<Order?> GetOrderByIdAsync(int id);
+        Task<int> CreateOrderFromCartAsync(string userId, string shippingAddress, string phoneNumber, string paymentMethod, string notes);
+        Task CancelOrderAsync(int orderId);       
+        Task<Order?> GetOrderByCodeAsync(string orderCode);
     }
 }

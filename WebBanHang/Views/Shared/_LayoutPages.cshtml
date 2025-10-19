@@ -1,54 +1,144 @@
 ﻿<!DOCTYPE html>
-
-<html>
+<html lang="vi" data-bs-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Ogani Template">
-    <meta name="keywords" content="Ogani, unica, creative, html">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@ViewBag.Title</title>
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-    <!-- Css Styles -->
-    <link rel="stylesheet" href="~/_LayoutUser/css/bootstrap.min.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/font-awesome.min.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/elegant-icons.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/nice-select.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/jquery-ui.min.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/owl.carousel.min.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/slicknav.min.css" type="text/css">
-    <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light">
+    <title>@(ViewData["Title"] ?? "WebBanHang")</title>
 
+    <!-- CSS: lấy từ wwwroot/_LayoutUser/css -->
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/bootstrap.min.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/font-awesome.min.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/elegant-icons.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/jquery-ui.min.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/nice-select.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/owl.carousel.min.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/slicknav.min.css")' />
+    <link rel="stylesheet" href='@Url.Content("~/_LayoutUser/css/style.css")' />
+
+    @RenderSection("Styles", required: false)
+
+    <style>
+        /* Một ít style cơ bản cho bố cục */
+        body {
+            background: #f6f8fb;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.06);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: calc(100vh - 56px);
+        }
+
+        .sidebar {
+            background: #fff;
+            border-right: 1px solid #e9ecef;
+            padding: 16px 12px;
+        }
+
+            .sidebar .nav {
+                list-style: none;
+                padding-left: 0;
+                margin: 0;
+            }
+
+                .sidebar .nav li {
+                    margin-bottom: 8px;
+                }
+
+                .sidebar .nav a {
+                    display: block;
+                    padding: 10px 12px;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    color: #334155;
+                }
+
+                    .sidebar .nav a:hover, .sidebar .nav a.active {
+                        background: #f1f5f9;
+                    }
+
+        .content-wrapper {
+            padding: 20px;
+        }
+
+        .footer {
+            padding: 16px 20px;
+            color: #64748b;
+            border-top: 1px solid #e9ecef;
+            background: #fff;
+        }
+
+        .brand img {
+            height: 28px;
+        }
+    </style>
 </head>
- @* ThanhTung 05-10-25 : Sua layout den phan featured product  *@
- @* ThanhTung 08-10-25 : Hoàn thành layout Home  *@
 <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src='@Url.Content("~/_LayoutUser/img/logo.png")' alt="logo" />
+                <span class="ms-2 fw-semibold">WebBanHang</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topnav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="topnav" class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" asp-area="Customer" asp-controller="Order" asp-action="Index">Đơn hàng của tôi</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Account" asp-action="Logout">Đăng xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <!-- Page Preloder -->
-    <div id="preloder">
-        <div class="loader"></div>
+    <!-- LAYOUT -->
+    <div class="layout">
+        <aside class="sidebar">
+            <ul class="nav">
+                <li>
+                    <a asp-area="" asp-controller="Home" asp-action="Index"
+                       class="@(Context.Request.Path.Value?.Contains("/Home") == true ? "active" : "")">
+                        <i class="fa fa-home me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Customer" asp-controller="Order" asp-action="Index"
+                       class="@(Context.Request.Path.Value?.Contains("/Order") == true ? "active" : "")">
+                        <i class="fa fa-list-ul me-2"></i> Đơn hàng của tôi
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main>
+            <div class="content-wrapper">
+                @RenderBody()
+            </div>
+            <footer class="footer">
+                <div class="d-flex justify-content-between">
+                    <span>© @DateTime.Now.Year WebBanHang</span>
+                    <span>Built with ASP.NET Core</span>
+                </div>
+            </footer>
+        </main>
     </div>
 
-    <!-- Humberger Begin -->
-    <partial name="~/Views/Shared/Partials/_HumbergerPartial.cshtml" />
-    <!-- Humberger End -->
-    <!-- Header Section Begin -->
-    <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" />
-    <!-- Header Section End -->
- 
-    @RenderBody()
+    <!-- JS: lấy từ wwwroot/_LayoutUser/js -->
+    <script src='@Url.Content("~/_LayoutUser/js/jquery-3.3.1.min.js")'></script>
+    <script src='@Url.Content("~/_LayoutUser/js/bootstrap.min.js")'></script>
+    <script src='@Url.Content("~/_LayoutUser/js/jquery-ui.min.js")'></script>
+    <script src='@Url.Content("~/_LayoutUser/js/jquery.nice-select.min.js")'></script>
+    <script src='@Url.Content("~/_LayoutUser/js/jquery.slicknav.js")'></script>
+    <script src='@Url.Content("~/_LayoutUser/js/owl.carousel.min.js")'></script>
+    <script src='@Url.Content("~/_LayoutUser/js/main.js")'></script>
 
-    <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
-    @await RenderSectionAsync("Scripts", required: false)
-    <!-- Js Plugins -->
-    <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>
-    <script src="~/_LayoutUser/js/bootstrap.min.js"></script>
-    <script src="~/_LayoutUser/js/jquery.nice-select.min.js"></script>
-    <script src="~/_LayoutUser/js/jquery-ui.min.js"></script>
-    <script src="~/_LayoutUser/js/jquery.slicknav.js"></script>
-    <script src="~/_LayoutUser/js/mixitup.min.js"></script>
-    <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
-    <script src="~/_LayoutUser/js/main.js"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

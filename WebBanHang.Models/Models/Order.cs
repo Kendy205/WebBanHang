@@ -14,7 +14,7 @@ namespace WebBanHang.Models.Models
     public class Order
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderId { get; set; }
 
         [Required]
@@ -59,8 +59,11 @@ namespace WebBanHang.Models.Models
 
         // Navigation Properties
         public virtual ApplicationUser User { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        
         public virtual Payment Payment { get; set; }
         public virtual Delivery Delivery { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+
+
     }
 }

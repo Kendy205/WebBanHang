@@ -16,5 +16,6 @@ namespace WebBanHang.BLL.IServices
         Task ClearCart(string userId);
         Task<int> GetCartItemCount(string userId);
         Task<decimal> GetCartTotal(string userId);
+        Task<Cart> GetCartByUserIdAsync(string userId);
     }
 }

@@ -1,151 +1,65 @@
-﻿@model WebBanHang.Models.Models.Cart
+﻿@model IEnumerable<WebBanHang.Models.Models.Order>
 @{
-    ViewData["Title"] = "Giỏ hàng của bạn";
+    ViewData["Title"] = "Đơn hàng của tôi";
+    var selected = (ViewBag.SelectedStatus as string) ?? "";
 }
 
-<div class="container mt-5 mb-5">
-    <h2 class="mb-4 text-center">🛒 Giỏ hàng của bạn</h2>
+<h2 class="mb-3">Đơn hàng của tôi</h2>
 
-    <form asp-action="ClearCart" method="post">
-        @Html.AntiForgeryToken()
-        <table class="table table-bordered align-middle text-center">
-            <thead class="table-light">
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="status" class="form-select">
+            <option value="" selected="@(selected == "")">Tất cả trạng thái</option>
+            <option value="Pending" selected="@(selected == "Pending")">Pending</option>
+            <option value="Processing" selected="@(selected == "Processing")">Processing</option>
+            <option value="Completed" selected="@(selected == "Completed")">Completed</option>
+            <option value="Canceled" selected="@(selected == "Canceled")">Canceled</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var order in Model)
+            {
+                var badgeClass = order.Status switch
+                {
+                    "Pending" => "badge bg-warning text-dark",
+                    "Processing" => "badge bg-info",
+                    "Completed" => "badge bg-success",
+                    "Canceled" => "badge bg-danger",
+                    _ => "badge bg-secondary"
+                };
                 <tr>
-                    <th>Ảnh</th>
-                    <th>Tên món</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Tổng</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="cart-body">
-                @if (Model?.CartItems != null && Model.CartItems.Any())
-                {
-                    foreach (var item in Model.CartItems)
-                    {
-                        <tr data-id="@item.CartItemId">
-                            <td style="width:120px;">
-                                <img src="@item.Food?.ImageUrl" class="img-thumbnail" style="max-height:80px;" />
-                            </td>
-                            <td>@item.Food?.FoodName</td>
-                            <td>@item.Price.ToString("N0") ₫</td>
-                            <td style="width:160px;">
-                                <div class="input-group input-group-sm">
-                                    <button type="button" class="btn btn-outline-secondary btn-decrease">-</button>
-                                    <input type="number" class="form-control text-center quantity-input" min="1" value="@item.Quantity" />
-                                    <button type="button" class="btn btn-outline-secondary btn-increase">+</button>
-                                </div>
-                            </td>
-                            <td class="item-subtotal">@item.Subtotal.ToString("N0") ₫</td>
-                            <td>
-                                <button type="button" class="btn btn-danger btn-sm btn-remove">
-                                    <i class="bi bi-trash"></i> Xóa
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">
-                            Giỏ hàng đang trống
-                        </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr class="table-light">
-                    <td colspan="4" class="text-end fw-bold">Tổng cộng:</td>
-                    <td colspan="2" class="fw-bold text-danger fs-5" id="cart-total">
-                        @(Model?.TotalAmount.ToString("N0") ?? "0") ₫
+                    <td>@order.OrderCode</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><span class="@badgeClass">@order.Status</span></td>
+                    <td>@string.Format("{0:N0} ₫", order.TotalAmount)</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary"
+                           asp-area="Customer" asp-controller="Order" asp-action="Details"
+                           asp-route-id="@order.OrderId">Chi tiết</a>
                     </td>
                 </tr>
-            </tfoot>
-        </table>
-
-        <div class="d-flex justify-content-between">
-            <a href="/Customer/Home" class="btn btn-secondary">← Tiếp tục mua sắm</a>
-            <div>
-                <button type="submit" class="btn btn-outline-danger me-2">🗑️ Xóa toàn bộ</button>
-                <a href="/Customer/Checkout" class="btn btn-success">Thanh toán</a>
-            </div>
-        </div>
-    </form>
-</div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // =======================
-        // Cập nhật số lượng
-        // =======================
-        $(".btn-increase, .btn-decrease").click(function () {
-            const row = $(this).closest("tr");
-            const input = row.find(".quantity-input");
-            let quantity = parseInt(input.val());
-
-            if ($(this).hasClass("btn-increase")) quantity++;
-            else if (quantity > 1) quantity--;
-
-            input.val(quantity);
-            updateQuantity(row.data("id"), quantity);
-        });
-
-        $(".quantity-input").on("change", function () {
-            const row = $(this).closest("tr");
-            const quantity = parseInt($(this).val());
-            updateQuantity(row.data("id"), quantity);
-        });
-
-        // =======================
-        // Xóa từng món
-        // =======================
-        $(".btn-remove").click(function () {
-            const row = $(this).closest("tr");
-            const id = row.data("id");
-
-            Swal.fire({
-                title: "Xóa món này?",
-                text: "Món sẽ bị xóa khỏi giỏ hàng!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Xóa"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.post("/Customer/Cart/RemoveItem", { cartItemId: id }, function (res) {
-                        if (res.success) {
-                            row.remove();
-                            updateCartUI(res);
-                            Swal.fire("Đã xóa!", res.message, "success");
-                        }
-                    });
-                }
-            });
-        });
-
-        // =======================
-        // Hàm gọi AJAX update
-        // =======================
-        function updateQuantity(cartItemId, quantity) {
-            $.post("/Customer/Cart/UpdateQuantity", { cartItemId, quantity }, function (res) {
-                if (res.success) updateCartUI(res);
-            });
+            }
         }
-
-        // =======================
-        // Cập nhật giao diện tổng tiền
-        // =======================
-        function updateCartUI(res) {
-            $("#cart-total").text(formatCurrency(res.cartTotal || res.totalAmount));
-            $("#cart-count").text(res.cartItemCount || res.totalItems);
+        else
+        {
+            <tr><td colspan="5" class="text-center text-muted">Chưa có đơn hàng.</td></tr>
         }
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
-        }
-    </script>
-}
+    </tbody>
+</table>

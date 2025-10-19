@@ -88,7 +88,8 @@ namespace WebBanHang.BLL.Services
             cart.CartItems = _unitOfWork.CartItems.GetAllQueryable().Include("Food").Where(c => c.CartId == cart.CartId).ToList();
             return cart;
         }
-
+        public Task<Cart> GetCartByUserIdAsync(string userId)
+        => GetCartByUserId(userId);
         public async Task<int> GetCartItemCount(string userId)
         {
             var cart = await _unitOfWork.Carts.GetCartByUserIdAsync(userId);

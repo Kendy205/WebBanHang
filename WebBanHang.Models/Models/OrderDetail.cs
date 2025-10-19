@@ -13,7 +13,7 @@ namespace WebBanHang.Models.Models
     public class OrderDetail
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailId { get; set; }
 
         [Required]
@@ -43,5 +43,6 @@ namespace WebBanHang.Models.Models
         // Navigation Properties
         public virtual Order Order { get; set; }
         public virtual Food Food { get; set; }
+        
     }
 }
