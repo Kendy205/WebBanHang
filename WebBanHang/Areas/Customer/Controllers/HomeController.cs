@@ -37,7 +37,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             return View();
         }
 
-
+        
 
         public IActionResult About()
         {

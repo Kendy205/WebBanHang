@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using WebBanHang.BLL.IServices;
 using WebBanHang.DAL.Data;
 using WebBanHang.Models.Models;
@@ -28,7 +29,7 @@ namespace WebBanHang.Areas.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            //if (user == null) return RedirectToAction("Login", "Account", new { area = "Identity" });
 
             var cart = await _cartService.GetCartByUserId(user.Id);
             HttpContext.Session.SetInt32("CartItemCount", cart?.TotalItems ?? 0);
@@ -74,6 +75,7 @@ namespace WebBanHang.Areas.Customer.Controllers
         // Cập nhật số lượng
         // =====================
         [HttpPost]
+        [HttpPost]
         public async Task<JsonResult> UpdateQuantity(int cartItemId, int quantity)
         {
             try
@@ -82,14 +84,26 @@ namespace WebBanHang.Areas.Customer.Controllers
                 if (user == null)
                     return Json(new { success = false, message = "Chưa đăng nhập!" });
 
+                // Cập nhật số lượng sản phẩm trong giỏ
                 await _cartService.UpdateCartItem(cartItemId, quantity);
+
+                // Lấy lại toàn bộ giỏ hàng sau khi cập nhật
                 var cart = await _cartService.GetCartByUserId(user.Id);
+
+                var updatedItem = cart.CartItems.FirstOrDefault(i => i.CartItemId == cartItemId);
 
                 return Json(new
                 {
                     success = true,
                     totalItems = cart.TotalItems,
-                    totalAmount = cart.TotalAmount
+                    cartItemCount = cart.TotalItems, // để frontend tương thích
+                    totalAmount = cart.TotalAmount,
+                    cartTotal = cart.TotalAmount,     // đồng bộ key
+                    updatedItem = new
+                    {
+                        cartItemId = cartItemId,
+                        subtotal = updatedItem?.Subtotal ?? 0
+                    }
                 });
             }
             catch (Exception ex)
@@ -97,6 +111,8 @@ namespace WebBanHang.Areas.Customer.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
 
         // =====================
         // Xóa 1 món trong giỏ hàng
@@ -179,5 +195,27 @@ namespace WebBanHang.Areas.Customer.Controllers
                 items
             });
         }
+        private async void SaveCartToCookie(string userId)
+        {
+            var cart = await _cartService.GetCartByUserId(userId);
+            var cartData = new
+            {
+                ItemCount = cart.TotalItems,
+                Total = cart.TotalAmount,
+                UpdatedAt = DateTime.Now
+            };
+
+            var cookieValue = JsonConvert.SerializeObject(cartData);
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(7),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+
+            Response.Cookies.Append("CartData", cookieValue, cookieOptions);
+        }
+
     }
 }

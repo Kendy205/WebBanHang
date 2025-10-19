@@ -11,26 +11,13 @@
         <!-- ===== Sidebar ===== -->
 
         <div class="col-md-3">
-            @* Danh mục *@
-            <h5 class="fw-bold">Danh mục</h5>
-            <ul class="list-group mb-4">
-                <li class="list-group-item">
-                    <a asp-action="Index"
-                       class="text-decoration-none text-dark d-block">
-                        Tất cả
-                    </a>
-                </li>
-
-                @foreach (var c in categories)
-                {
-                    <li class="list-group-item @(ViewBag.CurrentCategory == c.CategoryId ? "active" : "")">
-                        <a asp-action="Category" asp-route-id="@c.CategoryId"
-                           class="text-decoration-none text-dark d-block">
-                            @c.CategoryName
-                        </a>
-                    </li>
-                }
-            </ul>
+            <div class="hero__categories">
+                <div class="hero__categories__all">
+                    <i class="fa fa-bars"></i>
+                    <span>All departments</span>
+                </div>
+                @await Component.InvokeAsync("RenderDanhMuc", new { viewName = "RenderDanhMucSanPham" })
+            </div>
 
             @* Lọc theo giá *@
             <h5 class="fw-bold">Lọc theo giá</h5>

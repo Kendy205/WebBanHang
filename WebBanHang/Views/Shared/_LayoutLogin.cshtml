@@ -19,7 +19,18 @@
     <link rel="stylesheet" href="~/_LayoutUser/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
-    
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="~/_LayoutAdmin/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="~/_LayoutAdmin/assets/vendors/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="~/_LayoutAdmin/assets/css/style.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="~/_LayoutAdmin/assets/images/favicon.ico" />
 </head>
 
 <body>
@@ -42,7 +53,7 @@
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
     
     <!-- Js Plugins -->
-    @await RenderSectionAsync("Scripts", required: false)
+  
     <!-- Js Plugins -->
     <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>
     <script src="~/_LayoutUser/js/bootstrap.min.js"></script>
@@ -52,5 +63,16 @@
     <script src="~/_LayoutUser/js/mixitup.min.js"></script>
     <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
     <script src="~/_LayoutUser/js/main.js"></script>
+    <!-- plugins:js -->
+    <script src="~/_LayoutAdmin/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="~/_LayoutAdmin/assets/js/off-canvas.js"></script>
+    <script src="~/_LayoutAdmin/assets/js/hoverable-collapse.js"></script>
+    <script src="~/_LayoutAdmin/assets/js/misc.js"></script>
+    <!-- endinject -->
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

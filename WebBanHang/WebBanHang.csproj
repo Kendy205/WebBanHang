@@ -28,10 +28,14 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Controllers\" />
-    <Folder Include="Areas\Customer\Views\Shared\" />
     <Folder Include="Areas\Identity\Data\" />
-    <Folder Include="Views\Shared\Components\RenderModel\" />
     <Folder Include="wwwroot\img\food\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Areas\Admin\Views\Shared\partials\_footer.cshtml" />
+    <None Include="Areas\Admin\Views\Shared\partials\_navbar.cshtml" />
+    <None Include="Areas\Admin\Views\Shared\partials\_sidebar.cshtml" />
   </ItemGroup>
 
 </Project>

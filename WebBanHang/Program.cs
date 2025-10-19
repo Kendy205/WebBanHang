@@ -45,6 +45,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Đường dẫn login của Identity nằm trong Area "Identity"
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.LogoutPath = "/Identity/Account/Logout";
+});
 //fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 //Register UnitOfWork
@@ -78,18 +85,21 @@ using (var scope = app.Services.CreateScope())
     var seeder = new DbSeeder(context, userManager, roleManager, logger);
     await seeder.SeedAsync();
 }
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    
+    
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+// Hien thi 404Error neu khong tim thay link
+app.UseStatusCodePagesWithReExecute("/Error/Handle", "?code={0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -103,6 +113,7 @@ app.MapControllerRoute(
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
 
 
 

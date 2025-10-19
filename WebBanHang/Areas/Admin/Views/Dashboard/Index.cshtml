@@ -1,0 +1,184 @@
+﻿@{
+    var topFoods = ViewBag.TopFoods as List<WebBanHang.Models.Models.Food>;
+    ViewBag.Title = "Dashboard - Admin";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";// hoặc layout admin bạn đang dùng
+}
+@model IEnumerable<WebBanHang.Models.Models.Food>
+
+<div class="content-wrapper">
+    <div class="row">
+        <!-- Tổng quan -->
+        <div class="col-md-3 grid-margin stretch-card">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4>Tổng đơn hàng</h4>
+                    <h2>@ViewBag.TotalOrders</h2>
+                    <p class="mb-0">Tổng cộng đơn hàng trong hệ thống</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 grid-margin stretch-card">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h4>Tổng doanh thu</h4>
+                    <h2>@String.Format("{0:N0} ₫", ViewBag.TotalRevenue)</h2>
+                    <p class="mb-0">Tính đến hiện tại</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 grid-margin stretch-card">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h4>Tổng món ăn</h4>
+                    <h2>@ViewBag.TotalFoods</h2>
+                    <p class="mb-0">Sản phẩm đang kinh doanh</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 grid-margin stretch-card">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h4>Tổng danh mục</h4>
+                    <h2>@ViewBag.TotalCategories</h2>
+                    <p class="mb-0">Danh mục món ăn hiện có</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thống kê hôm nay và tháng này -->
+    <div class="row">
+        <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Hôm nay</h4>
+                    <h2>@ViewBag.TodayOrdersCount đơn hàng</h2>
+                    <p>Doanh thu: <strong>@String.Format("{0:N0} ₫", ViewBag.TodayRevenue)</strong></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Tháng này</h4>
+                    <h2>@ViewBag.MonthOrdersCount đơn hàng</h2>
+                    <p>Doanh thu: <strong>@String.Format("{0:N0} ₫", ViewBag.MonthRevenue)</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ doanh thu -->
+    <div class="row">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Doanh thu 7 ngày gần đây</h4>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Đơn hàng gần đây -->
+    <div class="row">
+        <div class="col-md-8 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Đơn hàng gần đây</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Trạng thái</th>
+                                    <th>Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in ViewBag.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>@order.OrderId</td>
+                                        <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (order.Status == "Completed")
+                                            {
+                                                <span class="badge badge-success">Hoàn tất</span>
+                                            }
+                                            else if (order.Status == "Pending")
+                                            {
+                                                <span class="badge badge-warning">Đang xử lý</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger">@order.Status</span>
+                                            }
+                                        </td>
+                                        <td>@String.Format("{0:N0} ₫", order.TotalAmount)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top món ăn bán chạy -->
+        <div class="col-md-4 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🔥 Top 5 món bán chạy</h5>
+                </div>
+                <div class="card-body">
+                    @if (topFoods != null && topFoods.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var food in topFoods)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@food.FoodName</span>
+                                    <span class="text-muted">@food.Price.ToString("N0") đ</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Không có dữ liệu món ăn.</p>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [@Html.Raw(ViewBag.RevenueChartLabels)],
+                datasets: [{
+                    label: 'Doanh thu (₫)',
+                    data: [@Html.Raw(ViewBag.RevenueChartData)],
+                    fill: true,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+}
