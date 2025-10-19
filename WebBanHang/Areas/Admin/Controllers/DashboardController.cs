@@ -106,7 +106,6 @@ namespace WebBanHang.Areas.Admin.Controllers
             };
 
             var orders = allOrders.Where(o => o.OrderDate >= startDate).ToList();
-
             return Json(new
             {
                 totalOrders = orders.Count(),
@@ -116,5 +115,6 @@ namespace WebBanHang.Areas.Admin.Controllers
                 averageOrderValue = orders.Any() ? orders.Average(o => o.TotalAmount) : 0
             });
         }
+
     }
 }

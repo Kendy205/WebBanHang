@@ -1,101 +1,59 @@
-<pre> ```WebBanHang (Solution)
-│
-├── WebBanHang (Main MVC Project)
-│   ├── Areas/
-│   │   ├── Admin/
-│   │   │   ├── Controllers/
-│   │   │   │   ├── DashboardController.cs
-│   │   │   │   ├── CategoriesController.cs
-│   │   │   │   ├── FoodsController.cs
-│   │   │   │   ├── OrdersController.cs
-│   │   │   │   └── UsersController.cs
-│   │   │   └── Views/
-│   │   │       ├── Dashboard/
-│   │   │       ├── Categories/
-│   │   │       ├── Foods/
-│   │   │       ├── Orders/
-│   │   │       └── Users/
-│   │   │
-│   │   └── Customer/
-│   │       ├── Controllers/
-│   │       │   ├── HomeController.cs
-│   │       │   ├── FoodsController.cs
-│   │       │   ├── CartController.cs
-│   │       │   └── OrdersController.cs
-│   │       └── Views/
-│   │           ├── Home/
-│   │           ├── Foods/
-│   │           ├── Cart/
-│   │           └── Orders/
-│   │
-│   ├── Controllers/
-│   │   └── AccountController.cs (Identity Login/Register)
-│   │
-│   ├── DTOs/
-│   │   ├── CategoryDTO.cs
-│   │   ├── FoodDTO.cs
-│   │   ├── CartDTO.cs
-│   │   └── OrderDTO.cs
-│   │
-│   ├── ViewComponents/
-│   │   ├── CartWidgetViewComponent.cs
-│   │   └── CategoryMenuViewComponent.cs
-│   │
-│   ├── wwwroot/
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── images/
-│   │
-│   ├── Views/
-│   │   ├── Shared/
-│   │       ├── _Layout.cshtml
-│   │       ├── _AdminLayout.cshtml
-│   │       ├── _LoginPartial.cshtml
-│   │       ├── Login.cshtml
-│   │       └── Register.cshtml
-│   │
-│   ├── FileUpload/
-│   │   └── (Uploaded images)
-│   │
-│   └── Startup.cs / Program.cs
-│
-├── WebBanHang.BLL (Business Logic Layer)
-│   └── Services/
-│       ├── ICategoryService.cs
-│       ├── CategoryService.cs
-│       ├── IFoodService.cs
-│       ├── FoodService.cs
-│       ├── ICartService.cs
-│       ├── CartService.cs
-│       ├── IOrderService.cs
-│       └── OrderService.cs
-│
-├── WebBanHang.DAL (Data Access Layer)
-│   ├── Data/
-│   │   ├── ApplicationDbContext.cs
-│   │   └── DbInitializer.cs
-│   │
-│   ├── Repository/
-│   │   ├── IRepository.cs (Generic)
-│   │   ├── Repository.cs (Generic)
-│   │   ├── IUnitOfWork.cs
-│   │   └── UnitOfWork.cs
-│   │
-│   └── Migrations/
-│
-└── WebBanHang.Models
-    ├── ApplicationUser.cs
-    ├── Category.cs
-    ├── Food.cs
-    ├── Cart.cs
-    ├── CartItem.cs
-    ├── Order.cs
-    ├── OrderDetail.cs
-    ├── Payment.cs
-    ├── Review.cs
-    ├── Voucher.cs
-    └── ActivityLog.cs
+### 🧱 BaseAdminController
+- Base class cho Admin  
+- Authorization check  
+- Helper methods (ShowSuccess, ShowError, etc.)  
+- GetUserIpAddress()  
 
-Step Clone:
-    clone -> pakage console -> (lệnh) update-database
-    
+---
+
+### 📊 DashboardController
+- Trang chủ Admin  
+- Thống kê tổng quan  
+- Biểu đồ doanh thu 7 ngày  
+- Top 10 đơn gần đây  
+- API Statistics endpoint  
+
+---
+
+### 🗂️ CategoriesController
+- Quản lý danh mục  
+- CRUD operations  
+- Upload/Delete hình ảnh  
+- Async/await patterns  
+- Try-catch error handling  
+
+---
+
+### 🍽️ FoodsController
+- Quản lý món ăn  
+- Lọc theo danh mục  
+- Tìm kiếm  
+- Toggle Availability (AJAX)  
+- Paging  
+
+---
+
+### 🧾 OrdersController
+- Quản lý đơn hàng  
+- Lọc theo trạng thái  
+- Tìm kiếm  
+- Cập nhật trạng thái  
+- AJAX update status  
+
+---
+
+### 👥 UsersController
+- Quản lý người dùng  
+- Sử dụng UserManager từ Identity  
+- Role management  
+- Toggle Active status  
+- Reset Password  
+
+---
+
+### 📈 ReportsController
+- Báo cáo & thống kê  
+- Sales report theo ngày  
+- Top selling foods  
+- Customer orders statistics  
+- Export data (AJAX)  
