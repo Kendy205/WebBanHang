@@ -6,7 +6,7 @@ using WebBanHang.DAL.Data;
 namespace WebBanHang.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    
     //[Route("Admin/{controller}/{action}/{id?}")]
     public class ReportsController : BaseAdminController
     {

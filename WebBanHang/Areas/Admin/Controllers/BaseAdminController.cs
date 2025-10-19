@@ -5,7 +5,7 @@ namespace WebBanHang.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
-   // [Route("Admin/{controller}/{action}/{id?}")]
+    //[Route("Admin/{controller}/{action}/{id?}")]
     public class BaseAdminController : Controller
     {
         protected readonly ILogger<BaseAdminController> _logger;

@@ -5,6 +5,7 @@ using WebBanHang.DAL.Data;
 
 namespace WebBanHang.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class DashboardController : BaseAdminController
     {
         private readonly IOrderService _orderService;

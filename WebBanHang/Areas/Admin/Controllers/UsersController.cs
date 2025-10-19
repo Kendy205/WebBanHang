@@ -9,7 +9,7 @@ using WebBanHang.DAL.Data;
 
 namespace WebBanHang.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
     public class UsersController : BaseAdminController
     {
         private ApplicationDbContext _context;
@@ -81,16 +81,16 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Users/Details/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(string id)
+        [HttpGet]
+        public async Task<IActionResult> Details(string userId)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(userId))
             {
                 ShowError("ID người dùng không hợp lệ");
                 return RedirectToAction("Index");
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 ShowError("Người dùng không tồn tại");
@@ -181,16 +181,16 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Users/Edit/{id}
-        [HttpGet("{id}/edit")]
-        public async Task<IActionResult> Edit(string id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(string userId)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(userId))
             {
                 ShowError("ID người dùng không hợp lệ");
                 return RedirectToAction("Index");
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 ShowError("Người dùng không tồn tại");
@@ -209,13 +209,13 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Users/Edit/{id}
-        [HttpPost("{id}/edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, ApplicationUser model, string role)
+        public async Task<IActionResult> Edit(string userId, ApplicationUser model, string role)
         {
             try
             {
-                if (id != model.Id)
+                if (userId != model.Id)
                     return BadRequest();
 
                 if (!ModelState.IsValid)
@@ -228,7 +228,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                     return View(model);
                 }
 
-                var user = await _userManager.FindByIdAsync(id);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
                 {
                     ShowError("Người dùng không tồn tại");
@@ -283,16 +283,16 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Users/Delete/{id}
-        [HttpGet("{id}/delete")]
-        public async Task<IActionResult> Delete(string id)
+        [HttpGet]
+        public async Task<IActionResult> Delete(string userId)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(userId))
             {
                 ShowError("ID người dùng không hợp lệ");
                 return RedirectToAction("Index");
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 ShowError("Người dùng không tồn tại");
@@ -306,13 +306,13 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Users/Delete/{id}
-        [HttpPost("{id}/delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(string userId)
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(id);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
                 {
                     ShowError("Người dùng không tồn tại");
@@ -321,7 +321,7 @@ namespace WebBanHang.Areas.Admin.Controllers
 
                 // Không cho phép xóa chính mình
                 var currentUserId = _userManager.GetUserId(User);
-                if (id == currentUserId)
+                if (userId == currentUserId)
                 {
                     ShowError("Không thể xóa tài khoản của chính bạn");
                     return RedirectToAction("Index");
@@ -376,23 +376,23 @@ namespace WebBanHang.Areas.Admin.Controllers
         //}
 
         // GET: /Admin/Users/ResetPassword/{id}
-        [HttpGet("{id}/reset-password")]
-        public async Task<IActionResult> ResetPassword(string id)
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string userId)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(userId))
             {
                 ShowError("ID người dùng không hợp lệ");
                 return RedirectToAction("Index");
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 ShowError("Người dùng không tồn tại");
                 return RedirectToAction("Index");
             }
 
-            ViewBag.UserId = id;
+            ViewBag.UserId = userId;
             ViewBag.UserName = user.Email;
 
             return View();

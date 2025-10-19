@@ -6,6 +6,7 @@ using WebBanHang.Models.Models;
 
 namespace WebBanHang.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoriesController : BaseAdminController
     {
         private readonly ICategoryService _categoryService;
@@ -29,10 +30,10 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Categories/Details/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(int id)
+        [HttpGet]
+        public async Task<IActionResult> Details(int Categoriesid)
         {
-            var category =await _categoryService.GetCategoryById(id);
+            var category =await _categoryService.GetCategoryById(Categoriesid);
             if (category == null)
             {
                 ShowError("Danh mục không tồn tại");
@@ -74,10 +75,10 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Categories/Edit/5
-        [HttpGet("{id}/edit")]
-        public IActionResult Edit(int id)
+        [HttpGet]
+        public IActionResult Edit(int Categoriesid)
         {
-            var category = _categoryService.GetCategoryById(id);
+            var category = _categoryService.GetCategoryById(Categoriesid);
             if (category == null)
             {
                 ShowError("Danh mục không tồn tại");
@@ -87,19 +88,19 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Categories/Edit/5
-        [HttpPost("{id}/edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Category category, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(int Categoriesid, Category category, IFormFile? imageFile)
         {
             try
             {
-                if (id != category.CategoryId)
+                if (Categoriesid != category.CategoryId)
                     return BadRequest();
 
                 if (!ModelState.IsValid)
                     return View(category);
 
-                Category existing = await _categoryService.GetCategoryById(id) as Category;
+                Category existing = await _categoryService.GetCategoryById(Categoriesid) as Category;
                 if (existing == null)
                 {
                     ShowError("Danh mục không tồn tại");
@@ -134,7 +135,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Categories/Delete/5
-        [HttpGet("{id}/delete")]
+        [HttpGet]
         public IActionResult Delete(int id)
         {
             var category = _categoryService.GetCategoryById(id);
@@ -147,7 +148,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Categories/Delete/5
-        [HttpPost("{id}/delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

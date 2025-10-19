@@ -49,7 +49,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     // Đường dẫn login của Identity nằm trong Area "Identity"
     options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.AccessDeniedPath = "/Error/AccessDenied";
     options.LogoutPath = "/Identity/Account/Logout";
 });
 //fake email sender
@@ -113,9 +113,7 @@ app.MapControllerRoute(
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
 
 
 

@@ -7,6 +7,7 @@ using WebBanHang.Models.Models;
 
 namespace WebBanHang.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class FoodsController : BaseAdminController
     {
         private readonly IFoodService _foodService;
@@ -57,10 +58,10 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Foods/Details/5
-        [HttpGet("{id}")]
-        public IActionResult Details(int id)
+        [HttpGet]
+        public IActionResult Details(int foodId)
         {
-            var food = _foodService.GetFoodById(id);
+            var food = _foodService.GetFoodById(foodId);
             if (food == null)
             {
                 ShowError("Món ăn không tồn tại");
@@ -125,10 +126,10 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Foods/Edit/5
-        [HttpGet("{id}/edit")]
-        public async Task<IActionResult> Edit(int id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int foodId)
         {
-            var food =await _foodService.GetFoodById(id);
+            var food =await _foodService.GetFoodById(foodId);
             if (food == null)
             {
                 ShowError("Món ăn không tồn tại");
@@ -145,13 +146,13 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Foods/Edit/5
-        [HttpPost("{id}/edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Food food, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(int foodId, Food food, IFormFile? imageFile)
         {
             try
             {
-                if (id != food.FoodId)
+                if (foodId != food.FoodId)
                     return BadRequest();
 
                 if (!ModelState.IsValid)
@@ -165,7 +166,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                     return View(food);
                 }
 
-                var existing =await _foodService.GetFoodById(id);
+                var existing =await _foodService.GetFoodById(foodId);
                 if (existing == null)
                 {
                     ShowError("Món ăn không tồn tại");

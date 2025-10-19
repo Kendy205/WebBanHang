@@ -14,4 +14,9 @@ public class ErrorController : Controller
 
         return View("Error");
     }
+    [Route("Error/AccessDenied")]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
 }

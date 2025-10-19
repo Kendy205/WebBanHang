@@ -5,6 +5,7 @@ using WebBanHang.DAL.Data;
 
 namespace WebBanHang.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class OrdersController : BaseAdminController
     {
         private readonly IOrderService _orderService;
@@ -65,13 +66,13 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Orders/Details/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(int id)
+        [HttpGet]
+        public async Task<IActionResult> Details(int orderId)
         {
             var order = await _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
             {
@@ -136,13 +137,13 @@ namespace WebBanHang.Areas.Admin.Controllers
         }
 
         // GET: /Admin/Orders/Print/5
-        [HttpGet("{id}/print")]
-        public async Task<IActionResult> Print(int id)
+        [HttpGet]
+        public async Task<IActionResult> Print(int orderId)
         {
             var order = await _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
             {
