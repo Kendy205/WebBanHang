@@ -322,20 +322,19 @@ namespace WebBanHang.DAL
             _logger.LogInformation("Seeding carts...");
 
             // Lấy danh sách user (chỉ Customer)
+            // SỬA: Lấy tất cả user có role là Customer để đảm bảo tìm đúng ID.
+            var customerUserIds = await _userManager.GetUsersInRoleAsync("Customer");
+
+            // Đảm bảo lấy các user object từ DB để EF Core theo dõi mối quan hệ
             var customers = await _context.Users
-                .Where(u => u.Email.StartsWith("customer"))
+                .Where(u => customerUserIds.Select(c => c.Id).Contains(u.Id))
                 .ToListAsync();
-            //
-            //var customer = await _userManager.GetUsersInRoleAsync("Customer");
 
             // Lấy danh sách món ăn (Foods) để chọn ngẫu nhiên
             var foods = await _context.Foods.ToListAsync();
 
             var carts = new List<Cart>();
-            var cartItems = new List<CartItem>();
-
-            int cartIdCounter = 1;
-            int cartItemIdCounter = 1;
+            // BỎ cartItems list riêng biệt (chỉ dùng navigation property)
 
             var random = new Random();
 
@@ -344,10 +343,11 @@ namespace WebBanHang.DAL
                 // Tạo 1 giỏ hàng cho mỗi customer
                 var cart = new Cart
                 {
-                   
+                    // GÁN OBJECT USER, không cần dùng UserId
                     User = customer,
                     CreatedAt = DateTime.Now.AddDays(-random.Next(1, 5)),
-                    UpdatedAt = DateTime.Now
+                    UpdatedAt = DateTime.Now,
+                    CartItems = new List<CartItem>() // Khởi tạo list chi tiết
                 };
 
                 // Thêm một số món ngẫu nhiên vào giỏ
@@ -356,27 +356,30 @@ namespace WebBanHang.DAL
 
                 foreach (var food in selectedFoods)
                 {
-                    var quantity = random.Next(1, 4); // 1–3 món
                     var item = new CartItem
                     {
-                        
-                        Cart = cart,
+                        // BỎ GÁN Cart = cart, (vì nó sẽ được gán tự động khi thêm vào list)
                         Food = food,
-                        Quantity = quantity,
+                        Quantity = random.Next(1, 4), // 1–3 món
                         Price = food.Price,
                         AddedAt = DateTime.Now
                     };
-                    cartItems.Add(item);
+
+                    // THÊM CartItem VÀO NAVIGATION PROPERTY
+                    cart.CartItems.Add(item);
                 }
 
                 carts.Add(cart);
             }
 
+            // Chỉ cần thêm Carts, EF Core sẽ tự động chèn CartItems
             await _context.Carts.AddRangeAsync(carts);
-            await _context.CartItems.AddRangeAsync(cartItems);
+            // BỎ DÒNG NÀY: await _context.CartItems.AddRangeAsync(cartItems);
+
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation($"Seeded {carts.Count} carts and {cartItems.Count} cart items");
+            int totalCartItems = carts.Sum(c => c.CartItems.Count);
+            _logger.LogInformation($"Seeded {carts.Count} carts and {totalCartItems} cart items");
         }
         // =============================================
         // 5. SEED ORDER
@@ -385,10 +388,11 @@ namespace WebBanHang.DAL
         {
             if (await _context.Orders.AnyAsync()) return;
 
-            // Lấy toàn bộ giỏ hàng có dữ liệu
+            // Lấy toàn bộ giỏ hàng có dữ liệu (quan trọng: Phải có Include)
             var carts = await _context.Carts
                 .Include(c => c.CartItems)
                 .ThenInclude(ci => ci.Food)
+                .Include(c => c.User) // Cần Include User để truy cập UserId chính xác
                 .ToListAsync();
 
             if (!carts.Any())

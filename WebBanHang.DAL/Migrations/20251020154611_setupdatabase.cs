@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebBanHang.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class setupDatabase : Migration
+    public partial class setupdatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

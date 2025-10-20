@@ -12,8 +12,8 @@ using WebBanHang.DAL.Data;
 namespace WebBanHang.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251020134720_setupDatabase")]
-    partial class setupDatabase
+    [Migration("20251020154611_setupdatabase")]
+    partial class setupdatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
