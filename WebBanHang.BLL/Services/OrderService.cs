@@ -30,10 +30,11 @@ namespace WebBanHang.BLL.Services
             var cart = await _cartService.GetCartByUserId(userId);
             if (cart?.CartItems == null || cart.CartItems.Count == 0)
                 throw new Exception("Giỏ hàng trống");
-
+            int orderID = await _unitOfWork.Orders.Count() + 1;
             var order = new Order
             {
-                // KHÔNG tự gán OrderId nếu dùng Identity!
+                
+                OrderId=orderID,
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 ShippingAddress = shippingAddress,
