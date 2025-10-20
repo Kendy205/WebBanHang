@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Core.Types;
 using WebBanHang.BLL.IServices;
 using WebBanHang.DAL.Data;
@@ -6,6 +7,7 @@ using WebBanHang.DAL.Data;
 namespace WebBanHang.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly ICategoryService _categoryService;

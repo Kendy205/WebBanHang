@@ -12,7 +12,7 @@ namespace WebBanHang.Models.Models
     public class CartItem
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CartItemId { get; set; }
 
         [Required]

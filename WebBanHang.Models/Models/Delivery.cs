@@ -13,7 +13,7 @@ namespace WebBanHang.Models.Models
     public class Delivery
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DeliveryId { get; set; }
         [Required]
         [ForeignKey("Order")]

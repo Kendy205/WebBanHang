@@ -30,11 +30,10 @@ namespace WebBanHang.BLL.Services
             var cart = await _cartService.GetCartByUserId(userId);
             if (cart?.CartItems == null || cart.CartItems.Count == 0)
                 throw new Exception("Giỏ hàng trống");
-            int orderID = await _unitOfWork.Orders.Count() + 1;
+
             var order = new Order
             {
-                
-                OrderId=orderID,
+                // KHÔNG tự gán OrderId nếu dùng Identity!
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 ShippingAddress = shippingAddress,
@@ -88,6 +87,7 @@ namespace WebBanHang.BLL.Services
                 PaymentMethod = paymentMethod,
                 Amount = cart.TotalAmount,
                 Status = "Pending",
+                TransactionId="0",
                 CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.Payments.AddAsync(payment);
@@ -102,11 +102,11 @@ namespace WebBanHang.BLL.Services
         }
 
 
-        public  async Task<IEnumerable<Order>> GetAllOrders()
+        public async Task<IEnumerable<Order>> GetAllOrders()
         {
-            return await  _unitOfWork.Orders.GetAllQueryable()
+            return await _unitOfWork.Orders.GetAllQueryable()
                 .Include(o => o.User)
-                .Include( o=> o.OrderDetails)
+                .Include(o => o.OrderDetails)
                 .ToListAsync();
 
         }
@@ -123,12 +123,12 @@ namespace WebBanHang.BLL.Services
                 .Include(o => o.OrderDetails).ThenInclude(od => od.Food)
                 .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
-                
+
         }
 
         public async Task<IEnumerable<Order>> GetOrdersByStatus(string status)
         {
-            return await _unitOfWork.Orders.FindAsync(o => o.Status== status);
+            return await _unitOfWork.Orders.FindAsync(o => o.Status == status);
         }
 
         public async Task<IEnumerable<Order>> GetOrdersByUserId(string userId)
@@ -152,7 +152,7 @@ namespace WebBanHang.BLL.Services
                 // Update payment status if order is completed
                 if (status == "Completed")
                 {
-                    var payment =await _unitOfWork.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId);
+                    var payment = await _unitOfWork.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId);
                     if (payment != null)
                     {
                         payment.Status = "Completed";
@@ -161,7 +161,7 @@ namespace WebBanHang.BLL.Services
                     }
                 }
                 await _unitOfWork.SaveAsync();
-                
+
             }
         }
 
@@ -188,7 +188,7 @@ namespace WebBanHang.BLL.Services
             return await _unitOfWork.Orders
                 .GetAllQueryable()
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(i => i.Food)     
+                    .ThenInclude(i => i.Food)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
         public Task<int> CreateOrderFromCartAsync(string userId, string shippingAddress, string phoneNumber, string paymentMethod, string notes)

@@ -13,7 +13,7 @@ namespace WebBanHang.Models.Models
     public class Food
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FoodId { get; set; }
         [Required]
         public string FoodName { get; set; }

@@ -13,7 +13,7 @@ namespace WebBanHang.Models.Models
     public class Category
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId { get; set; }
         [Required]
         public string CategoryName { get; set; }

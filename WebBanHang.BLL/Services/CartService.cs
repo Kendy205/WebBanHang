@@ -31,7 +31,7 @@ namespace WebBanHang.BLL.Services
             var existingCartItem = await _unitOfWork.CartItems.FirstOrDefaultAsync(ci => ci.CartId == cart.CartId && ci.FoodId == foodId);
             if (existingCartItem == null)
             {
-                
+
                 var cartItem = new CartItem
                 {
                     CartItemId = cart.CartItems.Count > 0 ? cart.CartItems.Max(ci => ci.CartItemId) + 1 : 1,
@@ -55,13 +55,13 @@ namespace WebBanHang.BLL.Services
         }
 
 
-        public  async Task ClearCart(string userId)
+        public async Task ClearCart(string userId)
         {
-            var cart =  await _unitOfWork.Carts.FirstOrDefaultAsync(c => c.UserId == userId);
-            if(cart != null)
+            var cart = await _unitOfWork.Carts.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (cart != null)
             {
                 var cartItems = await _unitOfWork.CartItems.FindAsync(c => c.CartId == cart.CartId);
-                foreach(var item in cartItems)
+                foreach (var item in cartItems)
                 {
                     await _unitOfWork.CartItems.DeleteAsync(item.CartItemId);
                 }
@@ -121,9 +121,9 @@ namespace WebBanHang.BLL.Services
         public async Task UpdateCartItem(int cartItemId, int quantity)
         {
             var cartItem = await _unitOfWork.CartItems.GetByIdAsync(cartItemId);
-            if(cartItem != null)
+            if (cartItem != null)
             {
-                if(cartItem.Quantity <=0 )
+                if (cartItem.Quantity <= 0)
                 {
                     RemoveFromCart(cartItemId);
                 }
