@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using WebBanHang.DAL.Data;
+using WebBanHang.DTOs;
+using WebBanHang.FileUpload.IFileUpload;
 
 namespace WebBanHang.Areas.Admin.Controllers
 {
@@ -15,14 +17,17 @@ namespace WebBanHang.Areas.Admin.Controllers
         private ApplicationDbContext _context;
         private UserManager<ApplicationUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
+        private readonly IBufferedFileUploadService _fileUploadService;
         public UsersController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context,
+            IBufferedFileUploadService fileUploadService,
             ILogger<UsersController> logger) : base(logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _fileUploadService = fileUploadService;
             _context = context;
         }
         // GET: /Admin/Users
@@ -112,46 +117,44 @@ namespace WebBanHang.Areas.Admin.Controllers
                 "Name",
                 "Name"
             );
-            return View(new ApplicationUser());
+            return View(new ApplicationUserDTO());
         }
 
         // POST: /Admin/Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ApplicationUser model, string password, string role)
+        public async Task<IActionResult> Create(ApplicationUserDTO model, IFormFile img) // <-- THAY ĐỔI 1
         {
+            // Kiểm tra validation cho toàn bộ model (bao gồm cả Password và Role)
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Roles = new SelectList(
+                    await _roleManager.Roles.ToListAsync(), "Name", "Name", model.Role // Thêm model.Role để giữ lại giá trị đã chọn
+                );
+                return View(model);
+            }
+
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    ViewBag.Roles = new SelectList(
-                        await _roleManager.Roles.ToListAsync(),
-                        "Name",
-                        "Name"
-                    );
-                    return View(model);
-                }
-
                 var user = new ApplicationUser
                 {
                     UserName = model.Email,
                     Email = model.Email,
-                    
+                    FulName = model.FulName,
                     PhoneNumber = model.PhoneNumber,
                     Address = model.Address,
-                  
                     EmailConfirmed = true,
-                   
                 };
-
-                var result = await _userManager.CreateAsync(user, password);
+                user.imgUrl= await _fileUploadService.UploadFileAsync(img);
+                // Lấy mật khẩu từ model
+                var result = await _userManager.CreateAsync(user, model.Password); // <-- THAY ĐỔI 2
 
                 if (result.Succeeded)
                 {
-                    // Assign role
-                    if (!string.IsNullOrEmpty(role))
+                    // Lấy role từ model
+                    if (!string.IsNullOrEmpty(model.Role)) // <-- THAY ĐỔI 3
                     {
-                        await _userManager.AddToRoleAsync(user, role);
+                        await _userManager.AddToRoleAsync(user, model.Role); // <-- THAY ĐỔI 4
                     }
 
                     ShowSuccess("Thêm người dùng thành công");
@@ -172,10 +175,9 @@ namespace WebBanHang.Areas.Admin.Controllers
                 ShowError($"Lỗi: {ex.Message}");
             }
 
+            // Nếu có lỗi, nạp lại Roles và trả về view với model hiện tại để hiển thị lỗi
             ViewBag.Roles = new SelectList(
-                await _roleManager.Roles.ToListAsync(),
-                "Name",
-                "Name"
+                await _roleManager.Roles.ToListAsync(), "Name", "Name", model.Role
             );
             return View(model);
         }
@@ -191,6 +193,7 @@ namespace WebBanHang.Areas.Admin.Controllers
             }
 
             var user = await _userManager.FindByIdAsync(userId);
+
             if (user == null)
             {
                 ShowError("Người dùng không tồn tại");
@@ -198,88 +201,111 @@ namespace WebBanHang.Areas.Admin.Controllers
             }
 
             var userRoles = await _userManager.GetRolesAsync(user);
+            var currentRole = userRoles.FirstOrDefault();
             ViewBag.Roles = new SelectList(
                 await _roleManager.Roles.ToListAsync(),
                 "Name",
-                "Name"
+                "Name",
+                currentRole
             );
             ViewBag.CurrentRole = userRoles.FirstOrDefault();
+            var userDto = new UserEditDTO
+            {
+                Id = user.Id,
+                FulName = user.FulName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
+                ImgUrl = user.imgUrl, // Lấy đường dẫn ảnh hiện tại
+                Role = currentRole ?? "" // Gán Role hiện tại
+            };
 
-            return View(user);
+            return View(userDto);
         }
 
         // POST: /Admin/Users/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string userId, ApplicationUser model, string role)
+        public async Task<IActionResult> Edit(string userId, UserEditDTO model) 
         {
-            try
+            // Kiểm tra tính hợp lệ cơ bản
+            if (userId != model.Id)
+                return BadRequest();
+
+            // 1. CHUẨN BỊ ROLE & VIEW DATA NẾU CÓ LỖI VALIDATION
+            if (!ModelState.IsValid)
             {
-                if (userId != model.Id)
-                    return BadRequest();
-
-                if (!ModelState.IsValid)
-                {
-                    ViewBag.Roles = new SelectList(
-                        await _roleManager.Roles.ToListAsync(),
-                        "Name",
-                        "Name"
-                    );
-                    return View(model);
-                }
-
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null)
-                {
-                    ShowError("Người dùng không tồn tại");
-                    return RedirectToAction("Index");
-                }
-
-                //user.FullName = model.FullName;
-                user.PhoneNumber = model.PhoneNumber;
-                user.Address = model.Address;
-                //user.IsActive = model.IsActive;
-                //user.UpdatedAt = DateTime.Now;
-
-                var result = await _userManager.UpdateAsync(user);
-
-                if (result.Succeeded)
-                {
-                    // Update role
-                    if (!string.IsNullOrEmpty(role))
-                    {
-                        var currentRoles = await _userManager.GetRolesAsync(user);
-                        await _userManager.RemoveFromRolesAsync(user, currentRoles.ToArray());
-                        await _userManager.AddToRoleAsync(user, role);
-                    }
-
-                    ShowSuccess("Cập nhật người dùng thành công");
-                    _logger.LogInformation($"User updated: {user.Email}");
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating user");
-                ShowError($"Lỗi: {ex.Message}");
+                ViewBag.Roles = new SelectList(
+                    await _roleManager.Roles.ToListAsync(),
+                    "Name",
+                    "Name",
+                    model.Role // Giữ lại Role đã chọn
+                );
+                // Chuyển DTO về View để người dùng sửa lại
+                return View(model);
             }
 
-            var userRoles = await _userManager.GetRolesAsync(model);
-            ViewBag.Roles = new SelectList(
-                await _roleManager.Roles.ToListAsync(),
-                "Name",
-                "Name"
-            );
-            ViewBag.CurrentRole = userRoles.FirstOrDefault();
+            // 2. TÌM NGƯỜI DÙNG VÀ CẬP NHẬT TRƯỜNG
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                ShowError("Người dùng không tồn tại");
+                return RedirectToAction("Index");
+            }
 
-            return View(model);
+            // Cập nhật các trường thông thường từ DTO vào user
+            user.FulName = model.FulName;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Address = model.Address;
+            user.UpdateAt = DateTime.Now; // Giả sử bạn có trường này
+
+            // 3. XỬ LÝ UPLOAD FILE ẢNH MỚI (NewAvatarFile)
+            if (model.NewAvatarFile != null)
+            {
+                // TODO: TRIỂN KHAI LOGIC LƯU FILE TẠI ĐÂY
+                // Ví dụ:
+                // 3a. Xóa ảnh cũ (nếu user.imgUrl không null)
+                // 3b. Lưu file mới vào thư mục (wwwroot/images/avatars)
+                // 3c. Lấy đường dẫn mới (ví dụ: "/images/avatars/new-file-name.png")
+
+                string newImgUrl = await _fileUploadService.UploadFileAsync(model.NewAvatarFile);
+                user.imgUrl = newImgUrl;
+            }
+            // Nếu model.NewAvatarFile là null, user.imgUrl sẽ giữ nguyên giá trị cũ (được truyền qua hidden field)
+
+            // 4. THỰC HIỆN CẬP NHẬT
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                // 5. CẬP NHẬT ROLE
+                if (!string.IsNullOrEmpty(model.Role))
+                {
+                    var currentRoles = await _userManager.GetRolesAsync(user);
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles.ToArray());
+                    await _userManager.AddToRoleAsync(user, model.Role);
+                }
+
+                ShowSuccess("Cập nhật người dùng thành công");
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                // Xử lý lỗi từ Identity (nếu có)
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+
+                // Tải lại ViewBag.Roles và trả về View với model hiện tại
+                ViewBag.Roles = new SelectList(
+                    await _roleManager.Roles.ToListAsync(),
+                    "Name",
+                    "Name",
+                    model.Role // Giữ lại Role đã chọn
+                );
+                return View(model);
+            }
         }
 
         // GET: /Admin/Users/Delete/{id}
@@ -326,10 +352,15 @@ namespace WebBanHang.Areas.Admin.Controllers
                     ShowError("Không thể xóa tài khoản của chính bạn");
                     return RedirectToAction("Index");
                 }
-
+                
                 var result = await _userManager.DeleteAsync(user);
+                
                 if (result.Succeeded)
                 {
+                    if(user.imgUrl != null)
+                    {
+                        await _fileUploadService.DeleteFileAsync(user.imgUrl);
+                    }
                     ShowSuccess("Xóa người dùng thành công");
                     _logger.LogInformation($"User deleted: {user.Email}");
                 }

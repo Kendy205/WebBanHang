@@ -1,0 +1,100 @@
+﻿@using WebBanHang.DTOs
+@model ApplicationUserDTO
+
+@{
+    ViewData["Title"] = "Thêm người dùng mới";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-8 mx-auto mb-4">
+        <form asp-action="Create" method="post" class="pt-3" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="FulName"></label>
+                <input asp-for="FulName" class="form-control form-control-lg" placeholder="Nhập họ và tên...">
+                <span asp-validation-for="FulName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control form-control-lg" placeholder="Nhập email...">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber"></label>
+                <input asp-for="PhoneNumber" class="form-control form-control-lg" placeholder="Nhập số điện thoại...">
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Address"></label>
+                <input asp-for="Address" class="form-control form-control-lg" placeholder="Nhập địa chỉ...">
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Role"></label>
+                <select asp-for="Role" class="form-control form-control-lg" asp-items="ViewBag.Roles">
+                    <option value="">-- Chọn một quyền --</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control form-control-lg" placeholder="Nhập mật khẩu...">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                @* <label asp-for="ConfirmPassword"></label> *@
+                <label>Avatar:</label>
+                <input id="imageFile" type="file" name="img" class="form-control form-control-lg" accept="image/*">
+                @* <span asp-validation-for="ConfirmPassword" class="text-danger"></span> *@
+                <img id="imagePreview" style="max-width: 150px; height: auto; margin-top: 10px; display: block;" />
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-gradient-primary btn-lg font-weight-medium">Thêm mới</button>
+                <a asp-action="Index" class="btn btn-light btn-lg">Quay lại danh sách</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    // 1. Lấy tham chiếu đến thẻ input file và thẻ img
+    const imageFile = document.getElementById('imageFile');
+    const imagePreview = document.getElementById('imagePreview');
+
+    // 2. Lắng nghe sự kiện 'change' trên input file
+    imageFile.addEventListener('change', function() {
+        // Kiểm tra xem đã có tệp nào được chọn chưa
+        if (this.files && this.files[0]) {
+            // Khởi tạo FileReader để đọc nội dung tệp
+            const reader = new FileReader();
+
+            // Thiết lập hàm sẽ chạy khi FileReader đọc xong tệp
+            reader.onload = function(e) {
+                // Đặt nguồn (source) của thẻ img bằng dữ liệu tệp
+                imagePreview.src = e.target.result;
+            }
+
+            // Bắt đầu đọc tệp dưới dạng URL dữ liệu (base64)
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            // Nếu không có tệp nào được chọn (hoặc bị xóa), xóa ảnh xem trước
+            imagePreview.src = "";
+        }
+    });
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

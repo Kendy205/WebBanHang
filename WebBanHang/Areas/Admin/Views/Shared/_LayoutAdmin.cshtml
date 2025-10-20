@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="~/_LayoutAdmin/assets/css/style.css">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="~/_LayoutAdmin/assets/images/favicon.ico" />
+    @* toastr  *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 </head>
 <body>
     <div class="container-scroller">
@@ -49,9 +51,9 @@
                     </div>
                     <!-- content-wrapper ends -->
                     <!-- partial:partials/_footer.html -->
-                    <div class="row" style="position:absolute;bottom:0px">
+                    @* <div class="row" style="position:absolute;bottom:0px;margin-top:10px"> *@
                     <partial name="~/Areas/Admin/Views/Shared/Partials/_FooterPartial.cshtml" />
-                    </div>
+                    @* </div> *@
                     <!-- partial -->
                 </div>
                 <!-- main-panel ends -->

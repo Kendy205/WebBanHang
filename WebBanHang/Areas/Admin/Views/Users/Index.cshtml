@@ -1,0 +1,78 @@
+﻿@using WebBanHang.DAL.Data
+@{
+    var userRole = ViewBag.UserRoles;
+}
+@model IEnumerable<ApplicationUser>
+<partial name="_toastr" />
+<div class="row">
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <a 
+                    class="btn btn-gradient-primary font-weight-bold "
+                    asp-area="Admin" 
+                    asp-controller="Users" 
+                    asp-action="Create" 
+                    style="text-decoration:none;color:wheat">
+                    Add
+                </a>
+                <h4 class="card-title mt-2">List User</h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th> Assignee </th>
+                                <th> FullName </th>
+                                <th> Role </th>
+                                <th> Last Update </th>
+                                <th> Tracking ID </th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ApplicationUser u in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (@u.imgUrl != null)
+                                        {
+                                            <img src="@u.imgUrl" class="me-2" alt="@u.FulName">
+
+                                        }
+                                        else{
+                                        <span>No img</span>
+                                        }
+                                        
+                                    </td>
+                                    <td> @u.FulName</td>
+                                    <td>
+                                        <label class="badge badge-gradient-success">@string.Join(", ", (List<string>)userRole[@u.Id])</label>
+                                    </td>
+                                    <td> @u.UpdateAt </td>
+                                    <td> WD-12345 </td>
+                                    <td>
+                                        <a asp-action="Delete" asp-route-userId="@u.Id" title="Delete User" >
+                                        <span class="text-danger">
+                                            <i id="delete" class="mdi mdi-popcorn"></i>
+                                        </span>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-userId="@u.Id" title="Edit User"">
+                                        <span class="text-primary">
+                                            <i id="edit" class="mdi mdi-grease-pencil"></i>
+                                        </span>
+                                        </a>
+                                        <a asp-action="Details" asp-route-userId="@u.Id" title="Detail User">
+                                        <span class="text-primary">
+                                            <i id="details" class="mdi mdi mdi-account"></i>
+                                        </span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

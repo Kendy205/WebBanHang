@@ -1,0 +1,143 @@
+﻿
+@using WebBanHang.DTOs
+@model UserEditDTO
+@{
+    ViewData["Title"] = "Chỉnh sửa Người dùng";
+}
+
+<div class="container my-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Chỉnh sửa Người dùng: @Model.FulName</h4>
+        </div>
+        <div class="card-body">
+
+            @* FORM CHÍNH - Bắt buộc phải có enctype để upload file *@
+            <form method="post" asp-action="Edit" asp-route-userId="@Model.Id" enctype="multipart/form-data">
+
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <div class="pt-3">
+
+                            @* Hiển thị lỗi validation tổng thể *@
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            @* Trường ẩn (ID) để đảm bảo POST đúng người dùng *@
+                            <input type="hidden" asp-for="Id" />
+
+                            @* Trường ẩn (imgUrl) để giữ lại đường dẫn ảnh cũ nếu người dùng không upload ảnh mới *@
+                            <input type="hidden" asp-for="@Model.ImgUrl" />
+
+                            @* ======================================================= *@
+                            @* 1. TRƯỜNG AVATAR (UPLOAD FILE) *@
+                            @* ======================================================= *@
+                            <div class="form-group">
+                                <label>Ảnh đại diện (Avatar)</label>
+                                @* Thẻ input type="file" phải có name rõ ràng (ví dụ: NewAvatarFile) *@
+                                <input type="file" name="NewAvatarFile" id="imageFile" class="form-control form-control-lg" accept="image/*" />
+
+                                @* Hiển thị ảnh Avatar hiện tại (ảnh cũ) *@
+                                <label class="d-block mt-3">Ảnh hiện tại/Xem trước:</label>
+                                @{
+                                    var imgSrc = string.IsNullOrEmpty(@Model.ImgUrl) ? "" : @Model.ImgUrl;
+                                }
+                                <img id="imagePreview"
+                                     src="@imgSrc"
+                                     style="max-width: 150px; height: auto; margin-top: 5px; display: @(string.IsNullOrEmpty(imgSrc) ? "none" : "block");"
+                                     alt="Current/New Avatar" />
+                            </div>
+
+                            @* ======================================================= *@
+                            @* 2. TRƯỜNG HỌ TÊN *@
+                            @* ======================================================= *@
+                            <div class="form-group">
+                                <label asp-for="FulName"></label>
+                                <input asp-for="FulName" class="form-control form-control-lg" />
+                                <span asp-validation-for="FulName" class="text-danger"></span>
+                            </div>
+
+                            @* ======================================================= *@
+                            @* 3. TRƯỜNG EMAIL (READONLY) *@
+                            @* ======================================================= *@
+                            <div class="form-group">
+                                <label asp-for="Email"></label>
+                                <input asp-for="Email" class="form-control form-control-lg" readonly />
+                            </div>
+
+                            @* ======================================================= *@
+                            @* 4. TRƯỜNG SỐ ĐIỆN THOẠI *@
+                            @* ======================================================= *@
+                            <div class="form-group">
+                                <label asp-for="PhoneNumber"></label>
+                                <input asp-for="PhoneNumber" class="form-control form-control-lg" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+
+                            @* ======================================================= *@
+                            @* 5. TRƯỜNG ĐỊA CHỈ *@
+                            @* ======================================================= *@
+                            <div class="form-group">
+                                <label asp-for="Address"></label>
+                                <input asp-for="Address" class="form-control form-control-lg" />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+
+                            @* ======================================================= *@
+                            @* 6. DROPDOWN CHỌN QUYỀN (ROLE) *@
+                            @* ======================================================= *@
+                            <div class="form-group">
+                                <label>Quyền (Roles)</label>
+                                <select name="role" class="form-control form-control-lg"
+                                        asp-items="@(ViewBag.Roles as SelectList)">
+                                    <option disabled selected>-- Chọn quyền --</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group pt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="mdi mdi-content-save"></i> Lưu Thay Đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg ml-2">
+                        <i class="mdi mdi-arrow-left"></i> Quay lại Danh sách
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ======================================================= *@
+@* SCRIPT XEM TRƯỚC ẢNH VÀ VALIDATION *@
+@* ======================================================= *@
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const imageFile = document.getElementById('imageFile');
+            const imagePreview = document.getElementById('imagePreview');
+
+            imageFile.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block'; // Hiển thị thẻ img
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    // Nếu không có tệp nào được chọn, ẩn ảnh preview
+                    imagePreview.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}
