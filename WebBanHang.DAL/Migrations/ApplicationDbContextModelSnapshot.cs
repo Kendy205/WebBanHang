@@ -250,7 +250,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.Cart", b =>
                 {
                     b.Property<int>("CartId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -273,7 +276,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.CartItem", b =>
                 {
                     b.Property<int>("CartItemId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItemId"));
 
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("datetime2");
@@ -302,7 +308,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.Category", b =>
                 {
                     b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -328,7 +337,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.Delivery", b =>
                 {
                     b.Property<int>("DeliveryId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DeliveryId"));
 
                     b.Property<DateTime?>("ActualDeliveryTime")
                         .HasColumnType("datetime2");
@@ -375,7 +387,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.Food", b =>
                 {
                     b.Property<int>("FoodId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FoodId"));
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -415,7 +430,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -472,7 +490,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.OrderDetail", b =>
                 {
                     b.Property<int>("OrderDetailId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailId"));
 
                     b.Property<int>("FoodId")
                         .HasColumnType("int");
@@ -503,7 +524,10 @@ namespace WebBanHang.DAL.Migrations
             modelBuilder.Entity("WebBanHang.Models.Models.Payment", b =>
                 {
                     b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");

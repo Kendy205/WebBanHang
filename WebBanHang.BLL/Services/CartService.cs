@@ -34,7 +34,7 @@ namespace WebBanHang.BLL.Services
                 
                 var cartItem = new CartItem
                 {
-                    CartItemId = cart.CartItems.Count > 0 ? cart.CartItems.Max(ci => ci.CartItemId) + 1 : 1,
+                   // CartItemId = cart.CartItems.Count > 0 ? cart.CartItems.Max(ci => ci.CartItemId) + 1 : 1,
                     CartId = cart.CartId,
                     FoodId = foodId,
                     Quantity = quantity,

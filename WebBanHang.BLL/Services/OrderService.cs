@@ -35,10 +35,10 @@ namespace WebBanHang.BLL.Services
             }
             //tao Order tu Cart
             var orderCode = "ORD" + DateTime.UtcNow.ToString("ddmmyyyy");
-            var orderId = await _unitOfWork.Orders.Count() + 1;
+            //var orderId = await _unitOfWork.Orders.Count() + 1;
             var order = new Order
             {
-                OrderId = orderId,
+                //OrderId = orderId,
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 ShippingAddress = shippingAddress,

@@ -7,7 +7,7 @@ namespace WebBanHang.Models.Models
     public class Cart
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CartId { get; set; }
         [Required]
         [ForeignKey("User")]

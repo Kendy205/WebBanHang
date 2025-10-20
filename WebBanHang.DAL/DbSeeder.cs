@@ -192,7 +192,7 @@ namespace WebBanHang.DAL
             {
                 new Category
                 {
-                    CategoryId = 1,
+                    
                     CategoryName = "Pizza",
                     Description = "Các loại Pizza truyền thống và hiện đại",
                     ImageUrl = "/images/categories/pizza.jpg",
@@ -201,7 +201,7 @@ namespace WebBanHang.DAL
                 },
                 new Category
                 {
-                    CategoryId = 2,
+                   
                     CategoryName = "Nước Uống",
                     Description = "Nước ngọt, nước ép, trà sữa, cà phê",
                     ImageUrl = "/images/categories/drinks.jpg",
@@ -210,7 +210,7 @@ namespace WebBanHang.DAL
                 },
                 new Category
                 {
-                    CategoryId = 3,
+                  
                     CategoryName = "Cơm",
                     Description = "Cơm truyền thống Việt Nam",
                     ImageUrl = "/images/categories/rice.jpg",
@@ -219,7 +219,7 @@ namespace WebBanHang.DAL
                 },
                 new Category
                 {
-                    CategoryId = 4,
+                   
                     CategoryName = "Mì & Phở",
                     Description = "Mì Ý, phở, bún, miến các loại",
                     ImageUrl = "/images/categories/noodles.jpg",
@@ -228,7 +228,7 @@ namespace WebBanHang.DAL
                 },
                 new Category
                 {
-                    CategoryId = 5,
+                   
                     CategoryName = "Đồ Ăn Nhanh",
                     Description = "Burger, gà rán, khoai tây chiên",
                     ImageUrl = "/images/categories/fastfood.jpg",
@@ -237,7 +237,7 @@ namespace WebBanHang.DAL
                 },
                 new Category
                 {
-                    CategoryId = 6,
+                
                     CategoryName = "Món Ăn Vặt",
                     Description = "Các món ăn vặt phổ biến",
                     ImageUrl = "/images/categories/snacks.jpg",
@@ -268,36 +268,36 @@ namespace WebBanHang.DAL
             var foods = new[]
             {
                 // Pizza
-                new Food {FoodId=1, FoodName = "Pizza Hải Sản", Description = "Pizza với tôm, mực, nghêu tươi ngon", Price = 159000, CategoryId = 1, ImageUrl = "/images/foods/pizza-seafood.jpg", IsAvailable = true, Rating = 4.5m, CreatedAt = DateTime.Now },
-                new Food {FoodId=2, FoodName = "Pizza Pepperoni", Description = "Pizza với xúc xích Pepperoni cay", Price = 139000, CategoryId = 1, ImageUrl = "/images/foods/pizza-pepperoni.jpg", IsAvailable = true, Rating = 4.7m, CreatedAt = DateTime.Now },
-                new Food {FoodId=3, FoodName = "Pizza Phô Mai", Description = "Pizza 4 loại phô mai đặc biệt", Price = 149000, CategoryId = 1, ImageUrl = "/images/foods/pizza-cheese.jpg", IsAvailable = true, Rating = 4.3m, CreatedAt = DateTime.Now },
-                new Food {FoodId=4, FoodName = "Pizza Gà BBQ", Description = "Pizza với gà nướng BBQ", Price = 145000, CategoryId = 1, ImageUrl = "/images/foods/pizza-bbq.jpg", IsAvailable = true, Rating = 4.6m, CreatedAt = DateTime.Now },
+                new Food { FoodName = "Pizza Hải Sản", Description = "Pizza với tôm, mực, nghêu tươi ngon", Price = 159000, CategoryId = 1, ImageUrl = "/images/foods/pizza-seafood.jpg", IsAvailable = true, Rating = 4.5m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Pizza Pepperoni", Description = "Pizza với xúc xích Pepperoni cay", Price = 139000, CategoryId = 1, ImageUrl = "/images/foods/pizza-pepperoni.jpg", IsAvailable = true, Rating = 4.7m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Pizza Phô Mai", Description = "Pizza 4 loại phô mai đặc biệt", Price = 149000, CategoryId = 1, ImageUrl = "/images/foods/pizza-cheese.jpg", IsAvailable = true, Rating = 4.3m, CreatedAt = DateTime.Now },
+                new Food { FoodName = "Pizza Gà BBQ", Description = "Pizza với gà nướng BBQ", Price = 145000, CategoryId = 1, ImageUrl = "/images/foods/pizza-bbq.jpg", IsAvailable = true, Rating = 4.6m, CreatedAt = DateTime.Now },
 
                 // Nước Uống
-                new Food {FoodId=5, FoodName = "Coca Cola", Description = "Nước ngọt có gas", Price = 15000, CategoryId = 2, ImageUrl = "/images/foods/coca.jpg", IsAvailable = true, Rating = 4.8m, CreatedAt = DateTime.Now },
-                new Food {FoodId=6, FoodName = "Trà Sữa Trân Châu", Description = "Trà sữa Đài Loan với trân châu đen", Price = 35000, CategoryId = 2, ImageUrl = "/images/foods/milktea.jpg", IsAvailable = true, Rating = 4.6m, CreatedAt = DateTime.Now },
-                new Food {FoodId=7, FoodName = "Nước Cam Ép", Description = "Nước cam tươi nguyên chất", Price = 25000, CategoryId = 2, ImageUrl = "/images/foods/orange-juice.jpg", IsAvailable = true, Rating = 4.7m, CreatedAt = DateTime.Now },
-                new Food {FoodId=8, FoodName = "Cà Phê Sữa Đá", Description = "Cà phê phin truyền thống", Price = 20000, CategoryId = 2, ImageUrl = "/images/foods/coffee.jpg", IsAvailable = true, Rating = 4.5m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Coca Cola", Description = "Nước ngọt có gas", Price = 15000, CategoryId = 2, ImageUrl = "/images/foods/coca.jpg", IsAvailable = true, Rating = 4.8m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Trà Sữa Trân Châu", Description = "Trà sữa Đài Loan với trân châu đen", Price = 35000, CategoryId = 2, ImageUrl = "/images/foods/milktea.jpg", IsAvailable = true, Rating = 4.6m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Nước Cam Ép", Description = "Nước cam tươi nguyên chất", Price = 25000, CategoryId = 2, ImageUrl = "/images/foods/orange-juice.jpg", IsAvailable = true, Rating = 4.7m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Cà Phê Sữa Đá", Description = "Cà phê phin truyền thống", Price = 20000, CategoryId = 2, ImageUrl = "/images/foods/coffee.jpg", IsAvailable = true, Rating = 4.5m, CreatedAt = DateTime.Now },
 
                 // Cơm
-                new Food {FoodId=9, FoodName = "Cơm Gà Xối Mỡ", Description = "Cơm gà Hải Nam thơm ngon", Price = 45000, CategoryId = 3, ImageUrl = "/images/foods/chicken-rice.jpg", IsAvailable = true, Rating = 4.4m, CreatedAt = DateTime.Now },
-                new Food {FoodId = 10,  FoodName = "Cơm Tấm Sườn Bì", Description = "Cơm tấm Sài Gòn đặc trưng", Price = 50000, CategoryId = 3, ImageUrl = "/images/foods/com-tam.jpg", IsAvailable = true, Rating = 4.5m, CreatedAt = DateTime.Now },
-                new Food {FoodId=11, FoodName = "Cơm Chiên Dương Châu", Description = "Cơm chiên với tôm, xúc xích", Price = 55000, CategoryId = 3, ImageUrl = "/images/foods/fried-rice.jpg", IsAvailable = true, Rating = 4.3m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Cơm Gà Xối Mỡ", Description = "Cơm gà Hải Nam thơm ngon", Price = 45000, CategoryId = 3, ImageUrl = "/images/foods/chicken-rice.jpg", IsAvailable = true, Rating = 4.4m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Cơm Tấm Sườn Bì", Description = "Cơm tấm Sài Gòn đặc trưng", Price = 50000, CategoryId = 3, ImageUrl = "/images/foods/com-tam.jpg", IsAvailable = true, Rating = 4.5m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Cơm Chiên Dương Châu", Description = "Cơm chiên với tôm, xúc xích", Price = 55000, CategoryId = 3, ImageUrl = "/images/foods/fried-rice.jpg", IsAvailable = true, Rating = 4.3m, CreatedAt = DateTime.Now },
 
                 // Mì & Phở
-                new Food {FoodId=12, FoodName = "Phở Bò Tái", Description = "Phở bò truyền thống Hà Nội", Price = 55000, CategoryId = 4, ImageUrl = "/images/foods/pho-bo.jpg", IsAvailable = true, Rating = 4.7m,  CreatedAt = DateTime.Now },
-                new Food {FoodId=13, FoodName = "Mì Ý Carbonara", Description = "Mì Ý sốt kem phô mai", Price = 75000, CategoryId = 4, ImageUrl = "/images/foods/pasta-carbonara.jpg", IsAvailable = true, Rating = 4.4m, CreatedAt = DateTime.Now },
-                new Food {FoodId=14, FoodName = "Bún Chả Hà Nội", Description = "Bún chả truyền thống", Price = 50000, CategoryId = 4, ImageUrl = "/images/foods/bun-cha.jpg", IsAvailable = true, Rating = 4.6m,  CreatedAt = DateTime.Now },
+                new Food {FoodName = "Phở Bò Tái", Description = "Phở bò truyền thống Hà Nội", Price = 55000, CategoryId = 4, ImageUrl = "/images/foods/pho-bo.jpg", IsAvailable = true, Rating = 4.7m,  CreatedAt = DateTime.Now },
+                new Food {FoodName = "Mì Ý Carbonara", Description = "Mì Ý sốt kem phô mai", Price = 75000, CategoryId = 4, ImageUrl = "/images/foods/pasta-carbonara.jpg", IsAvailable = true, Rating = 4.4m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Bún Chả Hà Nội", Description = "Bún chả truyền thống", Price = 50000, CategoryId = 4, ImageUrl = "/images/foods/bun-cha.jpg", IsAvailable = true, Rating = 4.6m,  CreatedAt = DateTime.Now },
 
                 // Đồ Ăn Nhanh
-                new Food {FoodId=15, FoodName = "Gà Rán KFC Style", Description = "Gà rán giòn tan kiểu Mỹ", Price = 85000, CategoryId = 5, ImageUrl = "/images/foods/fried-chicken.jpg", IsAvailable = true, Rating = 4.6m, CreatedAt = DateTime.Now },
-                new Food {FoodId=16, FoodName = "Burger Bò Phô Mai", Description = "Burger bò Úc với phô mai", Price = 65000, CategoryId = 5, ImageUrl = "/images/foods/burger.jpg", IsAvailable = true, Rating = 4.5m,  CreatedAt = DateTime.Now },
-                new Food {FoodId=17, FoodName = "Khoai Tây Chiên", Description = "Khoai tây chiên giòn", Price = 30000, CategoryId = 5, ImageUrl = "/images/foods/french-fries.jpg", IsAvailable = true, Rating = 4.4m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Gà Rán KFC Style", Description = "Gà rán giòn tan kiểu Mỹ", Price = 85000, CategoryId = 5, ImageUrl = "/images/foods/fried-chicken.jpg", IsAvailable = true, Rating = 4.6m, CreatedAt = DateTime.Now },
+                new Food {FoodName = "Burger Bò Phô Mai", Description = "Burger bò Úc với phô mai", Price = 65000, CategoryId = 5, ImageUrl = "/images/foods/burger.jpg", IsAvailable = true, Rating = 4.5m,  CreatedAt = DateTime.Now },
+                new Food {FoodName = "Khoai Tây Chiên", Description = "Khoai tây chiên giòn", Price = 30000, CategoryId = 5, ImageUrl = "/images/foods/french-fries.jpg", IsAvailable = true, Rating = 4.4m, CreatedAt = DateTime.Now },
 
                 // Món Ăn Vặt
-                new Food {FoodId=18, FoodName = "Bánh Tráng Trộn", Description = "Bánh tráng trộn Sài Gòn", Price = 25000, CategoryId = 6, ImageUrl = "/images/foods/banh-trang.jpg", IsAvailable = true, Rating = 4.3m,  CreatedAt = DateTime.Now },
-                new Food {FoodId=19, FoodName = "Chả Giò", Description = "Chả giò chiên giòn", Price = 35000, CategoryId = 6, ImageUrl = "/images/foods/cha-gio.jpg", IsAvailable = true, Rating = 4.5m,  CreatedAt = DateTime.Now },
-                new Food {FoodId=20, FoodName = "Nem Nướng", Description = "Nem nướng Nha Trang", Price = 40000, CategoryId = 6, ImageUrl = "/images/foods/nem-nuong.jpg", IsAvailable = true, Rating = 4.4m,  CreatedAt = DateTime.Now }
+                new Food {FoodName = "Bánh Tráng Trộn", Description = "Bánh tráng trộn Sài Gòn", Price = 25000, CategoryId = 6, ImageUrl = "/images/foods/banh-trang.jpg", IsAvailable = true, Rating = 4.3m,  CreatedAt = DateTime.Now },
+                new Food {FoodName = "Chả Giò", Description = "Chả giò chiên giòn", Price = 35000, CategoryId = 6, ImageUrl = "/images/foods/cha-gio.jpg", IsAvailable = true, Rating = 4.5m,  CreatedAt = DateTime.Now },
+                new Food {FoodName = "Nem Nướng", Description = "Nem nướng Nha Trang", Price = 40000, CategoryId = 6, ImageUrl = "/images/foods/nem-nuong.jpg", IsAvailable = true, Rating = 4.4m,  CreatedAt = DateTime.Now }
             };
 
             await _context.Foods.AddRangeAsync(foods);
@@ -305,6 +305,9 @@ namespace WebBanHang.DAL
 
             _logger.LogInformation($"Seeded {foods.Length} foods");
         }
+        // =============================================
+        // 5. SEED CARTS & CART ITEMS
+        // =============================================
         // =============================================
         // 5. SEED CARTS & CART ITEMS
         // =============================================
@@ -341,8 +344,8 @@ namespace WebBanHang.DAL
                 // Tạo 1 giỏ hàng cho mỗi customer
                 var cart = new Cart
                 {
-                    CartId = cartIdCounter++,
-                    UserId = customer.Id,
+                   
+                    User = customer,
                     CreatedAt = DateTime.Now.AddDays(-random.Next(1, 5)),
                     UpdatedAt = DateTime.Now
                 };
@@ -356,9 +359,9 @@ namespace WebBanHang.DAL
                     var quantity = random.Next(1, 4); // 1–3 món
                     var item = new CartItem
                     {
-                        CartItemId = cartItemIdCounter++,
-                        CartId = cart.CartId,
-                        FoodId = food.FoodId,
+                        
+                        Cart = cart,
+                        Food = food,
                         Quantity = quantity,
                         Price = food.Price,
                         AddedAt = DateTime.Now
@@ -406,13 +409,13 @@ namespace WebBanHang.DAL
 
                 // Tính tổng tiền giỏ hàng
                 decimal totalAmount = cart.CartItems.Sum(i => i.Quantity * i.Price);
-
+                
                 // === Tạo đơn hàng ===
                 var order = new Order
                 {
-                    OrderId = orderId++,
+                   // OrderId = orderId++,
                     OrderCode = $"ORD{orderId:000}",
-                    UserId = cart.UserId,
+                    User = cart.User,
                     OrderDate = DateTime.Now,
                     TotalAmount = totalAmount,
                     Status = "Completed",
@@ -423,13 +426,13 @@ namespace WebBanHang.DAL
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
-
+                orderId++;
                 // === Tạo chi tiết đơn hàng ===
                 var orderDetails = cart.CartItems.Select(ci => new OrderDetail
                 {
-                    OrderDetailId = orderDetailId++,
-                    OrderId = order.OrderId,
-                    FoodId = ci.FoodId,
+                    //OrderDetailId = orderDetailId++,
+                    Order = order,
+                    Food = ci.Food,
                     FoodName = ci.Food?.FoodName ?? "Không rõ",
                     Quantity = ci.Quantity,
                     Price = ci.Price
@@ -440,8 +443,8 @@ namespace WebBanHang.DAL
                 // === Tạo thanh toán ===
                 order.Payment = new Payment
                 {
-                    PaymentId = paymentId++,
-                    OrderId = order.OrderId,
+                    //PaymentId = paymentId++,
+                    Order = order,
                     PaymentMethod = order.PaymentMethod,
                     Amount = order.TotalAmount,
                     Status = "Paid",
@@ -453,8 +456,8 @@ namespace WebBanHang.DAL
                 // === Tạo giao hàng (Delivery) ===
                 order.Delivery = new Delivery
                 {
-                    DeliveryId = deliveryId++,
-                    OrderId = order.OrderId,
+                    //DeliveryId = deliveryId++,
+                    Order = order,
                     ShipperName = "Nguyễn Văn A",
                     ShipperPhone = "0909888777",
                     EstimatedTime = DateTime.Now.AddHours(2),
