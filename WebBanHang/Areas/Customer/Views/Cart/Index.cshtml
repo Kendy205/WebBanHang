@@ -15,7 +15,7 @@
                     <th>Tên món</th>
                     <th>Giá</th>
                     <th>Số lượng</th>
-                    <th>Tổng</th>
+                    <th>Giá tiền</th>
                     <th></th>
                 </tr>
             </thead>
@@ -69,7 +69,7 @@
             <a href="/Customer/Home" class="btn btn-secondary">← Tiếp tục mua sắm</a>
             <div>
                 <button type="submit" class="btn btn-outline-danger me-2">🗑️ Xóa toàn bộ</button>
-                <a href="/Customer/Checkout" class="btn btn-success">Thanh toán</a>
+                <a asp-area="Customer" asp-controller="Order" asp-action="checkout" class="btn btn-success">Đặt Hàng</a>
             </div>
         </div>
     </form>

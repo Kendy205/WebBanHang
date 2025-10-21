@@ -1,4 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using WebBanHang.BLL.IServices
+@using WebBanHang.DAL.Data
+@using Microsoft.AspNetCore.Identity
 @using WebBanHang.DAL.Data
 
 @{
@@ -9,7 +12,9 @@
 }
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ICartService CartService 
 <header class="header" style="background-color:antiquewhite;margin-bottom:2px">
     <div class="header__top">
         <div class="container">
@@ -96,11 +101,36 @@
             </div>
             <div class="col-lg-3">
                 <div class="header__cart">
+                    @{
+                        // CHỈ LẤY DỮ LIỆU NẾU NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP
+                        int cartItemCount = 0;
+                        decimal cartTotalAmount = 0m;
+
+                        if (SignInManager.IsSignedIn(User))
+                        {
+                            // Lấy thông tin User
+                            var user = await UserManager.GetUserAsync(User);
+                            if (user != null)
+                            {
+                                // Gọi CartService để lấy giỏ hàng
+                                var cart = await CartService.GetCartByUserId(user.Id);
+                                cartItemCount = cart?.TotalItems ?? 0;
+                                cartTotalAmount = cart?.TotalAmount ?? 0m;
+                            }
+                        }
+                    }
+
                     <ul>
-                       
-                        <li><a asp-area="Customer" asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
+                        <li>
+                            <a asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                <i class="fa fa-shopping-bag"></i>
+                                <span>@cartItemCount</span> @* <--- Hiển thị số lượng *@
+                            </a>
+                        </li>
                     </ul>
-                    <div class="header__cart__price">item: <span>$150.00</span></div>
+                    <div class="header__cart__price">
+                        item: <span>$@cartTotalAmount.ToString("F2")</span> @* <--- Hiển thị tổng tiền *@
+                    </div>
                 </div>
             </div>
         </div>
