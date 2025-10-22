@@ -1,0 +1,145 @@
+﻿@using WebBanHang.Models.Models
+@model Order
+@{
+    Layout = null;
+    decimal total = Model.OrderDetails?.Sum(d => d.Quantity * d.Price) ?? 0m;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>In đơn @(@Model.OrderCode ?? $"#{@Model.OrderId}")</title>
+    <style>
+        body {
+            font-family: Arial,Helvetica,sans-serif;
+            margin: 0;
+            padding: 16px;
+        }
+
+        .container {
+            width: 820px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .meta {
+            font-size: 14px;
+            text-align: right;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background: #f7f7f7;
+        }
+
+        tfoot th {
+            background: #fafafa;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .no-print {
+            margin-bottom: 12px;
+        }
+        @@media print {
+            .no-print
+
+        {
+            display: none;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="no-print">
+            <button onclick="window.print()">In</button>
+        </div>
+
+        <div class="header">
+            <div class="title">HÓA ĐƠN / PHIẾU GIAO HÀNG</div>
+            <div class="meta">
+                <div>Mã đơn: @(@Model.OrderCode ?? $"#{@Model.OrderId}")</div>
+                <div>Ngày: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                <div>Trạng thái: @Model.Status</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <strong>Khách hàng:</strong> @(@Model.User?.FulName ?? $"{@Model.User?.FirstName} {@Model.User?.LastName}".Trim() ?? @Model.User?.Email ?? "—")<br />
+            <strong>SĐT:</strong> @(@Model.PhoneNumber ?? "—")<br />
+            <strong>Địa chỉ:</strong> @(@Model.ShippingAddress ?? "—")<br />
+            <strong>Thanh toán:</strong> @(@Model.PaymentMethod ?? "—")
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Món/ Sản phẩm</th>
+                    <th class="text-end">SL</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 0;
+                }
+                @if (Model.OrderDetails != null)
+                {
+                    foreach (var d in Model.OrderDetails)
+                    {
+                        i++;
+                        var name = string.IsNullOrWhiteSpace(d.FoodName) ? (d.Food?.FoodName ?? "—") : d.FoodName;
+                        var sub = d.Quantity * d.Price;
+
+                        <tr>
+                            <td>@i</td>
+                            <td>@name</td>
+                            <td class="text-end">@d.Quantity</td>
+                            <td class="text-end">@d.Price.ToString("N0")</td>
+                            <td class="text-end">@sub.ToString("N0")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4" class="text-end">Tổng tạm tính</th>
+                    <th class="text-end">@total.ToString("N0")</th>
+                </tr>
+                <tr>
+                    <th colspan="4" class="text-end">TotalAmount (theo DB)</th>
+                    <th class="text-end">@Model.TotalAmount.ToString("N0")</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <p style="margin-top:24px;">Cảm ơn Quý khách!</p>
+    </div>
+</body>
+</html>
