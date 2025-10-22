@@ -1,5 +1,4 @@
 ﻿<!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="UTF-8">
@@ -11,7 +10,6 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
     <!-- Css Styles -->
-
     <link rel="stylesheet" href="~/_LayoutUser/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/elegant-icons.css" type="text/css">
@@ -20,34 +18,33 @@
     <link rel="stylesheet" href="~/_LayoutUser/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
-
-    
 </head>
- @* ThanhTung 05-10-25 : Sua layout den phan featured product  *@
- @* ThanhTung 08-10-25 : Hoàn thành layout Home  *@
 <body>
-
     <!-- Page Preloder -->
     <div id="preloder">
         <div class="loader"></div>
     </div>
-    
+
     <!-- Humberger Begin -->
     <partial name="~/Views/Shared/Partials/_HumbergerPartial.cshtml" />
     <!-- Humberger End -->
+
     <!-- Header Section Begin -->
     <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" />
     <!-- Header Section End -->
+
     <!-- Hero Section Begin -->
     <partial name="~/Views/Shared/Partials/_CaroselPartial.cshtml" />
     <!-- Hero Section End -->
-  
-   
-    @RenderBody()
-    <!-- Categories Section End -->
+
+    <!-- Categories Section Begin -->
+    @await Component.InvokeAsync("RenderCaroselDanhMuc")
+    <!-- Categories Section end -->
+
     <!-- Featured Section Begin -->
-   
+    @RenderBody()  
     <!-- Featured Section End -->
+
     <!-- Banner Begin -->
     <div class="banner">
         <div class="container">
@@ -66,6 +63,7 @@
         </div>
     </div>
     <!-- Banner End -->
+
     <!-- Latest Product Section Begin -->
     <section class="latest-product spad">
         <div class="container">
@@ -270,7 +268,8 @@
     </section>
     <!-- Latest Product Section End -->
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
-    
+    <!-- Js Libraly -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Js Plugins -->
     <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>
     <script src="~/_LayoutUser/js/bootstrap.min.js"></script>
@@ -280,18 +279,7 @@
     <script src="~/_LayoutUser/js/mixitup.min.js"></script>
     <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
     <script src="~/_LayoutUser/js/main.js"></script>
-    <script>
-        // Định nghĩa một object toàn cục để chứa các cài đặt ứng dụng
-        var appSettings = {
-            // Dùng Razor để tạo URL động
-            // Giả sử Controller là "Cart" và Area là "Customer"
-            addToCartUrl: '@Url.Action("AddToCart", "Cart", new { area = "Customer" })',
-
-            // Thêm URL đăng nhập (rất quan trọng cho logic AJAX)
-            loginUrl: '@Url.Action("Login", "Account", new { area = "Identity" })'
-        };
-    </script>
-    <script src="~/js/site.js"></script>
+    <script src="~/js/Home.js"></script> 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

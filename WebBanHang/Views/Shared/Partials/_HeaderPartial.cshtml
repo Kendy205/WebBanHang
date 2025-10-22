@@ -12,8 +12,6 @@
 }
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
 @inject ICartService CartService 
 <header class="header" style="background-color:antiquewhite;margin-bottom:2px">
     <div class="header__top">
@@ -124,12 +122,12 @@
                         <li>
                             <a asp-area="Customer" asp-controller="Cart" asp-action="Index">
                                 <i class="fa fa-shopping-bag"></i>
-                                <span>@cartItemCount</span> @* <--- Hiển thị số lượng *@
+                                <span id="header-cart-count">@cartItemCount</span> @* <--- Hiển thị số lượng *@
                             </a>
                         </li>
                     </ul>
                     <div class="header__cart__price">
-                        item: <span>$@cartTotalAmount.ToString("F2")</span> @* <--- Hiển thị tổng tiền *@
+                        item: <span id="header-cart-total">@cartTotalAmount.ToString("F2")</span> @* <--- Hiển thị tổng tiền *@
                     </div>
                 </div>
             </div>

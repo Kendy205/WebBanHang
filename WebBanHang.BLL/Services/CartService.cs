@@ -101,7 +101,8 @@ namespace WebBanHang.BLL.Services
 
         public async Task<decimal> GetCartTotal(string userId)
         {
-            throw new NotImplementedException();
+            var cart =await GetCartByUserId(userId);
+            return cart.TotalAmount;
         }
 
         public async Task RemoveFromCart(int cartItemId)

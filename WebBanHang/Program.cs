@@ -51,6 +51,21 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Error/AccessDenied";
     options.LogoutPath = "/Identity/Account/Logout";
+    options.Events.OnRedirectToLogin = context =>
+    {
+        // Nếu request là một API call (dựa vào đường dẫn)
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            // Thì không chuyển hướng, mà trả về lỗi 401 Unauthorized
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        }
+        else
+        {
+            // Ngược lại, đối với các trang web thông thường, thực hiện chuyển hướng
+            context.Response.Redirect(context.RedirectUri);
+        }
+        return Task.CompletedTask;
+    };
 });
 //fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
@@ -96,10 +111,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 // Hien thi 404Error neu khong tim thay link
-app.UseStatusCodePagesWithReExecute("/Error/Handle", "?code={0}");
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+{
+    appBuilder.UseStatusCodePagesWithReExecute("/Error/Handle", "?code={0}");
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -108,11 +125,10 @@ app.MapRazorPages();
 app.MapControllerRoute(
     name: "area",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
-
+app.MapControllers();
 app.Run();
 
 

@@ -40,7 +40,9 @@
     @RenderBody()
 
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
-    
+    <!-- Js Libraly -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
     <!-- Js Plugins -->
     <script src="~/_LayoutUser/js/jquery-3.3.1.min.js"></script>
     <script src="~/_LayoutUser/js/bootstrap.min.js"></script>
@@ -50,18 +52,7 @@
     <script src="~/_LayoutUser/js/mixitup.min.js"></script>
     <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
     <script src="~/_LayoutUser/js/main.js"></script>
-    <script>
-        // Định nghĩa một object toàn cục để chứa các cài đặt ứng dụng
-        var appSettings = {
-            // Dùng Razor để tạo URL động
-            // Giả sử Controller là "Cart" và Area là "Customer"
-            addToCartUrl: '@Url.Action("AddToCart", "Cart", new { area = "Customer" })',
-
-            // Thêm URL đăng nhập (rất quan trọng cho logic AJAX)
-            loginUrl: '@Url.Action("Login", "Account", new { area = "Identity" })'
-        };
-    </script>
-    <script src="~/js/site.js"></script>
+    <script src="~/js/Home.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
