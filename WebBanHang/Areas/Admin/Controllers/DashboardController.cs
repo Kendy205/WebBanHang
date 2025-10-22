@@ -64,6 +64,23 @@ namespace WebBanHang.Areas.Admin.Controllers
                     .OrderByDescending(o => o.OrderDate)
                     .Take(10)
                     .ToList();
+                // Top 5 khách hàng chi tiêu nhiều nhất
+                var topCustomers = _context.Orders
+                    .Include(o => o.User)
+                    .Where(o => o.User != null)
+                    .GroupBy(o => new { o.User.Id, o.User.UserName })
+                    .Select(g => new
+                    {
+                        UserId = g.Key.Id,
+                        UserName = g.Key.UserName,
+                        TotalSpent = g.Sum(o => o.TotalAmount),
+                        OrderCount = g.Count()
+                    })
+                    .OrderByDescending(x => x.TotalSpent)
+                    .Take(5)
+                    .ToList();
+
+                ViewBag.TopCustomers = topCustomers;
 
                 // Biểu đồ doanh thu 7 ngày
                 var last7Days = Enumerable.Range(0, 7)
@@ -88,6 +105,107 @@ namespace WebBanHang.Areas.Admin.Controllers
                 _logger.LogError(ex, "Error loading dashboard");
                 ShowError("Có lỗi xảy ra");
                 return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData(string period = "Day")
+        {
+            try
+            {
+                var chartLabels = new List<string>();
+                var chartData = new List<decimal>();
+
+                var endDate = DateTime.Now;
+                var startDate = endDate;
+
+                var allOrders = await _context.Orders
+                    .Where(o => o.Status == "Completed")
+                    .ToListAsync();
+
+                switch (period)
+                {
+                    case "Day":
+                        // Lấy 7 ngày gần nhất
+                        startDate = endDate.AddDays(-6);
+                        for (int i = 0; i < 7; i++)
+                        {
+                            var date = startDate.AddDays(i).Date;
+                            chartLabels.Add(date.ToString("dd/MM"));
+
+                            var revenue = allOrders
+                                .Where(o => o.OrderDate.Date == date)
+                                .Sum(o => o.TotalAmount);
+
+                            chartData.Add(revenue);
+                        }
+                        break;
+
+                    case "Week":
+                        // Lấy 8 tuần gần nhất
+                        startDate = endDate.AddDays(-56);
+                        for (int i = 0; i < 8; i++)
+                        {
+                            var weekStart = startDate.AddDays(i * 7).Date;
+                            var weekEnd = weekStart.AddDays(6);
+                            chartLabels.Add($"T{i + 1}");
+
+                            var revenue = allOrders
+                                .Where(o => o.OrderDate.Date >= weekStart && o.OrderDate.Date <= weekEnd)
+                                .Sum(o => o.TotalAmount);
+
+                            chartData.Add(revenue);
+                        }
+                        break;
+
+                    case "Month":
+                        // Lấy 12 tháng gần nhất
+                        for (int i = 11; i >= 0; i--)
+                        {
+                            var month = endDate.AddMonths(-i);
+                            chartLabels.Add(month.ToString("MM/yyyy"));
+
+                            var revenue = allOrders
+                                .Where(o => o.OrderDate.Year == month.Year &&
+                                           o.OrderDate.Month == month.Month)
+                                .Sum(o => o.TotalAmount);
+
+                            chartData.Add(revenue);
+                        }
+                        break;
+
+                    case "Year":
+                        // Lấy 5 năm gần nhất
+                        var currentYear = endDate.Year;
+                        for (int i = 4; i >= 0; i--)
+                        {
+                            var year = currentYear - i;
+                            chartLabels.Add(year.ToString());
+
+                            var revenue = allOrders
+                                .Where(o => o.OrderDate.Year == year)
+                                .Sum(o => o.TotalAmount);
+
+                            chartData.Add(revenue);
+                        }
+                        break;
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    chartLabels = chartLabels,
+                    chartData = chartData
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading dashboard data for period: {Period}", period);
+                return Json(new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi tải dữ liệu"
+                });
             }
         }
 
