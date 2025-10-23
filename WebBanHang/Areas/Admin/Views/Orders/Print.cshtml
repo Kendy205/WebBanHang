@@ -98,9 +98,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>STT</th>
                     <th>Món/ Sản phẩm</th>
-                    <th class="text-end">SL</th>
+                    <th class="text-end">Số Lượng</th>
                     <th class="text-end">Đơn giá</th>
                     <th class="text-end">Thành tiền</th>
                 </tr>
@@ -129,12 +129,8 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <th colspan="4" class="text-end">Tổng tạm tính</th>
+                    <th colspan="4" class="text-end">Tổng tiền</th>
                     <th class="text-end">@total.ToString("N0")</th>
-                </tr>
-                <tr>
-                    <th colspan="4" class="text-end">TotalAmount (theo DB)</th>
-                    <th class="text-end">@Model.TotalAmount.ToString("N0")</th>
                 </tr>
             </tfoot>
         </table>
