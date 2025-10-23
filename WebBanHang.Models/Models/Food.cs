@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,8 +32,11 @@ namespace WebBanHang.Models.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        [ValidateNever]
         public virtual Category Category { get; set; }
+        [ValidateNever]
         public virtual ICollection<CartItem> CartItems { get; set; }
+        [ValidateNever]
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

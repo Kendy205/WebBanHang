@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 using System.Threading.Tasks;
 using WebBanHang.BLL.IServices;
 using WebBanHang.FileUpload.IFileUpload;
@@ -29,8 +30,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId = null, string? searchTerm = null, int page = 1, int pageSize = 10)
         {
-           
-            var (foods,totalRecords)= await _foodService.GetFoodsByFilter(
+            var (foods, totalRecords) = await _foodService.GetFoodsByFilter(
                 categoryId,
                 null,
                 null,
@@ -42,13 +42,20 @@ namespace WebBanHang.Areas.Admin.Controllers
             // Search
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                foods = foods.Where(f =>
-                    f.FoodName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    f.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                );
-            }
+                var results = await _foodService.SearchFoods(searchTerm);
 
-            ViewBag.Categories =await _categoryService.GetAllCategories();
+                if (categoryId != null)
+                {
+                    results = results.Where(f => f.CategoryId == categoryId).ToList();
+                }
+
+                foods = results;
+                totalRecords = results.Count();
+            }
+            var categories = await _categoryService.GetAllCategories();
+
+            
+            ViewBag.Categories = new SelectList(categories, "CategoryId", "CategoryName", categoryId);
             ViewBag.CurrentCategory = categoryId;
             ViewBag.SearchTerm = searchTerm;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -57,18 +64,19 @@ namespace WebBanHang.Areas.Admin.Controllers
             return View(foods);
         }
 
+
         // GET: /Admin/Foods/Details/5
-        [HttpGet]
-        public IActionResult Details(int foodId)
-        {
-            var food = _foodService.GetFoodById(foodId);
-            if (food == null)
-            {
-                ShowError("Món ăn không tồn tại");
-                return RedirectToAction("Index");
-            }
-            return View(food);
-        }
+        //[HttpGet]
+        //public IActionResult Details(int foodId)
+        //{
+        //    var food = _foodService.GetFoodById(foodId);
+        //    if (food == null)
+        //    {
+        //        ShowError("Món ăn không tồn tại");
+        //        return RedirectToAction("Index");
+        //    }
+        //    return View(food);
+        //}
 
         // GET: /Admin/Foods/Create
         [HttpGet]
@@ -79,7 +87,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 "CategoryId",//gia tri that
                 "CategoryName"//gia tri hien thi
             );
-            return View(new Food());
+            return View();
         }
 
         // POST: /Admin/Foods/Create
@@ -129,7 +137,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int foodId)
         {
-            var food =await _foodService.GetFoodById(foodId);
+            var food = await _foodService.GetFoodById(foodId);
             if (food == null)
             {
                 ShowError("Món ăn không tồn tại");
@@ -166,12 +174,18 @@ namespace WebBanHang.Areas.Admin.Controllers
                     return View(food);
                 }
 
-                var existing =await _foodService.GetFoodById(foodId);
+                var existing = await _foodService.GetFoodById(foodId);
+
                 if (existing == null)
                 {
                     ShowError("Món ăn không tồn tại");
                     return RedirectToAction("Index");
                 }
+                existing.FoodName = food.FoodName;
+                existing.Description = food.Description;
+                existing.Price = food.Price;
+                existing.IsAvailable = food.IsAvailable;
+                existing.CategoryId = food.CategoryId;
 
                 // Upload hình ảnh mới
                 if (imageFile != null && imageFile.Length > 0)
@@ -179,19 +193,19 @@ namespace WebBanHang.Areas.Admin.Controllers
                     //if (!string.IsNullOrEmpty(existing.ImageUrl))
                     //    await DeleteImageAsync(existing.ImageUrl);
 
-                    food.ImageUrl = await _fileUploadService.UploadFileAsync(imageFile);
+                    existing.ImageUrl = await _fileUploadService.UploadFileAsync(imageFile);
                 }
                 else
                 {
-                    food.ImageUrl = existing.ImageUrl;
+                    existing.ImageUrl = food.ImageUrl;
                 }
 
-                // Giữ lại thông tin cũ
-                food.Rating = existing.Rating;
-                //food.TotalReviews = existing.TotalReviews;
-                food.CreatedAt = existing.CreatedAt;
+                //// Giữ lại thông tin cũ
+                //food.Rating = existing.Rating;
+                ////food.TotalReviews = existing.TotalReviews;
+                //food.CreatedAt = existing.CreatedAt;
 
-                await _foodService.UpdateFood(food);
+                await _foodService.UpdateFood(existing);
                 ShowSuccess("Cập nhật món ăn thành công");
                 return RedirectToAction("Index");
             }
@@ -210,32 +224,37 @@ namespace WebBanHang.Areas.Admin.Controllers
             }
         }
 
-        // POST: /Admin/Foods/ToggleAvailability (AJAX)
-        [HttpPost]
-        public async Task<IActionResult> ToggleAvailability(int id)
+        public async Task<IActionResult> Delete(int foodId)
         {
-            try
-            {
-                var food = await _foodService.GetFoodById(id);
-                if (food == null)
-                    return Json(new { success = false, message = "Món ăn không tồn tại" });
-
-                food.IsAvailable = !food.IsAvailable;
-                await _foodService.UpdateFood(food);
-
-                return Json(new
-                {
-                    success = true,
-                    isAvailable = food.IsAvailable,
-                    message = food.IsAvailable ? "Đã bật món ăn" : "Đã tắt món ăn"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error toggling food availability");
-                return Json(new { success = false, message = ex.Message });
-            }
+            await _foodService.DeleteFood(foodId);
+            return RedirectToAction("Index");
         }
+        // POST: /Admin/Foods/ToggleAvailability (AJAX)
+        //[HttpPost]
+        //public async Task<IActionResult> ToggleAvailability(int id)
+        //{
+        //    try
+        //    {
+        //        var food = await _foodService.GetFoodById(id);
+        //        if (food == null)
+        //            return Json(new { success = false, message = "Món ăn không tồn tại" });
+
+        //        food.IsAvailable = !food.IsAvailable;
+        //        await _foodService.UpdateFood(food);
+
+        //        return Json(new
+        //        {
+        //            success = true,
+        //            isAvailable = food.IsAvailable,
+        //            message = food.IsAvailable ? "Đã bật món ăn" : "Đã tắt món ăn"
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error toggling food availability");
+        //        return Json(new { success = false, message = ex.Message });
+        //    }
+        //}
 
         // Helper methods (same as CategoriesController)
         //private async Task<string> SaveImageAsync(IFormFile file, string folder)

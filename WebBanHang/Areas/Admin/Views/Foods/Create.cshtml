@@ -1,0 +1,48 @@
+﻿@model WebBanHang.Models.Models.Food
+@{
+    ViewData["Title"] = "Thêm món ăn";
+}
+
+<h3>Thêm món ăn</h3>
+
+<form asp-controller="Foods" asp-action="Create" enctype="multipart/form-data" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group mb-3">
+        <label>Tên món</label>
+        <input asp-for="FoodName" class="form-control" />
+        <span asp-validation-for="FoodName" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group mb-3">
+        <label>Mô tả</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Giá</label>
+        <input asp-for="Price" class="form-control" type="number" step="0.01" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Trạng thái</label>
+        <select asp-for="IsAvailable" class="form-control">
+            <option value="true">Available</option>
+            <option value="false">Unavailable</option>
+        </select>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Category</label>
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Hình ảnh</label>
+        <input asp-for="ImageUrl" type="file" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Thêm</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
