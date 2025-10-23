@@ -28,13 +28,13 @@ namespace WebBanHang.Areas.Admin.Controllers
 
         // GET: /Admin/Foods
         [HttpGet]
-        public async Task<IActionResult> Index(int? categoryId = null, string? searchTerm = null, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int? categoryId = null, string? searchTerm = null,string? sortBy = null, int page = 1, int pageSize = 10)
         {
             var (foods, totalRecords) = await _foodService.GetFoodsByFilter(
                 categoryId,
                 null,
                 null,
-                "name",
+                sortBy,
                 page,
                 pageSize
             );
@@ -60,6 +60,7 @@ namespace WebBanHang.Areas.Admin.Controllers
             ViewBag.SearchTerm = searchTerm;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
             ViewBag.CurrentPage = page;
+            ViewBag.SortBy = sortBy;
 
             return View(foods);
         }
@@ -186,7 +187,8 @@ namespace WebBanHang.Areas.Admin.Controllers
                 existing.Price = food.Price;
                 existing.IsAvailable = food.IsAvailable;
                 existing.CategoryId = food.CategoryId;
-
+                existing.UpdatedAt = DateTime.Now;
+                
                 // Upload hình ảnh mới
                 if (imageFile != null && imageFile.Length > 0)
                 {
@@ -195,16 +197,7 @@ namespace WebBanHang.Areas.Admin.Controllers
 
                     existing.ImageUrl = await _fileUploadService.UploadFileAsync(imageFile);
                 }
-                else
-                {
-                    existing.ImageUrl = food.ImageUrl;
-                }
-
-                //// Giữ lại thông tin cũ
-                //food.Rating = existing.Rating;
-                ////food.TotalReviews = existing.TotalReviews;
-                //food.CreatedAt = existing.CreatedAt;
-
+                
                 await _foodService.UpdateFood(existing);
                 ShowSuccess("Cập nhật món ăn thành công");
                 return RedirectToAction("Index");
@@ -214,12 +207,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 _logger.LogError(ex, "Error updating food");
                 ShowError($"Lỗi: {ex.Message}");
 
-                ViewBag.Categories = new SelectList(
-                    await _categoryService.GetActiveCategories(),
-                    "CategoryId",
-                    "CategoryName",
-                    food.CategoryId
-                );
+                ViewBag.Categories = new SelectList(await _categoryService.GetActiveCategories(),"CategoryId","CategoryName",food.CategoryId);
                 return View(food);
             }
         }

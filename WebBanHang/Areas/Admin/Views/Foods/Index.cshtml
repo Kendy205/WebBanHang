@@ -10,10 +10,24 @@
 
             <form asp-action="Index" method="get" class="d-flex align-items-center">
 
-                @Html.DropDownList("categoryId",(SelectList)ViewBag.Categories, "-- Tất cả danh mục --", new { @class = "form-select me-2" })
+                <!-- Dropdown sắp xếp -->
+                @{
+                    string sortBy = ViewBag.SortBy ?? "name" ;
+                }
+
+                <select name="sortBy" class="form-select me-2">
+                    @* <option value="" selected="@(sortBy == "")">Sắp xếp</option> *@
+                    <option value="name" selected="@(sortBy == "name")">Tên A-Z</option>
+                    <option value="price_asc" selected="@(sortBy == "price_asc")">Giá tăng dần</option>
+                    <option value="price_desc" selected="@(sortBy == "price_desc")">Giá giảm dần</option>
+                    <option value="rating" selected="@(sortBy == "rating")">Đánh giá cao</option>
+                </select>
+
+
+                @Html.DropDownList("categoryId",(SelectList)ViewBag.Categories, "Tất cả danh mục", new { @class = "form-select me-2" })
 
                 <!-- Thanh tìm kiếm -->
-                <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control me-2" placeholder="Tìm kiếm theo tên hoặc mô tả..." />
+                <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control me-2" placeholder="Tìm kiếm" />
                 <button type="submit" class="btn btn-outline-primary">Lọc</button>
             </form>
         </div>
@@ -23,7 +37,7 @@
         <div class="card-body">
             <h4 class="card-title">Danh Sách Món Ăn</h4>
             <div class="table-responsive">
-                <table class="table  table-hover">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <th>Mã món</th>
@@ -37,43 +51,39 @@
                             <th>Ngày cập nhật</th>
                             <th>Hình ảnh</th>
                             <th></th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var food in Model)
                         {
-                            <tr style="@(food.IsAvailable ? "" : "background-color: #d3d3d3; color: #6c757d; opacity: 0.7;")">
+                            <tr style="@(food.IsAvailable ? "" : " color: #6c757d; opacity: 0.2;")">
                                 <td>@food.FoodId</td>
                                 <td>@food.FoodName</td>
                                 <td>@food.Description</td>
                                 <td>@food.Price.ToString("N0") đ</td>
                                 <td>
-                                    @(food.IsAvailable ? "Có" : "Hết")
+                                    <span class="badge @(food.IsAvailable ? "bg-success" : "bg-danger")" style="font-size: 0.75rem; padding: 0.35em 0.6em;">
+                                        @(food.IsAvailable ? "Có" : "Hết")
+                                    </span>
                                 </td>
                                 <td>@food.Rating.ToString("0.0") / 5</td>
                                 <td>@food.Category?.CategoryName</td>
                                 <td>@food.CreatedAt.ToString("dd/MM/yyyy")</td>
                                 <td>@food.UpdatedAt.ToString("dd/MM/yyyy")</td>
                                 <td>
-                                    <img src="@(string.IsNullOrEmpty(food.ImageUrl) ? "/assets/images/faces/default.jpg" : food.ImageUrl)"
-                                         class="me-2"
-                                         alt="image"
-                                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                                    @if(food.ImageUrl == null)  
+                                    {
+                                        <span><i>no image</i></span>
+                                    }
+                                    else
+                                    {
+                                        <img src="@food.ImageUrl" class="me-2" alt="image" style="width:40px;height:40px;object-fit:cover;border-radius:5px;">
+                                    }
+                                    
                                 </td>
                                 <td>
-                                    <a asp-action="Edit"
-                                       asp-route-foodId="@food.FoodId"
-                                       class="btn btn-sm btn-gradient-warning text-white">
-                                        Sửa
-                                    </a>
-                                </td>
-                                <td>
-                                    <a asp-action="Delete"
-                                       asp-route-foodId="@food.FoodId"
-                                       class="btn btn-sm btn-gradient-warning text-white">
-                                        xóa
-                                    </a>
+                                    <a asp-action="Edit" asp-route-foodId="@food.FoodId" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-route-foodId="@food.FoodId" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></a>
                                 </td>
                             </tr>
                         }

@@ -24,7 +24,7 @@ namespace WebBanHang.Areas.Customer.Controllers
                 page,
                 pageSize
             );
-
+            foods = foods.Where(e => e.IsAvailable == true);
             ViewBag.Categories = await _categoryService.GetActiveCategories();
             ViewBag.CurrentCategory = categoryId;
             ViewBag.MinPrice = minPrice;
@@ -74,7 +74,7 @@ namespace WebBanHang.Areas.Customer.Controllers
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-
+            foods = foods.Where(e => e.IsAvailable == true);
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
             ViewBag.Keyword = keyword;
@@ -108,7 +108,7 @@ namespace WebBanHang.Areas.Customer.Controllers
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-
+            foods = foods.Where(e => e.IsAvailable == true);
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
             ViewBag.CurrentCategory = id;
