@@ -5,7 +5,7 @@
     var categories = ViewBag.Categories as IEnumerable<dynamic>;
     var topFoods = ViewBag.TopRatedFoods as IEnumerable<dynamic>;
 }
-<section class="featured spad p-0 m-1" style="background-color:rgb(250, 235, 215);border-radius:10px;">
+<section class="featured spad p-0 m-1">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -26,104 +26,8 @@
         <div class="row featured__filter">
             @foreach(Food f in topFoods)
             {
-                @await Component.InvokeAsync("RenderSanPham", new { f = f, itemsPerRow =4})
-                
+                @await Component.InvokeAsync("RenderSanPham", new { f = f, itemsPerRow =4})            
             }
-            
         </div>
     </div>
 </section>
-<!-- JavaScript -->
-<script>
-    $(document).ready(function() {
-        $('.add-to-cart').click(function() {
-            var foodId = $(this).data('food-id');
-            var foodName = $(this).data('food-name');
-
-            $.post('@Url.Action("AddToCart", "Cart")',
-                { foodId: foodId, quantity: 1 },
-                function(response) {
-                    if (response.success) {
-                        alert(foodName + ' đã được thêm vào giỏ hàng!');
-                        // Update cart count
-                        $('#cart-count').text(response.cartItemCount);
-                    }
-                }
-            );
-        });
-    });
-</script>
-       
-            
-
-@*  <div class="container"> 
-    <!-- Banner -->
-    <div class="banner-section mb-4">
-        <div class="jumbotron">
-            <h1>Đặt Đồ Ăn Ngay</h1>
-            <p class="lead">Giao hàng nhanh, đồ ăn tươi ngon mỗi ngày</p>
-            <a class="btn btn-primary btn-lg" href="@Url.Action("Index", "Foods")">Xem Menu</a>
-        </div>
-    </div>
-
-    <!-- Categories Section -->
-    <div class="categories-section mb-5">
-        <h2>Danh Mục Món Ăn</h2>
-        <div class="row">
-            @foreach (var category in categories)
-            {
-                <div class="col-md-3 mb-3">
-                    <div class="category-card card">
-                        <img src="@category.ImageUrl" class="card-img-top" alt="@category.CategoryName">
-                        <div class="card-body">
-                            <h5 class="card-title">@category.CategoryName</h5>
-                            <p class="card-text">@category.Description</p>
-                            <a href="@Url.Action("Category", "Foods", new { id = category.CategoryId })"
-                               class="btn btn-outline-primary btn-block">Xem Chi Tiết</a>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- Top Rated Foods -->
-    <div class="top-foods-section mb-5">
-        <h2>Món Ăn Nổi Bật</h2>
-        <div class="row">
-            @foreach (var food in topFoods)
-            {
-                <div class="col-md-3 mb-3">
-                    <div class="food-card card">
-                        <img src="@food.ImageUrl" class="card-img-top" alt="@food.FoodName">
-                        <div class="card-body">
-                            <h5 class="card-title">@food.FoodName</h5>
-                            <p class="card-text">
-                                @(string.IsNullOrEmpty(food.Description)
-                                                            ? "Không có mô tả."
-                                                            : (food.Description.Length > 50
-                                                            ? food.Description.Substring(0, 50) + "..."
-                                                            : food.Description))
-                        </p>
-
-                            <div class="rating mb-2">
-                                <span class="stars">★★★★★</span>
-                                <span class="rating-value">@food.Rating </span>
-                            </div>
-                            <h4 class="price">@string.Format("{0:N0} VNĐ", food.Price)</h4>
-                            <button class="btn btn-primary btn-block add-to-cart"
-                                    data-food-id="@food.FoodId"
-                                    data-food-name="@food.FoodName">
-                                <i class="fas fa-shopping-cart"></i> Thêm Vào Giỏ
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            }
-            else
-            {
-            <p class="text-muted">Hiện chưa có món ăn nổi bật nào.</p>
-            }
-        </div>
-    </div>
-</div> *@

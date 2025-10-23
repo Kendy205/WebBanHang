@@ -9,8 +9,8 @@ public class ErrorController : Controller
         if (code == 404)
             return View("Error404");
 
-        if (code == 500)
-            return View("Error500");
+        //if (code == 500)
+        //    return View("Error500");
 
         return View("Error");
     }

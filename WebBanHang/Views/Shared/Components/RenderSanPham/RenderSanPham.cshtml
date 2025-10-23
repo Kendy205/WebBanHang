@@ -12,7 +12,6 @@
     };
 }
 <div 
-    @* style="border:1px solid red" *@
     class="@columnClass mix @Model.Category.CategoryName.ToLower().Replace(" ", "")"
 >
     <div class="featured__item">
@@ -21,7 +20,7 @@
                 <li><a asp-area="Customer" asp-controller="Food" asp-action="Details" asp-route-id="@Model.FoodId"><i class="fa fa-heart"></i></a></li>
                 <li><a href="#"><i class="fa fa-retweet"></i></a></li>
                 <li>
-                    <a href="javascript:void(0)" class="add-to-cart-btn" data-food-id="@Model.FoodId">
+                    <a href="javascript:void(0)" class="add-to-cart" data-food-id="@Model.FoodId">
                         <i class="fa fa-shopping-cart"></i>
                     </a>
                 </li>

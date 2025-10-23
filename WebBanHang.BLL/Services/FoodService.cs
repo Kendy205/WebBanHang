@@ -60,7 +60,8 @@ namespace WebBanHang.BLL.Services
 
         public async Task<IEnumerable<Food>> GetFoodsByCategory(int categoryId)
         {
-            return await _unitOfWork.Foods.FindAsync(f => f.CategoryId == categoryId);
+            //return await _unitOfWork.Foods.FindAsync(f => f.CategoryId == categoryId);
+            return await _unitOfWork.Foods.GetAllQueryable().Include(f => f.Category).Where(f => f.CategoryId == categoryId).ToListAsync();
         }
 
         public async Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsByFilter(int? categoryId, decimal? minPrice, decimal? maxPrice, string sortBy, int pageNumber, int pageSize)

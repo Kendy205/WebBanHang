@@ -5,147 +5,275 @@
 
 <div class="container mt-5 mb-5">
     <h2 class="mb-4 text-center">🛒 Giỏ hàng của bạn</h2>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="shoping__cart__table">
+                <form style="display:none">@Html.AntiForgeryToken()</form>
+                @Html.AntiForgeryToken()
+                <table class="table table-bordered align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
 
-    <form asp-action="ClearCart" method="post">
-        @Html.AntiForgeryToken()
-        <table class="table table-bordered align-middle text-center">
-            <thead class="table-light">
-                <tr>
-                    <th>Ảnh</th>
-                    <th>Tên món</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Giá tiền</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="cart-body">
-                @if (Model?.CartItems != null && Model.CartItems.Any())
-                {
-                    foreach (var item in Model.CartItems)
-                    {
-                        <tr data-id="@item.CartItemId">
-                            <td style="width:120px;">
-                                <img src="@item.Food?.ImageUrl" class="img-thumbnail" style="max-height:80px;" />
-                            </td>
-                            <td>@item.Food?.FoodName</td>
-                            <td>@item.Price.ToString("N0") ₫</td>
-                            <td style="width:160px;">
-                                <div class="input-group input-group-sm">
-                                    <button type="button" class="btn btn-outline-secondary btn-decrease">-</button>
-                                    <input type="number" class="form-control text-center quantity-input" min="1" value="@item.Quantity" />
-                                    <button type="button" class="btn btn-outline-secondary btn-increase">+</button>
-                                </div>
-                            </td>
-                            <td class="item-subtotal">@item.Subtotal.ToString("N0") ₫</td>
-                            <td>
-                                <button type="button" class="btn btn-danger btn-sm btn-remove">
-                                    <i class="bi bi-trash"></i> Xóa
-                                </button>
+                            <th class="shoping__product">Tên món</th>
+                            <th>Đơn Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành Tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-body">
+                        @if (Model?.CartItems != null && Model.CartItems.Any())
+                        {
+                            foreach (var item in Model.CartItems)
+                            {
+                                <tr data-id="@item.CartItemId" data-price="@item.Price">
+                                    <td class="shoping__cart__item">
+                                        <a asp-controller="Food"
+                                           asp-action="Details"
+                                           asp-route-id="@item.FoodId">
+                                            <img src="@item.Food?.ImageUrl"
+                                                 class="img-thumbnail"
+                                                 style="max-height:80px;" />
+
+                                            @item.Food?.FoodName
+                                        </a>
+                                    </td>
+                                    <td class="shoping__cart__price">
+                                        @item.Price.ToString("N0") ₫
+                                    </td>
+                                    <td style="width:160px;">
+                                        <div class="input-group input-group-sm">
+                                            <span class="btn btn-outline-secondary btn-decrease">
+                                                -
+                                            </span>
+                                            <input type="number"
+                                                   class="form-control text-center quantity-input"
+                                                   min="1"
+                                                   value="@item.Quantity" />
+                                            <span class="btn btn-outline-secondary btn-increase">
+                                                <i class="fa fa-plus-square-o" aria-hidden="true"></i>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="item-subtotal shoping__cart__total">
+                                        @item.Subtotal.ToString("N0") ₫
+                                    </td>
+                                    <td>
+                                        <span class="icon_close btn-delete"></span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    Giỏ hàng đang trống
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-light">
+                            <td colspan="4" class="text-end fw-bold">Tổng cộng:</td>
+                            <td colspan="2" class="fw-bold text-danger fs-5" id="cart-grand-total">
+                                @(Model?.TotalAmount.ToString("N0") ?? "0") ₫
                             </td>
                         </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">
-                            Giỏ hàng đang trống
-                        </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr class="table-light">
-                    <td colspan="4" class="text-end fw-bold">Tổng cộng:</td>
-                    <td colspan="2" class="fw-bold text-danger fs-5" id="cart-total">
-                        @(Model?.TotalAmount.ToString("N0") ?? "0") ₫
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+                    </tfoot>
+                </table>
 
-        <div class="d-flex justify-content-between">
-            <a href="/Customer/Home" class="btn btn-secondary">← Tiếp tục mua sắm</a>
-            <div>
-                <button type="submit" class="btn btn-outline-danger me-2">🗑️ Xóa toàn bộ</button>
-                <a asp-area="Customer" asp-controller="Order" asp-action="checkout" class="btn btn-success">Đặt Hàng</a>
+                <div class="d-flex justify-content-between">
+                    <a href="/Customer/Home" class="btn btn-secondary">← Tiếp tục mua sắm</a>
+                    <div>
+                        <button type="button" id="btn-clear-cart" class="btn btn-outline-danger me-2">🗑️ Xóa toàn bộ</button>
+                        <a asp-area="Customer" asp-controller="Order" asp-action="checkout" class="btn btn-success">Đặt Hàng</a>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // =======================
-        // Cập nhật số lượng
-        // =======================
-        $(".btn-increase, .btn-decrease").click(function () {
-            const row = $(this).closest("tr");
-            const input = row.find(".quantity-input");
-            let quantity = parseInt(input.val());
+        $(document).ready(function() {
+            // Lấy Antiforgery token để dùng cho các request
+            const token = $('form input[name="__RequestVerificationToken"]').val();
 
-            if ($(this).hasClass("btn-increase")) quantity++;
-            else if (quantity > 1) quantity--;
+            // ===================================
+            // SỰ KIỆN CẬP NHẬT SỐ LƯỢNG
+            // ===================================
+            $("#cart-body").on("click", ".btn-increase, .btn-decrease", function () {
+                const row = $(this).closest("tr");
+                const input = row.find(".quantity-input");
+                let quantity = parseInt(input.val());
 
-            input.val(quantity);
-            updateQuantity(row.data("id"), quantity);
-        });
-
-        $(".quantity-input").on("change", function () {
-            const row = $(this).closest("tr");
-            const quantity = parseInt($(this).val());
-            updateQuantity(row.data("id"), quantity);
-        });
-
-        // =======================
-        // Xóa từng món
-        // =======================
-        $(".btn-remove").click(function () {
-            const row = $(this).closest("tr");
-            const id = row.data("id");
-
-            Swal.fire({
-                title: "Xóa món này?",
-                text: "Món sẽ bị xóa khỏi giỏ hàng!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Xóa"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.post("/Customer/Cart/RemoveItem", { cartItemId: id }, function (res) {
-                        if (res.success) {
-                            row.remove();
-                            updateCartUI(res);
-                            Swal.fire("Đã xóa!", res.message, "success");
-                        }
-                    });
+                if ($(this).hasClass("btn-increase")) {
+                    quantity++;
+                } else if (quantity > 1) {
+                    quantity--;
                 }
+
+                input.val(quantity);
+                updateQuantity(row.data("id"), quantity);
             });
+
+            $("#cart-body").on("change", ".quantity-input", function () {
+                const row = $(this).closest("tr");
+                let quantity = parseInt($(this).val());
+                if (quantity < 1 || isNaN(quantity)) {
+                    quantity = 1;
+                    $(this).val(1);
+                }
+                updateQuantity(row.data("id"), quantity);
+            });
+
+            // ===================================
+            // SỰ KIỆN XÓA TỪNG MÓN
+            // ===================================
+            $("#cart-body").on("click", ".btn-delete", function () {
+                const row = $(this).closest("tr");
+                const id = row.data("id");
+
+                Swal.fire({
+                    title: "Bạn chắc chắn?",
+                    text: "Món ăn sẽ bị xóa khỏi giỏ hàng!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Vâng, xóa nó!",
+                    cancelButtonText: "Hủy"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // GỌI API DELETE
+                        $.ajax({
+                            url: `/api/cart/remove/${id}`,
+                            method: 'DELETE',
+                            headers: { 'RequestVerificationToken': token },
+                            success: function(res) {
+                                if (res.success) {
+                                    row.fadeOut(500, function() { $(this).remove(); });
+                                    updateCartUI(res.data);
+                                    updateHeaderCart(); // Cập nhật header
+                                    Swal.fire("Đã xóa!", "Món ăn đã được xóa.", "success");
+                                }
+                            },
+                            error: function() {
+                                Swal.fire("Lỗi!", "Có lỗi xảy ra, vui lòng thử lại.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // ===================================
+            // HÀM GỌI API UPDATE
+            // ===================================
+            function updateQuantity(cartItemId, quantity) {
+                // GỌI API PUT
+                $.ajax({
+                    url: '/api/cart/update',
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    headers: { 'RequestVerificationToken': token },
+                    data: JSON.stringify({ cartItemId: cartItemId, quantity: quantity }),
+                    success: function(res) {
+                        if (res.success) {
+                            // Cập nhật giao diện với dữ liệu mới từ API
+                            updateCartUI(res.data, cartItemId, quantity);
+                            updateHeaderCart(); // Cập nhật header
+                        }
+                    },
+                    error: function() {
+                        Swal.fire("Lỗi!", "Không thể cập nhật giỏ hàng.", "error");
+                    }
+                });
+            }
+            // ===================================
+            // SỰ KIỆN XÓA TOÀN BỘ GIỎ HÀNG
+            // ===================================
+            $("#btn-clear-cart").on("click", function () {
+                Swal.fire({
+                    title: 'Bạn có chắc chắn?',
+                    text: "Toàn bộ sản phẩm trong giỏ hàng sẽ bị xóa!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Vâng, xóa hết!',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // GỌI API DELETE ĐỂ XÓA TOÀN BỘ
+                        $.ajax({
+                            url: '/api/cart/clear',
+                            method: 'DELETE',
+                            headers: { 'RequestVerificationToken': token },
+                            success: function(res) {
+                                if (res.success) {
+                                    // Xóa tất cả các dòng <tr> trong tbody
+                                    $("#cart-body").fadeOut(500, function() {
+                                        $(this).html(`
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">
+                                                    Giỏ hàng đang trống
+                                                </td>
+                                            </tr>
+                                        `).fadeIn(500);
+                                    });
+
+                                    // Cập nhật lại UI và header
+                                    updateCartUI({ cartTotal: 0 }); // Truyền dữ liệu rỗng
+                                    updateHeaderCart();
+
+                                    Swal.fire(
+                                        'Đã xóa!',
+                                        'Giỏ hàng của bạn đã được dọn dẹp.',
+                                        'success'
+                                    )
+                                }
+                            },
+                            error: function() {
+                                Swal.fire("Lỗi!", "Có lỗi xảy ra, vui lòng thử lại.", "error");
+                            }
+                        });
+                    }
+                })
+            });
+            // ===================================
+            // HÀM CẬP NHẬT GIAO DIỆN
+            // ===================================
+            function updateCartUI(data, updatedItemId = null, newQuantity = null) {
+                // Cập nhật tổng tiền của toàn bộ giỏ hàng
+                $("#cart-grand-total").text(formatCurrency(data.cartTotal));
+
+                // Nếu có một item cụ thể được cập nhật, tính lại thành tiền của riêng nó
+                if (updatedItemId && newQuantity) {
+                    const row = $(`tr[data-id='${updatedItemId}']`);
+                    const price = parseFloat(row.data("price"));
+                    const subtotal = price * newQuantity;
+                    row.find(".item-subtotal").text(formatCurrency(subtotal));
+                }
+            }
+
+            // Hàm này có thể đã có trong site.js, đảm bảo nó tồn tại
+            // Nếu chưa có, bạn có thể định nghĩa nó ở đây hoặc trong site.js
+            function updateHeaderCart() {
+                $.get('/api/cart/summary', function(res) {
+                    if (res.success) {
+                        $('#header-cart-count').text(res.data.cartItemCount);
+                        $('#header-cart-total').text(formatCurrency(res.data.cartTotal));
+                    }
+                });
+            }
+
+            function formatCurrency(value) {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+            }
         });
-
-        // =======================
-        // Hàm gọi AJAX update
-        // =======================
-        function updateQuantity(cartItemId, quantity) {
-            $.post("/Customer/Cart/UpdateQuantity", { cartItemId, quantity }, function (res) {
-                if (res.success) updateCartUI(res);
-            });
-        }
-
-        // =======================
-        // Cập nhật giao diện tổng tiền
-        // =======================
-        function updateCartUI(res) {
-            $("#cart-total").text(formatCurrency(res.cartTotal || res.totalAmount));
-            $("#cart-count").text(res.cartItemCount || res.totalItems);
-        }
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
-        }
     </script>
 }

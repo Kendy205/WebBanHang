@@ -150,34 +150,6 @@ namespace WebBanHang.Areas.Customer.Controllers
             return RedirectToAction("Index");
         }
 
-        // =====================
-        // Lấy tóm tắt giỏ hàng (dùng cho icon header)
-        // =====================
-        [HttpGet]
-        public async Task<JsonResult> GetCartSummary()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return Json(new { totalItems = 0, totalAmount = 0m, items = new List<object>() });
-
-            var cart = await _cartService.GetCartByUserId(user.Id);
-
-            var items = cart.CartItems?.Select(i => new
-            {
-                i.CartItemId,
-                FoodName = i.Food?.FoodName,
-                i.Quantity,
-                i.Price,
-                i.Subtotal,
-                i.Food?.ImageUrl
-            }).ToList();
-
-            return Json(new
-            {
-                totalItems = cart.TotalItems,
-                totalAmount = cart.TotalAmount,
-                items
-            });
-        }
+       
     }
 }

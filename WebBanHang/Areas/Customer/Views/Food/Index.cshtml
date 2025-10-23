@@ -13,7 +13,6 @@
     @await Html.PartialAsync("_FoodListPartial", Model)
 </div>
 
-
 @section PhanTrang {
     <!-- Phân trang -->
     <div class="product__pagination">
@@ -34,53 +33,97 @@
 
     </div>
 }
-@* @section Scripts {
+
+@* @section Scripts{
     <script>
-        //let typingTimer;
-        //const delay = 500; // chờ 0.5 giây sau khi người dùng ngừng gõ
+        $(document).ready(function() {
+            // Lưu trữ các tham số lọc hiện tại
+            let currentParams = {
+                categoryId: @(ViewBag.CurrentCategory ?? "null"),
+                page: 1
+            };
 
-        $("#searchForm").on("submit", function (e) {
+            // ===================================
+            // SỰ KIỆN CLICK
+            // ===================================
+            $('#btn-search').on('click', function() {
+                currentParams.keyword = $('#keyword').val();
+                currentParams.minPrice = null; // Reset bộ lọc giá
+                currentParams.maxPrice = null;
+                currentParams.page = 1;
+                fetchFoods();
+            });
 
-            //clearTimeout(typingTimer);
-            //alert("hehe")
-            e.preventDefault();
-            const keyword = $("#keyword").val();
-            //alert(keyword)
-                $.ajax({
-                    url: '@Url.Action("Search", "Food", new { area = "Customer" })',
-                    type: 'GET',
-                    data: { keyword: keyword },
-                    success: function (html) {
-                        $("#foodListContainer").html(html);
-                        
+            $('#btn-filter').on('click', function() {
+                currentParams.minPrice = $('#minPrice').val();
+                currentParams.maxPrice = $('#maxPrice').val();
+                currentParams.keyword = null; // Reset từ khóa tìm kiếm
+                currentParams.page = 1;
+                fetchFoods();
+            });
 
+            // Bắt sự kiện click vào nút phân trang
+            $('#pagination-container').on('click', '.page-link', function(e) {
+                e.preventDefault();
+                currentParams.page = $(this).data('page');
+                fetchFoods();
+            });
+
+            // ===================================
+            // HÀM GỌI API VÀ CẬP NHẬT GIAO DIỆN
+            // ===================================
+            function fetchFoods() {
+                let apiUrl = currentParams.keyword ? '/api/foods/search' : '/api/foods';
+
+                $('#food-list-container').html('<div class="text-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+                $.get(apiUrl, currentParams, function(response) {
+                    if (response.success && response.data.length > 0) {
+                        let html = '<div class="row">';
+                        response.data.forEach(function(food) {
+                            html += `
+                                <div class="col-lg-4 col-md-6 col-sm-6">
+                                    <div class="product__item">
+                                        <div class="product__item__pic" style="background-image: url('${food.imageUrl || '/images/default.jpg'}')">
+                                            <ul class="product__item__pic__hover">
+                                                <li><a href="/Customer/Food/Details/${food.foodId}"><i class="fa fa-eye"></i></a></li>
+                                                <li><a href="javascript:void(0)" class="add-to-cart" data-food-id="${food.foodId}"><i class="fa fa-shopping-cart"></i></a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="product__item__text">
+                                            <h6><a href="/Customer/Food/Details/${food.foodId}">${food.foodName}</a></h6>
+                                            <h5>${formatCurrency(food.price)}</h5>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                        html += '</div>';
+                        $('#food-list-container').html(html);
+                        updatePagination(response.pagination);
+                    } else {
+                        $('#food-list-container').html('<p class="text-center text-muted">Không tìm thấy món ăn phù hợp.</p>');
+                        $('#pagination-container').empty();
                     }
                 });
+            }
 
+            function updatePagination(pagination) {
+                if (!pagination || pagination.totalPages <= 1) {
+                     $('#pagination-container').empty();
+                     return;
+                }
+                let paginationHtml = '<div class="product__pagination">';
+                for (let i = 1; i <= pagination.totalPages; i++) {
+                    paginationHtml += `<a class="page-link ${i === pagination.page ? 'active' : ''}" data-page="${i}" href="#">${i}</a>`;
+                }
+                paginationHtml += '</div>';
+                $('#pagination-container').html(paginationHtml);
+            }
+
+            // Hàm formatCurrency từ file site.js, bạn có thể gọi trực tiếp nếu nó là global
+            function formatCurrency(value) {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+            }
         });
     </script>
-} *@
-@* @section DanhMuc {
-    @foreach (Food c in ViewBag.TopFood)
-    {
-        <div class="col-lg-4">
-            <div class="product__discount__item">
-                <div class="product__discount__item__pic set-bg"
-                     data-setbg="img/product/discount/pd-1.jpg">
-                    <div class="product__discount__percent">-20%</div>
-                    <ul class="product__item__pic__hover">
-                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                    </ul>
-                </div>
-                <div class="product__discount__item__text">
-                    <span>@c.FoodName</span>
-
-                    <div class="product__item__price">@c.Price</div>
-                </div>
-            </div>
-        </div>
-    }
-
 } *@
