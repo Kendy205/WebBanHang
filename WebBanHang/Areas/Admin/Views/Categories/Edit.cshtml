@@ -1,0 +1,48 @@
+﻿@model WebBanHang.Models.Models.Category
+@{
+    ViewData["Title"] = "Chỉnh sửa danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="page-header">
+    <h3 class="page-title"> Chỉnh sửa danh mục </h3>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-Categoriesid="@Model.CategoryId" enctype="multipart/form-data" method="post">
+            <input type="hidden" asp-for="CategoryId" />
+
+            <div class="form-group">
+                <label>Tên danh mục</label>
+                <input asp-for="CategoryName" class="form-control" />
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Mô tả</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Ảnh hiện tại</label><br />
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" style="width:100px;height:100px;object-fit:cover;border-radius:8px;" />
+                }
+                else
+                {
+                    <span class="text-muted">Không có ảnh</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Chọn ảnh mới</label>
+                <input type="file" name="imageFile" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</div>

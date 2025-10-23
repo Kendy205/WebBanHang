@@ -1,0 +1,33 @@
+﻿@model WebBanHang.Models.Models.Category
+@{
+    ViewData["Title"] = "Chi tiết danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="page-header">
+    <h3 class="page-title"> Chi tiết danh mục </h3>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="image" class="img-fluid rounded shadow" />
+                }
+                else
+                {
+                    <p class="text-muted">Không có ảnh</p>
+                }
+            </div>
+            <div class="col-md-8">
+                <h4>@Model.CategoryName</h4>
+                <p>@Model.Description</p>
+                <p><b>Ngày tạo:</b> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+            </div>
+        </div>
+        <a asp-action="Edit" asp-route-Categoriesid="@Model.CategoryId" class="btn btn-warning mt-3">Chỉnh sửa</a>
+        <a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>
+    </div>
+</div>
