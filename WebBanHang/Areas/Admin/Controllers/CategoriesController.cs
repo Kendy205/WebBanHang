@@ -33,7 +33,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int Categoriesid)
         {
-            var category =await _categoryService.GetCategoryById(Categoriesid);
+            var category = await _categoryService.GetCategoryById(Categoriesid);
             if (category == null)
             {
                 ShowError("Danh mục không tồn tại");
@@ -53,8 +53,8 @@ namespace WebBanHang.Areas.Admin.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return View(category);
+                //if (!ModelState.IsValid)
+                    //return View(category);
 
                 // Upload hình ảnh
                 if (imageFile != null && imageFile.Length > 0)
@@ -76,9 +76,9 @@ namespace WebBanHang.Areas.Admin.Controllers
 
         // GET: /Admin/Categories/Edit/5
         [HttpGet]
-        public IActionResult Edit(int Categoriesid)
+        public async Task<IActionResult> Edit(int Categoriesid)
         {
-            var category = _categoryService.GetCategoryById(Categoriesid);
+            var category = await _categoryService.GetCategoryById(Categoriesid);
             if (category == null)
             {
                 ShowError("Danh mục không tồn tại");
@@ -97,10 +97,10 @@ namespace WebBanHang.Areas.Admin.Controllers
                 if (Categoriesid != category.CategoryId)
                     return BadRequest();
 
-                if (!ModelState.IsValid)
-                    return View(category);
+                //if (!ModelState.IsValid)
+                    //return View(category);
 
-                Category existing = await _categoryService.GetCategoryById(Categoriesid) as Category;
+                var existing = await _categoryService.GetCategoryById(Categoriesid);
                 if (existing == null)
                 {
                     ShowError("Danh mục không tồn tại");
@@ -114,15 +114,19 @@ namespace WebBanHang.Areas.Admin.Controllers
                     //if (!string.IsNullOrEmpty(existing.ImageUrl))
                     //    await DeleteImageAsync(existing.ImageUrl);
 
-                    category.ImageUrl = await _fileUploadService.UploadFileAsync(imageFile);
+                    existing.ImageUrl = await _fileUploadService.UploadFileAsync(imageFile);
                 }
                 else
                 {
                     category.ImageUrl = existing.ImageUrl;
                 }
 
+                existing.CategoryName = category.CategoryName;
+                existing.Description = category.Description;
+                
+
                 category.CreatedAt = existing.CreatedAt;
-                await _categoryService.UpdateCategory(category);
+                await _categoryService.UpdateCategory(existing);
                 ShowSuccess("Cập nhật danh mục thành công");
                 return RedirectToAction("Index");
             }
@@ -136,9 +140,9 @@ namespace WebBanHang.Areas.Admin.Controllers
 
         // GET: /Admin/Categories/Delete/5
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var category = _categoryService.GetCategoryById(id);
+            var category = await _categoryService.GetCategoryById(id);
             if (category == null)
             {
                 ShowError("Danh mục không tồn tại");

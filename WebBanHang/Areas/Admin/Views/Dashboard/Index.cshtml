@@ -1,2 +1,319 @@
-﻿
-<div> admin</div>
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="content-wrapper">
+    <div class="row mb-4">
+        <div>
+            <div class="input-group">
+                <select id="periodFilterSelect" class="form-select" style="max-width: 150px;">
+                    <option value="Day" selected>Theo Ngày</option>
+                    <option value="Week">Theo Tuần</option>
+                    <option value="Month">Theo Tháng</option>
+                    <option value="Year">Theo Năm</option>
+                </select>
+
+            </div>
+            <div id="filterMsg" class="small text-muted text-end mt-1"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row">
+    <!-- Hôm nay -->
+    <div class="col-lg-3 col-sm-6 stretch-card grid-margin">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Hôm nay</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">@ViewBag.TodayOrdersCount</h3>
+                        <small class="text-muted">Đơn hàng</small>
+                    </div>
+                    <i class="mdi mdi-cart icon-lg text-primary"></i>
+                </div>
+                <hr />
+                <p class="text-muted mb-0">Doanh thu: <strong>@String.Format("{0:N0}", ViewBag.TodayRevenue)</strong> ₫</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tháng này -->
+    <div class="col-lg-3 col-sm-6 stretch-card grid-margin">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Tháng này</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">@ViewBag.MonthOrdersCount</h3>
+                        <small class="text-muted">Đơn hàng</small>
+                    </div>
+                    <i class="mdi mdi-calendar icon-lg text-warning"></i>
+                </div>
+                <hr />
+                <p class="text-muted mb-0">Doanh thu: <strong>@String.Format("{0:N0}", ViewBag.MonthRevenue)</strong> ₫</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tổng đơn hàng -->
+    <div class="col-lg-3 col-sm-6 stretch-card grid-margin">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Tổng đơn hàng</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">@ViewBag.TotalOrders</h3>
+                        <small class="text-muted">Đơn hàng</small>
+                    </div>
+                    <i class="mdi mdi-receipt icon-lg text-success"></i>
+                </div>
+                <hr />
+                <p class="text-muted mb-0">Tổng doanh thu: <strong>@String.Format("{0:N0}", ViewBag.TotalRevenue)</strong> ₫</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sản phẩm & danh mục -->
+    <div class="col-lg-3 col-sm-6 stretch-card grid-margin">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Thực đơn</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1 text-muted">Món ăn</p>
+                        <h4>@ViewBag.TotalFoods</h4>
+                        <p class="mb-1 text-muted">Danh mục</p>
+                        <h4>@ViewBag.TotalCategories</h4>
+                    </div>
+                    <i class="mdi mdi-food-fork-drink icon-lg text-danger"></i>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between text-muted small">
+                    <span>Đang xử lý: @ViewBag.PendingOrders</span>
+                    <span>Hoàn thành: @ViewBag.CompletedOrders</span>
+                    <span>Hủy: @ViewBag.CancelledOrders</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Biểu đồ và Đơn hàng gần đây -->
+<div class="row">
+    <div class="col-lg-8 stretch-card grid-margin">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Doanh thu 7 ngày gần đây</h5>
+                <canvas id="revenueChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 stretch-card grid-margin">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Đơn hàng gần đây</h5>
+                <div class="table-responsive" style="max-height: 300px;">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Khách hàng</th>
+                                <th>Ngày</th>
+                                <th>Tổng</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in (IEnumerable<WebBanHang.Models.Models.Order>)ViewBag.RecentOrders)
+                            {
+                                <tr>
+                                    <td>@order.OrderId</td>
+                                    <td>@order.User?.UserName</td>
+                                    <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@String.Format("{0:N0}", order.TotalAmount) ₫</td>
+                                    <td>
+                                        <span class="badge badge-@(order.Status == "Completed" ? "success" :
+                                                                                                                                                (order.Status == "Pending" ? "warning" : "danger"))">
+                                        @order.Status
+                                    </span>
+                                </td>
+                            </tr>
+                                                        }
+                        </tbody>
+                    </table>
+                </div>
+                <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="btn btn-sm btn-primary mt-2">
+                    Xem tất cả
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Top khách hàng chi tiêu nhiều nhất -->
+    <div class="col-12 grid-margin mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Top khách hàng chi tiêu nhiều nhất</h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th> STT </th>
+                                <th> Tên khách hàng </th>
+                                <th> Số đơn hàng </th>
+                                <th> Tổng chi tiêu </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var rank = 1;
+                            }
+                            @foreach (var c in ViewBag.TopCustomers)
+                            {
+                                <tr>
+                                    <td> @rank </td>
+                                    <td> @c.UserName </td>
+                                    <td>
+                                        @* Áp dụng style badge giống template cho nổi bật *@
+                                        <label class="badge badge-gradient-info">@c.OrderCount</label>
+                                    </td>
+                                    <td> @String.Format("{0:N0} ₫", c.TotalSpent) </td>
+                                </tr>
+                                rank++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let revenueChart = null;
+
+        // Khởi tạo biểu đồ
+        function initChart(labels, data) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (₫)',
+                        data: data,
+                        borderColor: '#6f42c1',
+                        backgroundColor: 'rgba(111, 66, 193, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Doanh thu: ' + context.parsed.y.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN');
+                                }
+                            }
+                        },
+                        x: { ticks: { color: '#6c757d' } }
+                    }
+                }
+            });
+        }
+
+        // Khởi tạo biểu đồ với dữ liệu ban đầu
+        initChart([@Html.Raw(ViewBag.RevenueChartLabels)], [@Html.Raw(ViewBag.RevenueChartData)]);
+
+        // Xử lý sự kiện thay đổi bộ lọc
+        document.getElementById('periodFilterSelect').addEventListener('change', function() {
+            const period = this.value;
+            const filterMsg = document.getElementById('filterMsg');
+            const selectElement = this;
+
+            // Disable select khi đang tải
+            selectElement.disabled = true;
+
+            // Hiển thị thông báo đang tải
+            filterMsg.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải dữ liệu...';
+
+            // Gọi API lấy dữ liệu
+            fetch('@Url.Action("GetDashboardData", "Dashboard", new { area = "Admin" })?period=' + period)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Cập nhật biểu đồ
+                        initChart(data.chartLabels, data.chartData);
+
+                        // Cập nhật tiêu đề biểu đồ
+                        const chartTitle = document.querySelector('.col-lg-8 .card-title');
+                        const titleText = {
+                            'Day': 'Doanh thu 7 ngày gần đây',
+                            'Week': 'Doanh thu 8 tuần gần đây',
+                            'Month': 'Doanh thu 12 tháng gần đây',
+                            'Year': 'Doanh thu 5 năm gần đây'
+                        };
+                        chartTitle.textContent = titleText[period];
+
+                        // Cập nhật thông báo thành công
+                        const periodText = {
+                            'Day': 'theo ngày',
+                            'Week': 'theo tuần',
+                            'Month': 'theo tháng',
+                            'Year': 'theo năm'
+                        };
+                        filterMsg.innerHTML = `<i class="mdi mdi-check-circle text-success"></i> Đã cập nhật ${periodText[period]}`;
+
+                        setTimeout(() => {
+                            filterMsg.innerHTML = '';
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Có lỗi xảy ra');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    filterMsg.innerHTML = '<i class="mdi mdi-alert-circle text-danger"></i> ' + error.message;
+
+                    setTimeout(() => {
+                        filterMsg.innerHTML = '';
+                    }, 5000);
+                })
+                .finally(() => {
+                    // Enable lại select
+                    selectElement.disabled = false;
+                });
+        });
+    </script>
+}

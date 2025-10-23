@@ -1,0 +1,52 @@
+﻿@model WebBanHang.Models.Models.Food
+@{
+    ViewData["Title"] = "Sửa món ăn";
+}
+
+<h3>Sửa món ăn</h3>
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-area="Admin" asp-controller="Foods" asp-action="Edit" asp-route-foodId="@Model.FoodId" enctype="multipart/form-data" method="post">
+    <input type="hidden" asp-for="FoodId" />
+
+    <div class="form-group mb-3">
+        <label>Tên món</label>
+        <input asp-for="FoodName" class="form-control" />
+        <span asp-validation-for="FoodName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Mô tả</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Giá</label>
+        <input asp-for="Price" class="form-control" type="number" step="0.01" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Trạng thái</label>
+        <select asp-for="IsAvailable" class="form-control">
+            <option value="true">Available</option>
+            <option value="false">Unavailable</option>
+        </select>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Category</label>
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Hình ảnh hiện tại</label><br />
+        <img src="@Model.ImageUrl ?? " assets /images/faces/default.jpg"" style="width:80px;height:80px;border-radius:5px;" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Thay đổi hình ảnh</label>
+        <input type="file" name="imageFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Cập nhật</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
