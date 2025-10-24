@@ -8,7 +8,6 @@
         // Lấy foodId từ thuộc tính data-food-id của nút được click
         var foodId = $(this).data('food-id');
         var quantity = 1; // Mặc định thêm 1 sản phẩm
-
         
         // Thực hiện gọi AJAX
         $.ajax({
@@ -31,7 +30,7 @@
                         icon: 'success',
                         title: 'Đã thêm vào giỏ hàng!',
                         showConfirmButton: false,
-                        timer: 1000, // Tự động tắt sau 2 giây
+                        timer: 500, // Tự động tắt sau 2 giây
                         timerProgressBar: true,
                         didOpen: (toast) => {
                             toast.addEventListener('mouseenter', Swal.stopTimer)
@@ -58,15 +57,37 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 // Xử lý khi có lỗi HTTP (ví dụ: 401 Unauthorized, 500 Internal Server Error)
-                console.error("AJAX Error:", textStatus, errorThrown);
+                //console.error("AJAX Error:", textStatus, errorThrown);
 
                 if (jqXHR.status === 401) {
+                    alert("hehe")
                     // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
-                    alert('Bạn cần đăng nhập để thực hiện chức năng này.');
-                    window.location.href = '/Identity/Account/Login'; // Điều chỉnh URL nếu cần
+                    Swal.fire({
+                        // Không cần 'toast: true' hoặc 'position' cụ thể, mặc định là ở giữa
+                        icon: 'error', // Dùng 'error' hoặc 'warning' để thông báo lỗi/vấn đề
+                        title: 'Vui lòng đăng nhập!',
+                        text: 'Tính năng này yêu cầu bạn phải đăng nhập trước.', // Nội dung chi tiết hơn
+                        showConfirmButton: true, // Hiển thị nút xác nhận
+                        confirmButtonText: 'Đăng nhập ngay', // Đổi tên nút
+                        timer: 5000, // Có thể đặt timer hoặc không nếu muốn người dùng tương tác
+                        timerProgressBar: true,
+
+                    }).then((result) => {
+                        // Chuyển hướng sau khi người dùng click nút 'Đăng nhập ngay' hoặc sau khi timer kết thúc
+                        if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+                            window.location.href = '/Identity/Account/Login'; // Điều chỉnh URL nếu cần
+                        }
+                    }); 
+                    
                 } else {
                     // Các lỗi khác
-                    alert('Đã xảy ra lỗi. Vui lòng thử lại.');
+                    var errorMessage = 'Mã lỗi: ' + jqXHR.status + ' - ' + (errorThrown || textStatus);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Thất bại',
+                        text: errorMessage.message || 'Đã xảy ra lỗi. Vui lòng thử lại..'
+                    });
+                    
                 }
             }
         });

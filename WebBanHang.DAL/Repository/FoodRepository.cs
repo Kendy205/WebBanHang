@@ -16,5 +16,6 @@ namespace WebBanHang.DAL.Repository
         {
             _db = db;
         }
+        
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Session;
 
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -58,6 +59,8 @@ builder.Services.ConfigureApplicationCookie(options =>
         {
             // Thì không chuyển hướng, mà trả về lỗi 401 Unauthorized
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            
+
         }
         else
         {
@@ -86,7 +89,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-
 var app = builder.Build();
 //setup 
 using (var scope = app.Services.CreateScope())
@@ -96,7 +98,6 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var logger = services.GetRequiredService<ILogger<DbSeeder>>();
-
     var seeder = new DbSeeder(context, userManager, roleManager, logger);
     await seeder.SeedAsync();
 }

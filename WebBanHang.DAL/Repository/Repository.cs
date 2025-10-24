@@ -61,7 +61,7 @@ namespace WebBanHang.DAL.Repository
             return query;
         }
 
-        public IQueryable<T> GetAllQueryable()
+        public  IQueryable<T> GetAllQueryable()
         {
             return DbSet.AsQueryable();
 

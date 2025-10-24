@@ -30,7 +30,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             var user = await _userManager.GetUserAsync(User);
             //if (user == null) return RedirectToAction("Login", "Account", new { area = "Identity" });
 
-            var cart = await _cartService.GetCartByUserId(user.Id);
+            var cart = await _cartService.GetCartByUserId(user!.Id);
             HttpContext.Session.SetInt32("CartItemCount", cart?.TotalItems ?? 0);
             HttpContext.Session.SetString("CartTotal", (cart?.TotalAmount ?? 0m).ToString("F2"));
 
