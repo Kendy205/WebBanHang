@@ -68,11 +68,11 @@ namespace WebBanHang.Areas.Admin.Controllers
                 var topCustomers = _context.Orders
                     .Include(o => o.User)
                     .Where(o => o.User != null)
-                    .GroupBy(o => new { o.User.Id, o.User.UserName })
+                    .GroupBy(o => new { o.User.Id, o.User.FulName })
                     .Select(g => new
                     {
                         UserId = g.Key.Id,
-                        UserName = g.Key.UserName,
+                        UserName = g.Key.FulName,
                         TotalSpent = g.Sum(o => o.TotalAmount),
                         OrderCount = g.Count()
                     })
