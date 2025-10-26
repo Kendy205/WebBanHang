@@ -81,7 +81,7 @@ namespace WebBanHang.Areas.Admin.Controllers
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalUsers / pageSize);
             ViewBag.CurrentPage = page;
             ViewBag.UserRoles = userRoles;
-
+            ViewBag.Tilte = "User";
             return View(users);
         }
 
@@ -104,7 +104,7 @@ namespace WebBanHang.Areas.Admin.Controllers
 
             var userRoles = await _userManager.GetRolesAsync(user);
             ViewBag.UserRoles = userRoles;
-
+           
             return View(user);
         }
 
@@ -133,7 +133,6 @@ namespace WebBanHang.Areas.Admin.Controllers
                 );
                 return View(model);
             }
-
             try
             {
                 var user = new ApplicationUser
@@ -147,14 +146,14 @@ namespace WebBanHang.Areas.Admin.Controllers
                 };
                 user.imgUrl= await _fileUploadService.UploadFileAsync(img);
                 // Lấy mật khẩu từ model
-                var result = await _userManager.CreateAsync(user, model.Password); // <-- THAY ĐỔI 2
+                var result = await _userManager.CreateAsync(user, model.Password); 
 
                 if (result.Succeeded)
                 {
                     // Lấy role từ model
-                    if (!string.IsNullOrEmpty(model.Role)) // <-- THAY ĐỔI 3
+                    if (!string.IsNullOrEmpty(model.Role))
                     {
-                        await _userManager.AddToRoleAsync(user, model.Role); // <-- THAY ĐỔI 4
+                        await _userManager.AddToRoleAsync(user, model.Role); 
                     }
 
                     ShowSuccess("Thêm người dùng thành công");
@@ -208,7 +207,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 "Name",
                 currentRole
             );
-            ViewBag.CurrentRole = userRoles.FirstOrDefault();
+            ViewBag.CurrentRole =  userRoles.FirstOrDefault();
             var userDto = new UserEditDTO
             {
                 Id = user.Id,
@@ -216,7 +215,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Address = user.Address,
-                ImgUrl = user.imgUrl, // Lấy đường dẫn ảnh hiện tại
+                ImgUrl = user.imgUrl,
                 Role = currentRole ?? "" // Gán Role hiện tại
             };
 
@@ -228,20 +227,17 @@ namespace WebBanHang.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string userId, UserEditDTO model) 
         {
-            // Kiểm tra tính hợp lệ cơ bản
             if (userId != model.Id)
                 return BadRequest();
-
-            // 1. CHUẨN BỊ ROLE & VIEW DATA NẾU CÓ LỖI VALIDATION
             if (!ModelState.IsValid)
             {
                 ViewBag.Roles = new SelectList(
                     await _roleManager.Roles.ToListAsync(),
                     "Name",
                     "Name",
-                    model.Role // Giữ lại Role đã chọn
+                    model.Role 
                 );
-                // Chuyển DTO về View để người dùng sửa lại
+
                 return View(model);
             }
 
@@ -257,21 +253,15 @@ namespace WebBanHang.Areas.Admin.Controllers
             user.FulName = model.FulName;
             user.PhoneNumber = model.PhoneNumber;
             user.Address = model.Address;
-            user.UpdateAt = DateTime.Now; // Giả sử bạn có trường này
+            user.UpdateAt = DateTime.UtcNow; 
 
             // 3. XỬ LÝ UPLOAD FILE ẢNH MỚI (NewAvatarFile)
             if (model.NewAvatarFile != null)
             {
-                // TODO: TRIỂN KHAI LOGIC LƯU FILE TẠI ĐÂY
-                // Ví dụ:
-                // 3a. Xóa ảnh cũ (nếu user.imgUrl không null)
-                // 3b. Lưu file mới vào thư mục (wwwroot/images/avatars)
-                // 3c. Lấy đường dẫn mới (ví dụ: "/images/avatars/new-file-name.png")
 
                 string newImgUrl = await _fileUploadService.UploadFileAsync(model.NewAvatarFile);
                 user.imgUrl = newImgUrl;
             }
-            // Nếu model.NewAvatarFile là null, user.imgUrl sẽ giữ nguyên giá trị cũ (được truyền qua hidden field)
 
             // 4. THỰC HIỆN CẬP NHẬT
             var result = await _userManager.UpdateAsync(user);
@@ -377,34 +367,6 @@ namespace WebBanHang.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
-
-        // POST: /Admin/Users/ToggleActive (AJAX)
-        //[HttpPost]
-        //public async Task<IActionResult> ToggleActive(string id)
-        //{
-        //    try
-        //    {
-        //        var user = await _userManager.FindByIdAsync(id);
-        //        if (user == null)
-        //            return Json(new { success = false, message = "Người dùng không tồn tại" });
-
-        //        //user.IsActive = !user.IsActive;
-        //        //user.UpdatedAt = DateTime.Now;
-        //        await _userManager.UpdateAsync(user);
-
-        //        return Json(new
-        //        {
-        //            success = true,
-        //            isActive = user.IsActive,
-        //            message = user.IsActive ? "Đã kích hoạt tài khoản" : "Đã vô hiệu hóa tài khoản"
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error toggling user active status");
-        //        return Json(new { success = false, message = ex.Message });
-        //    }
-        //}
 
         // GET: /Admin/Users/ResetPassword/{id}
         [HttpGet]

@@ -25,7 +25,8 @@ namespace WebBanHang.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetActiveCategories();
+            var categories = await _categoryService.GetAllCategories();
+            ViewBag.Tilte = "Categories";
             return View(categories);
         }
 
