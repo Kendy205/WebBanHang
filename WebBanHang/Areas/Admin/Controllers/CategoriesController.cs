@@ -25,7 +25,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetAllCategories();
+            var categories = await _categoryService.GetActiveCategories();
             return View(categories);
         }
 
@@ -170,7 +170,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 //    await DeleteImageAsync(category.ImageUrl);
 
                 await _categoryService.DeleteCategory(id);
-                await _categoryService.DeleteCategory(id);
+                //await _categoryService.DeleteCategory(id);
                 ShowSuccess("Xóa danh mục thành công");
             }
             catch (Exception ex)
