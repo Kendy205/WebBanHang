@@ -19,13 +19,15 @@
         @for (int i = 1; i <= ViewBag.TotalPages; i++)
         {
             @* <li class="page-item  @(i == ViewBag.CurrentPage ? "active" : "")"> *@
-            <a class="@(i==ViewBag.CurrentPage ? "bg-primary":"")" asp-area="Customer"
+            <a class="btn btn-outline-secondary @(i==ViewBag.CurrentPage ? "press":"")" asp-area="Customer"
                asp-action="Index"
                asp-route-page="@i"
                asp-route-id="@ViewBag.CurrentCategory"
                asp-route-minPrice="@ViewBag.MinPrice"
                asp-route-maxPrice="@ViewBag.MaxPrice"
-               asp-route-sortBy="@ViewBag.SortBy">
+               asp-route-sortBy="@ViewBag.SortBy"
+               style="width:5px;height:10px"
+            >
                 @i
             </a>
 

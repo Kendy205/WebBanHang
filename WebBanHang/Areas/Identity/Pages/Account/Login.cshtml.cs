@@ -150,7 +150,7 @@ namespace WebBanHang.Areas.Identity.Pages.Account
                     }
                    
                 }
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập đúng thông tin !!!");
             }
 
             // If we got this far, something failed, redisplay form

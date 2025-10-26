@@ -51,7 +51,7 @@ namespace WebBanHang.FileUpload.IFileUpload
                 if (file != null && file.Length > 0)
                 {
                     // đường dẫn thư mục wwwroot/UploadedFiles
-                    string uploadPath = Path.Combine(_env.WebRootPath, "ImgAvatarStudent");
+                    string uploadPath = Path.Combine(_env.WebRootPath, "Image");
                     // tạo thư mục nếu chưa tồn tại
                     if (!Directory.Exists(uploadPath))
                     {
@@ -67,7 +67,7 @@ namespace WebBanHang.FileUpload.IFileUpload
                     }
 
                     // trả về đường dẫn tương đối để hiển thị ảnh
-                    return $"/ImgAvatarStudent/{file.FileName}";
+                    return $"/Image/{file.FileName}";
                 }
 
                 return null!;
