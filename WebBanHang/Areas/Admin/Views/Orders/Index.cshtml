@@ -79,10 +79,10 @@
                                 <tr>
                                     <td>@(o.OrderCode ?? $"#{o.OrderId}")</td>
                                     <td>@(o.User?.FulName ?? $"{o.User?.FirstName} {o.User?.LastName}".Trim() ?? o.User?.Email ?? "—")</td>
-                                    <td>@(o.PhoneNumber ?? "—")</td>
+                                    <td class="phone">@((o.User?.PhoneNumber ?? o.PhoneNumber) ?? "-")</td>
                                     <td><span class="@Badge(o.Status)">@o.Status</span></td>
                                     <td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td>@o.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@(o.UpdatedAt == default(DateTime) ? "—" : o.UpdatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-primary"
                                            asp-area="Admin" asp-controller="Orders" asp-action="Details"

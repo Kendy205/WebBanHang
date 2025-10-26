@@ -40,8 +40,9 @@
                                 <div class="mb-2">Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
                                 <div class="mb-2">Cập nhật: @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
                                 <div class="mb-2">Khách: @(Model.User?.FulName ?? $"{Model.User?.FirstName} {Model.User?.LastName}".Trim() ?? Model.User?.Email ?? "—")</div>
-                                <div class="mb-2">SĐT: @Model.PhoneNumber</div>
-                                <div class="mb-2">Địa chỉ: @Model.ShippingAddress</div>
+                                <div class="mb-2">SĐT: @(Model.User?.PhoneNumber ?? Model.PhoneNumber ?? "-")</div>
+                                <div class="mb-2">Địa chỉ: @(Model.User?.Address ?? Model.ShippingAddress ?? "—")</div>
+
                                 <div class="mb-2">Thanh toán: @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "—" : Model.PaymentMethod)</div>
                                 @if (!string.IsNullOrWhiteSpace(Model.Notes))
                                 {
@@ -91,7 +92,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Stt</th>
-                                                <th>Món/cSản phẩm</th>
+                                                <th>Món/Sản phẩm</th>
                                                 <th class="text-end">Số lượng</th>
                                                 <th class="text-end">Đơn giá</th>
                                                 <th class="text-end">Thành tiền</th>

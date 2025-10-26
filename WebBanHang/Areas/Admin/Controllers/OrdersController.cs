@@ -33,12 +33,20 @@ namespace WebBanHang.Areas.Admin.Controllers
             }
 
             // Search
+            // Search (null-safe, kiểm tra cả Order.PhoneNumber và User.PhoneNumber)
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
+                searchTerm = searchTerm.Trim();
+
                 query = query.Where(o =>
-                    o.OrderCode.Contains(searchTerm) ||
-                    
-                    o.PhoneNumber.Contains(searchTerm)
+                    // tìm theo mã đơn (OrderCode)
+                    (o.OrderCode != null && o.OrderCode.Contains(searchTerm)) ||
+
+                    // tìm theo số điện thoại lưu trong Orders
+                    (o.PhoneNumber != null && o.PhoneNumber.Contains(searchTerm)) ||
+
+                    // tìm theo số điện thoại trong User (cần Include(o => o.User) phía trên đã có)
+                    (o.User != null && o.User.PhoneNumber != null && o.User.PhoneNumber.Contains(searchTerm))
                 );
             }
 
