@@ -1,8 +1,9 @@
 ﻿@using WebBanHang.DTOs
-@model IEnumerable<DanhMucDTO>
+@using WebBanHang.Models.Models
+@model IEnumerable<Category>
 <ul>
 @foreach(var item in Model)
 {
-        <li><a href="#">@item.Name</a></li>
+        <li><a asp-arae="Customer" asp-controller="Food" asp-action="Category" asp-route-id="@item.CategoryId">@item.CategoryName</a></li>
 }
 </ul>

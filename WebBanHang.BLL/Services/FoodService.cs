@@ -60,13 +60,14 @@ namespace WebBanHang.BLL.Services
 
         public async Task<IEnumerable<Food>> GetFoodsByCategory(int categoryId)
         {
-            return await _unitOfWork.Foods.FindAsync(f => f.CategoryId == categoryId);
+            //return await _unitOfWork.Foods.FindAsync(f => f.CategoryId == categoryId);
+            return await _unitOfWork.Foods.GetAllQueryable().Include(f => f.Category).Where(f => f.CategoryId == categoryId).ToListAsync();
         }
 
         public async Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsByFilter(int? categoryId, decimal? minPrice, decimal? maxPrice, string sortBy, int pageNumber, int pageSize)
         {
             // lay all food
-            var query = _unitOfWork.Foods.AsQueryable();
+            var query = _unitOfWork.Foods.GetAllQueryable();
             // category filter
             if (categoryId.HasValue)
             {
@@ -104,16 +105,17 @@ namespace WebBanHang.BLL.Services
             return (foods, totalRecords);
         }
 
-        public async Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsPaged(int pageNumber, int pageSize, out int totalRecords)
+        public async Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsPaged(int pageNumber, int pageSize)
         {
-            var query = await _unitOfWork.Foods.AsQueryable().Include(f => f.Category).Where(f => f.IsAvailable).ToListAsync();
-            totalRecords = query.Count();
-            return (query.Skip((pageNumber - 1) * pageSize).Take(pageSize), totalRecords);
+            var query = _unitOfWork.Foods.GetAllQueryable().Include(f => f.Category).Where(f => f.IsAvailable);
+            var food = await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
+            var totalRecords = query.Count();
+            return (food, totalRecords);
         }
 
         public async Task<IEnumerable<Food>> GetTopRatedFoods(int count)
         {
-            return await _unitOfWork.Foods.AsQueryable().OrderByDescending(f => f.Rating).Take(count).ToListAsync();
+            return await _unitOfWork.Foods.GetAllQueryable().OrderByDescending(f => f.Rating).Take(count).ToListAsync();
         }
 
         public async Task<IEnumerable<Food>> SearchFoods(string keyword)

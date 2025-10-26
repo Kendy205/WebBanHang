@@ -1,0 +1,7 @@
+﻿@using WebBanHang.Models.Models
+@model IEnumerable<Food>
+@foreach (var item in Model)
+{
+    @await Component.InvokeAsync("RenderSanPham", new { f = item, itemsPerRow = 3 })
+
+}

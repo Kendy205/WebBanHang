@@ -12,6 +12,38 @@ namespace WebBanHang.FileUpload.IFileUpload
         {
             _env = env;
         }
+
+        public async Task DeleteFileAsync(string relativePath)
+        {
+            try
+            {
+                // 1. Kiểm tra xem đường dẫn có hợp lệ không
+                if (string.IsNullOrEmpty(relativePath))
+                {
+                    // Không có gì để xóa, thoát ra
+                    return;
+                }
+
+                // 2. Chuyển đổi đường dẫn web tương đối thành đường dẫn vật lý đầy đủ
+                // Ví dụ: "/ImgAvatarStudent/abc.jpg" -> "C:\project\wwwroot\ImgAvatarStudent\abc.jpg"
+                // TrimStart('/') để loại bỏ dấu / ở đầu, tránh lỗi khi Path.Combine
+                var physicalPath = Path.Combine(_env.WebRootPath, relativePath.TrimStart('/'));
+
+                // 3. Kiểm tra xem file có thực sự tồn tại trên server không
+                if (File.Exists(physicalPath))
+                {
+                    // 4. Nếu có, thực hiện xóa file
+                    await Task.Run(() => File.Delete(physicalPath));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi thay vì ném ra ngoài để không làm gián đoạn quá trình xóa user
+                // Hoặc bạn có thể ném exception nếu muốn xử lý ở cấp cao hơn
+                Console.WriteLine($"Error deleting file: {relativePath}. Exception: {ex.Message}");
+            }
+        }
+
         public async Task<string> UploadFileAsync(IFormFile file)
         {
             try

@@ -1,21 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebBanHang.BLL.IServices;
+using WebBanHang.DAL.Repository.UnitOfWork;
 using WebBanHang.DTOs;
+using WebBanHang.Models.Models;
 
 namespace WebBanHang.ViewComponents
 {
     public class RenderDanhMucViewComponent : ViewComponent
     {
-        List<DanhMucDTO> listItem = new List<DanhMucDTO>();
+        private readonly ICategoryService _categoryService;  
+        public RenderDanhMucViewComponent(ICategoryService categoryService)
+        {
+            _categoryService = categoryService;
+        }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            listItem.AddRange(new[] {
-                new DanhMucDTO() { Name = "Trang chủ" },
-                new DanhMucDTO() { Name = "Sản phẩm" },
-                new DanhMucDTO() { Name = "Giới thiệu" },
-                new DanhMucDTO() { Name = "Liên hệ" },
-            });
+            IEnumerable<Category> categories =await _categoryService.GetActiveCategories();
+            //List<DanhMucDTO> listDanhMucDTOs= new List<DanhMucDTO>();
+            //foreach (var category in categories)
+            //{
+            //    listDanhMucDTOs.Add(new DanhMucDTO ( category.CategoryName ));
+            //}
             //service xu ly load data
-            return View("RenderDanhMucSanPham",listItem);
+            return View("RenderDanhMucSanPham", categories);
         }
     }
 }

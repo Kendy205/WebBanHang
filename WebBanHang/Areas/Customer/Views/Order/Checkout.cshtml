@@ -1,0 +1,211 @@
+﻿@using System.Globalization
+@{
+    ViewData["Title"] = "Thanh toán";
+    var cart = ViewBag.Cart;
+    var currency = new CultureInfo("vi-VN");
+
+    // Lấy Request an toàn, tránh lỗi Content-Type khi GET
+    var req = Context.Request;
+    bool hasForm = req.HasFormContentType;
+
+    string shipping = hasForm ? req.Form["shippingAddress"].ToString() : "";
+    string phone = hasForm ? req.Form["phoneNumber"].ToString() : "";
+    string method = hasForm ? req.Form["paymentMethod"].ToString() : "COD";
+    string notes = hasForm ? req.Form["notes"].ToString() : "";
+}
+
+<div class="container my-4">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <h2 class="mb-3">Thanh toán</h2>
+
+    <div class="row">
+        <!-- Cột trái -->
+        <div class="col-lg-6 col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold">Thông tin nhận hàng</div>
+                <div class="card-body">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-warning">Vui lòng kiểm tra lại các trường bắt buộc.</div>
+                    }
+
+                    <form asp-area="Customer" asp-controller="Order" asp-action="Checkout" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="shippingAddress" class="form-label">Địa chỉ giao hàng *</label>
+                            <input class="form-control" id="shippingAddress" name="shippingAddress" value="@shipping" />
+                            @if (ViewData.ModelState.ContainsKey("shippingAddress"))
+                            {
+                                <small class="text-danger">
+                                    @string.Join(", ", ViewData.ModelState["shippingAddress"]!.Errors.Select(e => e.ErrorMessage))
+                                </small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Số điện thoại *</label>
+                            <input class="form-control" id="phoneNumber" name="phoneNumber" value="@phone" />
+                            @if (ViewData.ModelState.ContainsKey("phoneNumber"))
+                            {
+                                <small class="text-danger">
+                                    @string.Join(", ", ViewData.ModelState["phoneNumber"]!.Errors.Select(e => e.ErrorMessage))
+                                </small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label d-block">Phương thức thanh toán *</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="pmCOD" value="COD" @(method == "COD" ? "checked" : null) />
+                                <label class="form-check-label" for="pmCOD">Thanh toán khi nhận hàng (COD)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="pmBank" value="BankTransfer" @(method == "BankTransfer" ? "checked" : null) />
+                                <label class="form-check-label" for="pmBank">Chuyển khoản ngân hàng</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="pmCard" value="Card" @(method == "Card" ? "checked" : null) />
+                                <label class="form-check-label" for="pmCard">Thẻ (Visa/Master/JCB)</label>
+                            </div>
+                            @if (ViewData.ModelState.ContainsKey("paymentMethod"))
+                            {
+                                <small class="text-danger d-block mt-1">
+                                    @string.Join(", ", ViewData.ModelState["paymentMethod"]!.Errors.Select(e => e.ErrorMessage))
+                                </small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Ghi chú (tuỳ chọn)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">@notes</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-area="Customer" asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">Quay lại giỏ hàng</a>
+                            <button type="submit" class="btn btn-success">Đặt hàng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: Tóm tắt đơn hàng -->
+        <div class="col-lg-6 col-12">
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold">Đơn hàng của bạn</div>
+                <div class="card-body">
+                    @if (cart == null || cart.CartItems == null || cart.CartItems.Count == 0)
+                    {
+                        <p>Giỏ hàng trống.</p>
+                    }
+                    else
+                    {
+                        decimal total = 0m;
+
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th class="text-center">SL</th>
+                                        <th class="text-end">Đơn giá</th>
+                                        <th class="text-end">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var it in cart.CartItems)
+                                    {
+                                        // ===== Lấy tên, số lượng, giá một cách an toàn =====
+                                        string name = ReadStr(it, "ProductName", "FoodName", "Name");
+                                        if (name == null)
+                                        {
+                                            var food = it.GetType().GetProperty("Food")?.GetValue(it);
+                                            name = food != null ? ReadStr(food, "FoodName", "Name") : null;
+                                        }
+                                        name ??= "Sản phẩm";
+
+                                        int qty = ReadInt(it, "Quantity", "Qty");
+                                        decimal price = ReadDec(it, "Price", "UnitPrice");
+                                        if (price == 0m)
+                                        {
+                                            var food = it.GetType().GetProperty("Food")?.GetValue(it);
+                                            if (food != null) price = ReadDec(food, "Price");
+                                        }
+
+                                        var lineTotal = qty * price;
+                                        total += lineTotal;
+
+                                        <tr>
+                                            <td>@name</td>
+                                            <td class="text-center">@qty</td>
+                                            <td class="text-end">@string.Format(currency, "{0:c0}", price)</td>
+                                            <td class="text-end">@string.Format(currency, "{0:c0}", lineTotal)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end">Tổng cộng</th>
+                                        <th class="text-end">@string.Format(currency, "{0:c0}", total)</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    // Đặt trong @functions để tránh rối ngoặc Razor
+    string ReadStr(object o, params string[] names)
+    {
+        foreach (var n in names)
+        {
+            var p = o.GetType().GetProperty(n);
+            if (p != null)
+            {
+                var v = p.GetValue(o);
+                if (v != null) return v.ToString();
+            }
+        }
+        return null;
+    }
+    decimal ReadDec(object o, params string[] names)
+    {
+        foreach (var n in names)
+        {
+            var p = o.GetType().GetProperty(n);
+            if (p != null)
+            {
+                var v = p.GetValue(o);
+                if (v != null) return Convert.ToDecimal(v);
+            }
+        }
+        return 0m;
+    }
+    int ReadInt(object o, params string[] names)
+    {
+        foreach (var n in names)
+        {
+            var p = o.GetType().GetProperty(n);
+            if (p != null)
+            {
+                var v = p.GetValue(o);
+                if (v != null) return Convert.ToInt32(v);
+            }
+        }
+        return 0;
+    }
+}

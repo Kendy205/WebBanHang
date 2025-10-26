@@ -1621,7 +1621,7 @@ ol {
 
 .product__pagination,
 .blog__pagination {
-	padding-top: 10px;
+	padding-top: 5px;
 }
 
 .product__pagination a,
@@ -1635,7 +1635,7 @@ ol {
 	font-weight: 700;
 	line-height: 28px;
 	text-align: center;
-	margin-right: 16px;
+	margin-right: 2px;
 	-webkit-transition: all, 0.3s;
 	-moz-transition: all, 0.3s;
 	-ms-transition: all, 0.3s;
@@ -1643,12 +1643,12 @@ ol {
 	transition: all, 0.3s;
 }
 
-.product__pagination a:hover,
-.blog__pagination a:hover {
-	background: #7fad39;
-	border-color: #7fad39;
-	color: #ffffff;
-}
+	.product__pagination a:hover,
+	.blog__pagination a:hover {
+		background: #7fad39;
+		border-color: #7fad39;
+		color: rgb(38, 38, 38);
+	}
 
 .product__pagination a:last-child,
 .blog__pagination a:last-child {

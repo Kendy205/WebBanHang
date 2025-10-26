@@ -1,0 +1,129 @@
+﻿@using WebBanHang.Models.Models
+@model IEnumerable<WebBanHang.Models.Models.Food>
+@{
+    ViewData["Title"] = ViewBag.Title ?? "Danh sách món ăn";
+    var categories = ViewBag.Categories as IEnumerable<WebBanHang.Models.Models.Category>;
+    var max = ViewBag.maxPrice;
+    var min = ViewBag.minPrice;
+    var totalPages = ViewBag.TotalPages;
+    Layout = "~/Views/Shared/_LayoutShop.cshtml";
+}
+<!-- ===== Danh sách món ăn ===== -->
+<div id="foodListContainer" class="row" style="width:100%;">
+    @await Html.PartialAsync("_FoodListPartial", Model)
+</div>
+
+@section PhanTrang {
+    <!-- Phân trang -->
+    <div class="product__pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            @* <li class="page-item  @(i == ViewBag.CurrentPage ? "active" : "")"> *@
+            <a class="@(i==ViewBag.CurrentPage ? "bg-primary":"")" asp-area="Customer"
+               asp-action="Index"
+               asp-route-page="@i"
+               asp-route-id="@ViewBag.CurrentCategory"
+               asp-route-minPrice="@ViewBag.MinPrice"
+               asp-route-maxPrice="@ViewBag.MaxPrice"
+               asp-route-sortBy="@ViewBag.SortBy">
+                @i
+            </a>
+
+        }
+
+    </div>
+}
+
+@* @section Scripts{
+    <script>
+        $(document).ready(function() {
+            // Lưu trữ các tham số lọc hiện tại
+            let currentParams = {
+                categoryId: @(ViewBag.CurrentCategory ?? "null"),
+                page: 1
+            };
+
+            // ===================================
+            // SỰ KIỆN CLICK
+            // ===================================
+            $('#btn-search').on('click', function() {
+                currentParams.keyword = $('#keyword').val();
+                currentParams.minPrice = null; // Reset bộ lọc giá
+                currentParams.maxPrice = null;
+                currentParams.page = 1;
+                fetchFoods();
+            });
+
+            $('#btn-filter').on('click', function() {
+                currentParams.minPrice = $('#minPrice').val();
+                currentParams.maxPrice = $('#maxPrice').val();
+                currentParams.keyword = null; // Reset từ khóa tìm kiếm
+                currentParams.page = 1;
+                fetchFoods();
+            });
+
+            // Bắt sự kiện click vào nút phân trang
+            $('#pagination-container').on('click', '.page-link', function(e) {
+                e.preventDefault();
+                currentParams.page = $(this).data('page');
+                fetchFoods();
+            });
+
+            // ===================================
+            // HÀM GỌI API VÀ CẬP NHẬT GIAO DIỆN
+            // ===================================
+            function fetchFoods() {
+                let apiUrl = currentParams.keyword ? '/api/foods/search' : '/api/foods';
+
+                $('#food-list-container').html('<div class="text-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+                $.get(apiUrl, currentParams, function(response) {
+                    if (response.success && response.data.length > 0) {
+                        let html = '<div class="row">';
+                        response.data.forEach(function(food) {
+                            html += `
+                                <div class="col-lg-4 col-md-6 col-sm-6">
+                                    <div class="product__item">
+                                        <div class="product__item__pic" style="background-image: url('${food.imageUrl || '/images/default.jpg'}')">
+                                            <ul class="product__item__pic__hover">
+                                                <li><a href="/Customer/Food/Details/${food.foodId}"><i class="fa fa-eye"></i></a></li>
+                                                <li><a href="javascript:void(0)" class="add-to-cart" data-food-id="${food.foodId}"><i class="fa fa-shopping-cart"></i></a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="product__item__text">
+                                            <h6><a href="/Customer/Food/Details/${food.foodId}">${food.foodName}</a></h6>
+                                            <h5>${formatCurrency(food.price)}</h5>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                        html += '</div>';
+                        $('#food-list-container').html(html);
+                        updatePagination(response.pagination);
+                    } else {
+                        $('#food-list-container').html('<p class="text-center text-muted">Không tìm thấy món ăn phù hợp.</p>');
+                        $('#pagination-container').empty();
+                    }
+                });
+            }
+
+            function updatePagination(pagination) {
+                if (!pagination || pagination.totalPages <= 1) {
+                     $('#pagination-container').empty();
+                     return;
+                }
+                let paginationHtml = '<div class="product__pagination">';
+                for (let i = 1; i <= pagination.totalPages; i++) {
+                    paginationHtml += `<a class="page-link ${i === pagination.page ? 'active' : ''}" data-page="${i}" href="#">${i}</a>`;
+                }
+                paginationHtml += '</div>';
+                $('#pagination-container').html(paginationHtml);
+            }
+
+            // Hàm formatCurrency từ file site.js, bạn có thể gọi trực tiếp nếu nó là global
+            function formatCurrency(value) {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+            }
+        });
+    </script>
+} *@

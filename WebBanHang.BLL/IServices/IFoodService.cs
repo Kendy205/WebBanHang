@@ -14,7 +14,7 @@ namespace WebBanHang.BLL.IServices
         Task<IEnumerable<Food>> GetAvailableFoods();
         Task<IEnumerable<Food>> SearchFoods(string keyword);
         Task<IEnumerable<Food>> GetTopRatedFoods(int count);
-        Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsPaged(int pageNumber, int pageSize, out int totalRecords);
+        Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsPaged(int pageNumber, int pageSize);
         Task<(IEnumerable<Food> foods, int totalRecords)> GetFoodsByFilter(int? categoryId, decimal? minPrice, decimal? maxPrice,
             string sortBy, int pageNumber, int pageSize);
         Task<Food> GetFoodById(int id);

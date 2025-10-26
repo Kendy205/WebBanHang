@@ -1,0 +1,60 @@
+﻿@model WebBanHang.DAL.Data.ApplicationUser
+
+@{
+    ViewData["Title"] = "Xác nhận xóa người dùng";
+}
+
+<h4>@ViewData["Title"]</h4>
+<p class="text-danger">Bạn có chắc chắn muốn xóa vĩnh viễn người dùng này không? Hành động này không thể hoàn tác.</p>
+<hr />
+<partial name="~/Views/Shared/Partials/_ProfileUser.cshtml" model="Model" />
+<form asp-action="DeleteConfirmed" method="post" class="mt-4">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="userId" value="@Model.Id" />
+
+    @* Sử dụng các class button tương tự như trang Create *@
+    <button type="submit" class="btn btn-gradient-danger btn-lg font-weight-medium">Xác nhận Xóa</button>
+    <a asp-action="Index" class="btn btn-light btn-lg">Hủy bỏ</a>
+</form>
+@* <div class="row">
+    <div class="col-md-8">
+        <div class="pt-3">
+            <div class="form-group">
+                <label asp-for="FulName"></label>
+
+                <input asp-for="FulName" class="form-control form-control-lg" readonly />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control form-control-lg" readonly />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber"></label>
+                <input asp-for="PhoneNumber" class="form-control form-control-lg" readonly />
+            </div>
+
+            <div class="form-group">
+                <label>Quyền (Roles)</label>
+                @{
+                    var roles = "Không có quyền nào";
+                    if (ViewBag.UserRoles != null && ((IEnumerable<string>)ViewBag.UserRoles).Any())
+                    {
+                        roles = string.Join(", ", (IEnumerable<string>)ViewBag.UserRoles);
+                    }
+                }
+                <input type="text" class="form-control form-control-lg" value="@roles" readonly />
+            </div>
+
+            <form asp-action="DeleteConfirmed" method="post" class="mt-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userId" value="@Model.Id" />
+
+               
+                <button type="submit" class="btn btn-gradient-danger btn-lg font-weight-medium">Xác nhận Xóa</button>
+                <a asp-action="Index" class="btn btn-light btn-lg">Hủy bỏ</a>
+            </form>
+        </div>
+    </div>
+</div>  *@

@@ -34,7 +34,7 @@ namespace WebBanHang.BLL.Services
                 
                 var cartItem = new CartItem
                 {
-                    CartItemId = cart.CartItems.Count > 0 ? cart.CartItems.Max(ci => ci.CartItemId) + 1 : 1,
+                   // CartItemId = cart.CartItems.Count > 0 ? cart.CartItems.Max(ci => ci.CartItemId) + 1 : 1,
                     CartId = cart.CartId,
                     FoodId = foodId,
                     Quantity = quantity,
@@ -101,7 +101,8 @@ namespace WebBanHang.BLL.Services
 
         public async Task<decimal> GetCartTotal(string userId)
         {
-            throw new NotImplementedException();
+            var cart =await GetCartByUserId(userId);
+            return cart.TotalAmount;
         }
 
         public async Task RemoveFromCart(int cartItemId)

@@ -1,10 +1,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using WebBanHang.BLL.IServices;
+using WebBanHang.BLL.Services;
 using WebBanHang.BLL.Util;
+using WebBanHang.DAL;
 using WebBanHang.DAL.Data;
+using WebBanHang.DAL.Repository.IRepository;
 using WebBanHang.DAL.Repository.UnitOfWork;
 using WebBanHang.FileUpload.IFileUpload;
+using Microsoft.AspNetCore.Session;
+
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,32 +46,92 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Đường dẫn login của Identity nằm trong Area "Identity"
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Error/AccessDenied";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.Events.OnRedirectToLogin = context =>
+    {
+        // Nếu request là một API call (dựa vào đường dẫn)
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            // Thì không chuyển hướng, mà trả về lỗi 401 Unauthorized
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            
+
+        }
+        else
+        {
+            // Ngược lại, đối với các trang web thông thường, thực hiện chuyển hướng
+            context.Response.Redirect(context.RedirectUri);
+        }
+        return Task.CompletedTask;
+    };
+});
 //fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+//Register UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Register Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IFoodService, FoodService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// ===== Session configuration =====
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // thời gian sống của session
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
+//setup 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var logger = services.GetRequiredService<ILogger<DbSeeder>>();
+    var seeder = new DbSeeder(context, userManager, roleManager, logger);
+    await seeder.SeedAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    
+    
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+// Hien thi 404Error neu khong tim thay link
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+{
+    appBuilder.UseStatusCodePagesWithReExecute("/Error/Handle", "?code={0}");
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "area",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
-
+app.MapControllers();
 app.Run();
+
+
+
+

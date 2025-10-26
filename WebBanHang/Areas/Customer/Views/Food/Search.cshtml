@@ -1,0 +1,57 @@
+﻿@model IEnumerable<WebBanHang.Models.Models.Food>
+@{
+    ViewBag.Title = "Kết quả tìm kiếm";
+    var categories = ViewBag.Categories as IEnumerable<WebBanHang.Models.Models.Category>;
+    var max = ViewBag.maxPrice;
+    var min = ViewBag.minPrice;
+    Layout = "~/Views/Shared/_LayoutShop.cshtml";
+    ViewBag.SoSp = ViewBag.Count;
+}
+<!-- ===== Danh sách món ăn ===== -->
+<div id="foodListContainer" class="row" style="width:100%;">
+    @await Html.PartialAsync("_FoodSearchPartial", Model)
+</div>
+@section PhanTrang {
+    <!-- Phân trang -->
+    <div class="product__pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            @* <li class="page-item  @(i == ViewBag.CurrentPage ? "active" : "")"> *@
+            <a class="@(i==ViewBag.CurrentPage ? "bg-primary":"")" asp-area="Customer"
+               asp-action="Index"
+               asp-route-page="@i"
+               asp-route-id="@ViewBag.CurrentCategory"
+               asp-route-minPrice="@ViewBag.MinPrice"
+               asp-route-maxPrice="@ViewBag.MaxPrice"
+               asp-route-sortBy="@ViewBag.SortBy">
+                @i
+            </a>
+
+        }
+
+    </div>
+}
+@* @section Scripts {
+    <script>
+        //let typingTimer;
+        //const delay = 500; // chờ 0.5 giây sau khi người dùng ngừng gõ
+
+        $("#searchForm").on("submit", function (e) {
+
+            //clearTimeout(typingTimer);
+            //alert("hehe")
+            e.preventDefault();
+            const keyword = $("#keyword").val();
+            //alert(keyword)
+                $.ajax({
+                    url: '@Url.Action("Search", "Food", new { area = "Customer" })',
+                    type: 'GET',
+                    data: { keyword: keyword },
+                    success: function (html) {
+                        $("#foodListContainer").html(html);
+                    }
+                });
+
+        });
+    </script>
+} *@
