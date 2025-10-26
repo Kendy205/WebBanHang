@@ -61,7 +61,7 @@ namespace WebBanHang.Areas.Admin.Controllers
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
             ViewBag.CurrentPage = page;
             ViewBag.SortBy = sortBy;
-
+            ViewBag.Tilte = "Food";
             return View(foods);
         }
 

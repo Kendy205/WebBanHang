@@ -130,3 +130,20 @@
         </div>
     </div>
 </div>
+@section PhanTrang {
+
+    <div class="btn-group" role="group" aria-label="">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+
+            <a class="btn btn-outline-secondary @(i==ViewBag.CurrentPage ? "press":"")"
+               asp-action="Index"
+               asp-route-page="@i"
+               asp-route-categoryId="@ViewBag.CurrentCategory">
+               @i
+            </a>
+
+        }
+
+    </div>
+}

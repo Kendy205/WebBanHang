@@ -4,14 +4,15 @@
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 <partial name="_toastr" />
-<div class="page-header">
-    <h3 class="page-title"> Danh sách danh mục </h3>
-    <a class="btn btn-primary" asp-action="Create"><i class="mdi mdi-plus"></i> Thêm danh mục</a>
-</div>
+
 
 <div class="card mt-3">
     <div class="card-body">
         <div class="table-responsive">
+            <div class="page-header">
+                <h3 class="page-title"> Danh sách danh mục </h3>
+                <a class="btn btn-primary" asp-action="Create"><i class="mdi mdi-plus"></i> Thêm danh mục</a>
+            </div>
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>

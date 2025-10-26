@@ -61,6 +61,8 @@ namespace WebBanHang.Areas.Admin.Controllers
             ViewBag.DeliveringCount = allOrders.Count(o => o.Status == "Delivering");
             ViewBag.CompletedCount = allOrders.Count(o => o.Status == "Completed");
             ViewBag.CancelledCount = allOrders.Count(o => o.Status == "Cancelled");
+            //Tilte
+            ViewBag.Tilte = "Order";
 
             return View(orders);
         }

@@ -60,16 +60,16 @@
                 //console.error("AJAX Error:", textStatus, errorThrown);
 
                 if (jqXHR.status === 401) {
-                    alert("hehe")
+                    
                     // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
                     Swal.fire({
-                        // Không cần 'toast: true' hoặc 'position' cụ thể, mặc định là ở giữa
-                        icon: 'error', // Dùng 'error' hoặc 'warning' để thông báo lỗi/vấn đề
+                        
+                        icon: 'error', 
                         title: 'Vui lòng đăng nhập!',
-                        text: 'Tính năng này yêu cầu bạn phải đăng nhập trước.', // Nội dung chi tiết hơn
+                        text: 'Tính năng này yêu cầu bạn phải đăng nhập trước.', 
                         showConfirmButton: true, // Hiển thị nút xác nhận
                         confirmButtonText: 'Đăng nhập ngay', // Đổi tên nút
-                        timer: 5000, // Có thể đặt timer hoặc không nếu muốn người dùng tương tác
+                        timer: 5000, 
                         timerProgressBar: true,
 
                     }).then((result) => {

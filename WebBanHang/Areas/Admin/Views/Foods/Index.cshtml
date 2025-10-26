@@ -90,24 +90,22 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center mt-3">
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                            <a class="page-link"
-                               asp-action="Index"
-                               asp-route-page="@i"
-                               asp-route-categoryId="@ViewBag.CurrentCategory"
-                               asp-route-searchTerm="@ViewBag.SearchTerm">
-                                @i
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </nav>
         </div>
     </div>
 </div>
+<!-- Phân trang -->
+@section PhanTrang {
+    <div class="btn-group" role="group" aria-label="">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <a class="btn btn-outline-secondary @(i==ViewBag.CurrentPage ? "press":"")"
+               asp-action="Index"
+               asp-route-page="@i"
+               asp-route-categoryId="@ViewBag.CurrentCategory">
+                @i
+            </a>
+
+        }
+
+    </div>
+}
