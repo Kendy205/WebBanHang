@@ -123,13 +123,13 @@ namespace WebBanHang.Areas.Admin.Controllers
         // POST: /Admin/Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ApplicationUserDTO model, IFormFile img) // <-- THAY ĐỔI 1
+        public async Task<IActionResult> Create(ApplicationUserDTO model, IFormFile img) 
         {
             // Kiểm tra validation cho toàn bộ model (bao gồm cả Password và Role)
             if (!ModelState.IsValid)
             {
                 ViewBag.Roles = new SelectList(
-                    await _roleManager.Roles.ToListAsync(), "Name", "Name", model.Role // Thêm model.Role để giữ lại giá trị đã chọn
+                    await _roleManager.Roles.ToListAsync(), "Name", "Name", model.Role 
                 );
                 return View(model);
             }
@@ -144,7 +144,10 @@ namespace WebBanHang.Areas.Admin.Controllers
                     Address = model.Address,
                     EmailConfirmed = true,
                 };
-                user.imgUrl= await _fileUploadService.UploadFileAsync(img);
+                if(img != null)
+                {
+                    user.imgUrl = await _fileUploadService.UploadFileAsync(img);
+                }
                 // Lấy mật khẩu từ model
                 var result = await _userManager.CreateAsync(user, model.Password); 
 

@@ -108,7 +108,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 }
 
                 order.Status = status;
-                order.UpdatedAt = DateTime.Now;
+                order.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
 
                 ShowSuccess($"Cập nhật trạng thái thành {status}");
@@ -120,7 +120,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 ShowError("Có lỗi xảy ra");
             }
 
-            return RedirectToAction("Details", new { id = orderId });
+            return RedirectToAction("Details", new { orderId = orderId });
         }
 
         // POST: /Admin/Orders/UpdateStatusAjax (AJAX)

@@ -71,19 +71,23 @@
 </div>
 
 @section PhanTrang {
+    @if (ViewBag.totalPages > 1)
+    {
+        <div class="product__pagination">
+            @for (int i = 1; i <= ViewBag.totalPages; i++)
+            {
 
-    <div class="btn-group text-center" role="group" aria-label="">
-        @for (int i = 1; i <= ViewBag.TotalPages; i++)
-        {
+                <a class="@(i==ViewBag.CurrentPage ? "press":"")"
+                   asp-action="Index"
+                   asp-route-page="@i"
+                   asp-route-categoryId="@ViewBag.CurrentCategory">
+                    @i
+                </a>
 
-            <a class="btn btn-outline-secondary @(i==ViewBag.CurrentPage ? "press":"")"
-               asp-action="Index"
-               asp-route-page="@i"
-               asp-route-categoryId="@ViewBag.CurrentCategory">
-                @i
-            </a>
+            }
 
-        }
+        </div>
 
-    </div>
+    }
+
 }

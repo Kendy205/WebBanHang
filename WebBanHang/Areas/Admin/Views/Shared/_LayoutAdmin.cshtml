@@ -10,13 +10,20 @@
     <link rel="stylesheet" href="~/_LayoutAdmin/assets/vendors/css/vendor.bundle.base.css">
     <link rel="stylesheet" href="~/_LayoutAdmin/assets/css/style.css">
     <link rel="shortcut icon" href="~/_LayoutAdmin/assets/images/favicon.ico" />
+    <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
     @* toastr  *@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <style>
+        /* Phan trang  */
         a.press {
             background-color: rgb(164, 171, 179);
             color:aqua;
+            text-decoration:none;
         }
+        a{
+            text-decoration: none;
+        }
+        
     </style>
 </head>
  @* var  *@
@@ -41,21 +48,15 @@
                                 <i class="mdi mdi-home"></i>
                             </span> @controllerName
                         </h3>
-                        <nav aria-label="breadcrumb">
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    <span></span>Overview <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
-                                </li>
-                            </ul>
-                        </nav>
+                        
                     </div>
                     <div class="row">
                         @RenderBody()
                     </div>
-                    
+                    <div class="row text-center">
                         @await RenderSectionAsync("Phantrang",required:false)
-                 
-                    <partial name="~/Areas/Admin/Views/Shared/Partials/_FooterPartial.cshtml" />           
+                    </div>
+                    @* <partial name="~/Areas/Admin/Views/Shared/Partials/_FooterPartial.cshtml" />            *@
                 </div>
                 <!-- main-panel ends -->
             </div>
