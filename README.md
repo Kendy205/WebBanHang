@@ -11,7 +11,7 @@
 - Thống kê tổng quan  
 - Biểu đồ doanh thu 7 ngày  
 - Top 10 đơn gần đây  
-- API Statistics endpoint  
+
 
 ---
 
@@ -19,8 +19,7 @@
 - Quản lý danh mục  
 - CRUD operations  
 - Upload/Delete hình ảnh  
-- Async/await patterns  
-- Try-catch error handling  
+
 
 ---
 
@@ -28,7 +27,6 @@
 - Quản lý món ăn  
 - Lọc theo danh mục  
 - Tìm kiếm  
-- Toggle Availability (AJAX)  
 - Paging  
 
 ---
@@ -38,16 +36,11 @@
 - Lọc theo trạng thái  
 - Tìm kiếm  
 - Cập nhật trạng thái  
-- AJAX update status  
 
 ---
 
 ### 👥 UsersController
 - Quản lý người dùng  
-- Sử dụng UserManager từ Identity  
-- Role management  
-- Toggle Active status  
-- Reset Password  
 
 ---
 
@@ -55,5 +48,4 @@
 - Báo cáo & thống kê  
 - Sales report theo ngày  
 - Top selling foods  
-- Customer orders statistics  
-- Export data (AJAX)  
+
