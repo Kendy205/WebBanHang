@@ -100,6 +100,8 @@ using (var scope = app.Services.CreateScope())
     var logger = services.GetRequiredService<ILogger<DbSeeder>>();
     var seeder = new DbSeeder(context, userManager, roleManager, logger);
     await seeder.SeedAsync();
+
+    //await seeder.ResetAndSeedAsync();
 }
 
 // Configure the HTTP request pipeline.

@@ -180,6 +180,7 @@ namespace WebBanHang.BLL.Services
             // Dùng IQueryable để lọc/sort rồi ToListAsync
             return await _unitOfWork.Orders
                 .GetAllQueryable()
+                .Include(o => o.OrderDetails)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
