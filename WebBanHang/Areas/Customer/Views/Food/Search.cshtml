@@ -9,7 +9,31 @@
 }
 <!-- ===== Danh sách món ăn ===== -->
 <div id="foodListContainer" class="row" style="width:100%;">
-    @await Html.PartialAsync("_FoodSearchPartial", Model)
+    @foreach (var f in Model)
+    {
+        <div class="col-lg-4 col-md-6 col-sm-12" style="margin-top:20px">
+            <div class="product__discount__item">
+                <div class="product__discount__item__pic set-bg"
+                     data-setbg="@f.ImageUrl">
+
+                    <ul class="product__item__pic__hover">
+                        <li><a asp-area="Customer" asp-controller="Food" asp-action="Details" asp-route-id="@f.FoodId"><i class="fa fa-heart"></i></a></li>
+                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                        <li>
+                            <a href="javascript:void(0)" class="add-to-cart" data-food-id="@f.FoodId">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="product__discount__item__text">
+                    <span>@f.FoodName</span>
+
+                    <div class="product__item__price">@f.Price.ToString() VND</div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 @section PhanTrang {
     <!-- Phân trang -->
@@ -17,7 +41,7 @@
         @for (int i = 1; i <= ViewBag.TotalPages; i++)
         {
             @* <li class="page-item  @(i == ViewBag.CurrentPage ? "active" : "")"> *@
-            <a class="@(i==ViewBag.CurrentPage ? "bg-primary":"")" asp-area="Customer"
+            <a class="@(i==ViewBag.CurrentPage ? "press":"")" asp-area="Customer"
                asp-action="Index"
                asp-route-page="@i"
                asp-route-id="@ViewBag.CurrentCategory"
