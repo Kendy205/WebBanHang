@@ -15,7 +15,7 @@
     class="@columnClass mix @Model.Category.CategoryName.ToLower().Replace(" ", "")"
 >
     <div class="featured__item">
-        <div class="featured__item__pic set-bg" data-setbg="@Url.Content($"~/_LayoutUser/img/featured/feature-{Model.FoodId}.jpg")">
+        <div class="featured__item__pic set-bg" data-setbg="@Model.ImageUrl">
             <ul class="featured__item__pic__hover">
                 <li><a asp-area="Customer" asp-controller="Food" asp-action="Details" asp-route-id="@Model.FoodId"><i class="fa fa-heart"></i></a></li>
                 <li><a href="#"><i class="fa fa-retweet"></i></a></li>

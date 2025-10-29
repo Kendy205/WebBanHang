@@ -5,11 +5,11 @@
     //Layout = "~/Views/Shared/_LayoutLogin.cshtml";
     
 }
-<h1>@ViewData["Title"]</h1>
+<h1 class="text-center" style="font-weight:bold;text-transform:uppercase">@ViewData["Title"]</h1>
 <div class="row">
     <div class="col-md-8">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
+            @* <h2>Create a new account.</h2> *@
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3 py-2">
@@ -48,7 +48,11 @@
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
             @* <input type="hidden" name="Input.Role" value="" /> *@
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            <div class="row" style="justify-content:space-around">
+
+            <button id="registerSubmit" type="submit" class="col-5 btn btn-lg btn-primary">Register </button>
+            <button class="col-5 btn btn-lg btn-primary"> <a id="login" asp-area="Identity" asp-page="/Account/Login"> I have Account !</a></button>
+            </div>
         </form>
     </div>
     <div class="col-md-4 col-md-offset-2">
