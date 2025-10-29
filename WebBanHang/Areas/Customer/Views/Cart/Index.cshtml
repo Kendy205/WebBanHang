@@ -41,20 +41,22 @@
                                     <td class="shoping__cart__price">
                                         @item.Price.ToString("N0") ₫
                                     </td>
-                                    <td style="width:160px;">
-                                        <div class="input-group input-group-sm">
-                                            <span class="btn btn-outline-secondary btn-decrease">
-                                                -
-                                            </span>
+                                    <td class="text-center">
+                                        <div class="quantity-control d-flex justify-content-center align-items-center">
+                                            <button type="button" class="btn btn-light border btn-decrease">
+                                                <i class="fa fa-minus" aria-hidden="true"></i>
+                                            </button>
                                             <input type="number"
-                                                   class="form-control text-center quantity-input"
+                                                   class="form-control text-center quantity-input mx-1"
                                                    min="1"
-                                                   value="@item.Quantity" />
-                                            <span class="btn btn-outline-secondary btn-increase">
-                                                <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                                            </span>
+                                                   value="@item.Quantity"
+                                                   style="width:70px;" />
+                                            <button type="button" class="btn btn-light border btn-increase">
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button>
                                         </div>
                                     </td>
+
                                     <td class="item-subtotal shoping__cart__total">
                                         @item.Subtotal.ToString("N0") ₫
                                     </td>
