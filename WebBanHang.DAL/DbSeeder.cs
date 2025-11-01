@@ -309,7 +309,7 @@ namespace WebBanHang.DAL
         // 5. SEED CARTS & CART ITEMS
         // =============================================
         // =============================================
-        // 5. SEED CARTS & CART ITEMS
+        // 6. SEED CARTS & CART ITEMS
         // =============================================
         private async Task SeedCartAsync()
         {
@@ -382,7 +382,7 @@ namespace WebBanHang.DAL
             _logger.LogInformation($"Seeded {carts.Count} carts and {totalCartItems} cart items");
         }
         // =============================================
-        // 5. SEED ORDER
+        // 7. SEED ORDER
         // =============================================
         public async Task SeedOrderAsync()
         {
@@ -482,5 +482,47 @@ namespace WebBanHang.DAL
             _logger.LogInformation("✅ Đã seed Order, OrderDetail, Payment, Delivery từ giỏ hàng thành công.");
         }
 
+        public async Task EnsureDeletedAsync()
+        {
+            _logger.LogInformation("Attempting to delete database...");
+            var deleted = await _context.Database.EnsureDeletedAsync();
+            if (deleted)
+            {
+                _logger.LogInformation("Database deleted successfully.");
+            }
+            else
+            {
+                _logger.LogInformation("Database did not exist or could not be deleted.");
+            }
+        }
+        public async Task ResetAndSeedAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Starting database **RESET and** seeding...");
+
+                // ⚠️ BƯỚC 1: XÓA DATABASE
+                await EnsureDeletedAsync();
+
+                // ⚠️ BƯỚC 2: TẠO LẠI DATABASE
+                _logger.LogInformation("Ensuring database is created...");
+                await _context.Database.EnsureCreatedAsync();
+
+                // Seed in order
+                await SeedRolesAsync();
+                await SeedUsersAsync();
+                await SeedCategoriesAsync();
+                await SeedFoodsAsync();
+                await SeedCartAsync();
+                await SeedOrderAsync();
+
+                _logger.LogInformation("Database RESET and seeding completed successfully!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while resetting and seeding the database");
+                throw;
+            }
+        }
     }
 }

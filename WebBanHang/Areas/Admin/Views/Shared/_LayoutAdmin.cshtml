@@ -8,27 +8,37 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href="~/_LayoutAdmin/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="~/_LayoutAdmin/assets/vendors/css/vendor.bundle.base.css">
-    <!-- endinject -->
-    <!-- Plugin css for this page -->
-    <!-- End plugin css for this page -->
-    <!-- inject:css -->
-    <!-- endinject -->
-    <!-- Layout styles -->
     <link rel="stylesheet" href="~/_LayoutAdmin/assets/css/style.css">
-    <!-- End layout styles -->
     <link rel="shortcut icon" href="~/_LayoutAdmin/assets/images/favicon.ico" />
+    <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
     @* toastr  *@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <style>
+        /* Phan trang  */
+        a.press {
+            background-color: rgb(164, 171, 179);
+            color:aqua;
+            text-decoration:none;
+        }
+        a{
+            text-decoration: none;
+        }
+        
+    </style>
 </head>
+ @* var  *@
+@{
+    var controllerName = Context.GetRouteValue("controller")?.ToString();       
+}
 <body>
     <div class="container-scroller">
-        
+
         <!-- partial:partials/_navbar.html -->
         <partial name="~/Areas/Admin/Views/Shared/Partials/_HeaderNavLinkPartial.cshtml" />
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_sidebar.html -->
-            <partial name="~/Areas/Admin/Views/Shared/Partials/_LeftMenuPartial.cshtml"/>
+            <partial name="~/Areas/Admin/Views/Shared/Partials/_LeftMenuPartial.cshtml" />
             <!-- partial -->
             <div class="main-panel">
                 <div class="content-wrapper">
@@ -36,31 +46,22 @@
                         <h3 class="page-title">
                             <span class="page-title-icon bg-gradient-primary text-white me-2">
                                 <i class="mdi mdi-home"></i>
-                            </span> Dashboard
+                            </span> @controllerName
                         </h3>
-                        <nav aria-label="breadcrumb">
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    <span></span>Overview <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
-                                </li>
-                            </ul>
-                        </nav>
+                        
                     </div>
                     <div class="row">
                         @RenderBody()
                     </div>
-                    <!-- content-wrapper ends -->
-                    <!-- partial:partials/_footer.html -->
-                    @* <div class="row" style="position:absolute;bottom:0px;margin-top:10px"> *@
-                    <partial name="~/Areas/Admin/Views/Shared/Partials/_FooterPartial.cshtml" />
-                    @* </div> *@
-                    <!-- partial -->
+                    <div class="row text-center">
+                        @await RenderSectionAsync("Phantrang",required:false)
+                    </div>
+                    @* <partial name="~/Areas/Admin/Views/Shared/Partials/_FooterPartial.cshtml" />            *@
                 </div>
                 <!-- main-panel ends -->
             </div>
             <!-- page-body-wrapper ends -->
         </div>
-        <!-- container-scroller -->
         <!-- plugins:js -->
         <script src="~/_LayoutAdmin/assets/vendors/js/vendor.bundle.base.js"></script>
         <!-- endinject -->

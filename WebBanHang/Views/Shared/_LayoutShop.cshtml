@@ -20,7 +20,11 @@
     <link rel="stylesheet" href="~/_LayoutUser/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="~/_LayoutUser/css/style.css" type="text/css">
 </head>
-
+<style>
+    .press {
+        background-color: aqua;
+    }
+</style>
 <body>
 
     <!-- Page Preloder -->
@@ -35,59 +39,72 @@
     <partial name="~/Views/Shared/Partials/_HeaderPartial.cshtml" />
     <!-- Header Section End -->
     <!-- Hero Section Begin -->
-    <div class="row">
-        <!-- ===== Sidebar ===== -->
-        <div class="col-lg-3 col-md-2" style="margin:8px">
+    <div class="container">
+        <div class="row" style="position:relative;">
+            <!-- ===== Sidebar ===== -->
+            <div class="col-lg-3 col-md-2 text-left" style="margin:8px ;background-color:ghostwhite;">
 
-            <div class="hero__categories">
-                <div class="hero__categories__all">
-                    <i class="fa fa-bars"></i>
-                    <span>All departments</span>
+                <div class="hero__categories">
+                    <div class="hero__categories__all">
+                        <i class="fa fa-bars"></i>
+                        <span>All departments</span>
+                    </div>
+                    @await Component.InvokeAsync("RenderDanhMuc", new { viewName = "RenderDanhMucSanPham" })
                 </div>
-                @await Component.InvokeAsync("RenderDanhMuc", new { viewName = "RenderDanhMucSanPham" })
+
+                @* Lọc theo giá *@
+
+                <form asp-action="Index" asp-controller="Food" asp-area="Customer" method="get">
+                    <div class="mb-2">
+                        <label for="minPrice" class="form-label">Giá thấp nhất</label>
+                        <input type="number" name="minPrice" id="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" />
+                    </div>
+                    <div class="mb-2">
+                        <label for="maxPrice" class="form-label">Giá cao nhất</label>
+                        <input type="number" name="maxPrice" id="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="100000" />
+                    </div>
+                    <button style="background-color:rgb(127, 173, 57)"
+                        type="submit" 
+                        class="btn btn-sm btn-success w-100 mt-2" 
+                        asp-action="Index">
+                        Lọc
+                    </button>
+                </form>
+
+
+                <hr />
+                @* tìm kiếm  *@
+                <h5 class="fw-bold">Tìm kiếm</h5>
+                <form id="searchForm" asp-action="Search" asp-controller="Food" asp-area="Customer" method="get">
+                    <input id="keyword"
+                           type="text"
+                           name="keyword"
+                           value="@ViewBag.Keyword"
+                           class="form-control"
+                           placeholder="Nhập tên món ăn..." />
+                    <button type="submit" class="btn btn-sm btn-success w-100 mt-2" style="background-color:rgb(127, 173, 57)">
+                        Tìm kiếm
+                    </button>
+                </form>
             </div>
+            <!-- ===== Danh sách món ăn ===== -->
+            <div class="col-lg-8 col-md-7 p-1" style=" overflow:hidden">
+                <h4 class="mb-3" style="font-weight:bold">@ViewData["Title"]</h4>
+                <div class="row mb-5" style="background-color:ghostwhite">
 
-            @* Lọc theo giá *@
-            <h5 class="fw-bold">Lọc theo giá</h5>
-            <form asp-action="Index" asp-controller="Food" asp-area="Customer" method="get">
-                <div class="mb-2">
-                    <label for="minPrice" class="form-label">Giá thấp nhất</label>
-                    <input type="number" name="minPrice" id="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" />
-                </div>
-                <div class="mb-2">
-                    <label for="maxPrice" class="form-label">Giá cao nhất</label>
-                    <input type="number" name="maxPrice" id="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="100000" />
-                </div>
-                <button type="submit" class="btn btn-sm btn-success w-100 mt-2" asp-action="Index">Lọc</button>
-            </form>
-
-
-            <hr />
-            @* tìm kiếm  *@
-            <h5 class="fw-bold">Tìm kiếm</h5>
-            <form id="searchForm" asp-action="Search" asp-controller="Food" asp-area="Customer" method="get">
-                <input id="keyword"
-                       type="text"
-                       name="keyword"
-                       value="@ViewBag.Keyword"
-                       class="form-control"
-                       placeholder="Nhập tên món ăn..." />
-                <button type="submit" class="btn btn-sm btn-success w-100 mt-2">Tìm kiếm</button>
-            </form>
-        </div>
-        <!-- ===== Danh sách món ăn ===== -->
-            <div class="col-lg-8 col-md-7">
-                <h4 class="mb-3">@ViewData["Title"]</h4>
-                <div class="row">
                     @RenderBody()
 
                 </div>
-                <div class="row" style="position:absolute;bottom:2px;">
+                <div class="row pl-3">
+                    <div class="col-12"
+                    style="position:absolute;bottom:5px;"
+                    >
                     @await RenderSectionAsync("PhanTrang", required: false)
+                    </div>
                 </div>
             </div>
+        </div>
     </div>
-
 
     <partial name="~/Views/Shared/Partials/_FooterPartial.cshtml" />
 
@@ -102,7 +119,7 @@
     <script src="~/_LayoutUser/js/mixitup.min.js"></script>
     <script src="~/_LayoutUser/js/owl.carousel.min.js"></script>
     <script src="~/_LayoutUser/js/main.js"></script>
-   
+
     <script src="~/js/Home.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 

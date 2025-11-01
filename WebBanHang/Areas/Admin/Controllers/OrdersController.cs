@@ -33,12 +33,20 @@ namespace WebBanHang.Areas.Admin.Controllers
             }
 
             // Search
+            // Search (null-safe, kiểm tra cả Order.PhoneNumber và User.PhoneNumber)
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
+                searchTerm = searchTerm.Trim();
+
                 query = query.Where(o =>
-                    o.OrderCode.Contains(searchTerm) ||
-                    
-                    o.PhoneNumber.Contains(searchTerm)
+                    // tìm theo mã đơn (OrderCode)
+                    (o.OrderCode != null && o.OrderCode.Contains(searchTerm)) ||
+
+                    // tìm theo số điện thoại lưu trong Orders
+                    (o.PhoneNumber != null && o.PhoneNumber.Contains(searchTerm)) ||
+
+                    // tìm theo số điện thoại trong User (cần Include(o => o.User) phía trên đã có)
+                    (o.User != null && o.User.PhoneNumber != null && o.User.PhoneNumber.Contains(searchTerm))
                 );
             }
 
@@ -61,6 +69,8 @@ namespace WebBanHang.Areas.Admin.Controllers
             ViewBag.DeliveringCount = allOrders.Count(o => o.Status == "Delivering");
             ViewBag.CompletedCount = allOrders.Count(o => o.Status == "Completed");
             ViewBag.CancelledCount = allOrders.Count(o => o.Status == "Cancelled");
+            //Tilte
+            ViewBag.Tilte = "Order";
 
             return View(orders);
         }
@@ -98,7 +108,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 }
 
                 order.Status = status;
-                order.UpdatedAt = DateTime.Now;
+                order.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
 
                 ShowSuccess($"Cập nhật trạng thái thành {status}");
@@ -110,7 +120,7 @@ namespace WebBanHang.Areas.Admin.Controllers
                 ShowError("Có lỗi xảy ra");
             }
 
-            return RedirectToAction("Details", new { id = orderId });
+            return RedirectToAction("Details", new { orderId = orderId });
         }
 
         // POST: /Admin/Orders/UpdateStatusAjax (AJAX)

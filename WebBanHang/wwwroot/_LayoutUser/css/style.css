@@ -1,4 +1,4 @@
-/******************************************************************
+﻿/******************************************************************
   Template Name: Ogani
   Description:  Ogani eCommerce  HTML Template
   Author: Colorlib
@@ -3464,5 +3464,43 @@ ol {
 	}
 	.blog__details__hero__text h2 {
 		font-size: 24px;
+	}
+}
+
+/*cartbutton*/ 
+.quantity-control {
+	gap: 6px;
+}
+
+	.quantity-control button {
+		width: 36px;
+		height: 36px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		transition: all 0.2s ease;
+	}
+
+		.quantity-control button:hover {
+			background-color: #0d6efd;
+			color: white;
+			transform: scale(1.05);
+		}
+
+	.quantity-control input[type=number]::-webkit-inner-spin-button,
+	.quantity-control input[type=number]::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+@media (max-width: 576px) {
+	.quantity-control input {
+		width: 55px !important;
+	}
+
+	.quantity-control button {
+		width: 32px;
+		height: 32px;
 	}
 }

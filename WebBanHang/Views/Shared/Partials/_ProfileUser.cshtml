@@ -4,10 +4,10 @@
     <div class="col-md-8">
         <div class="pt-3">
             <div class="form-group">
-                <label >Avatar</label>
+              
                 @* Hiển thị dữ liệu trong input chỉ đọc để nhất quán giao diện *@
                 @* <input asp-for="imgUrl" class="form-control form-control-lg" readonly /> *@
-                <img src="@Model.imgUrl" />
+                <img src="@Model.imgUrl"style="height:100px;width:100px;" />
             </div>
             <div class="form-group">
                 <label asp-for="FulName"></label>

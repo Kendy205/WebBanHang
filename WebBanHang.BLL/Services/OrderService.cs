@@ -48,7 +48,10 @@ namespace WebBanHang.BLL.Services
             };
 
             await _unitOfWork.Orders.AddAsync(order);
-            try { await _unitOfWork.SaveAsync(); }
+            try
+            {
+                await _unitOfWork.SaveAsync();
+            }
             catch (DbUpdateException ex)
             {
                 throw new Exception("Save Order failed: " + (ex.InnerException?.Message ?? ex.Message), ex);
@@ -102,11 +105,11 @@ namespace WebBanHang.BLL.Services
 
         }
 
-        public  async Task<IEnumerable<Order>> GetAllOrders()
+        public async Task<IEnumerable<Order>> GetAllOrders()
         {
-            return await  _unitOfWork.Orders.GetAllQueryable()
+            return await _unitOfWork.Orders.GetAllQueryable()
                 .Include(o => o.User)
-                .Include( o=> o.OrderDetails)
+                .Include(o => o.OrderDetails)
                 .ToListAsync();
 
         }
@@ -123,12 +126,12 @@ namespace WebBanHang.BLL.Services
                 .Include(o => o.OrderDetails).ThenInclude(od => od.Food)
                 .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
-                
+
         }
 
         public async Task<IEnumerable<Order>> GetOrdersByStatus(string status)
         {
-            return await _unitOfWork.Orders.FindAsync(o => o.Status== status);
+            return await _unitOfWork.Orders.FindAsync(o => o.Status == status);
         }
 
         public async Task<IEnumerable<Order>> GetOrdersByUserId(string userId)
@@ -152,7 +155,7 @@ namespace WebBanHang.BLL.Services
                 // Update payment status if order is completed
                 if (status == "Completed")
                 {
-                    var payment =await _unitOfWork.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId);
+                    var payment = await _unitOfWork.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId);
                     if (payment != null)
                     {
                         payment.Status = "Completed";
@@ -161,7 +164,7 @@ namespace WebBanHang.BLL.Services
                     }
                 }
                 await _unitOfWork.SaveAsync();
-                
+
             }
         }
 
@@ -177,6 +180,7 @@ namespace WebBanHang.BLL.Services
             // Dùng IQueryable để lọc/sort rồi ToListAsync
             return await _unitOfWork.Orders
                 .GetAllQueryable()
+                .Include(o => o.OrderDetails)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
@@ -188,7 +192,7 @@ namespace WebBanHang.BLL.Services
             return await _unitOfWork.Orders
                 .GetAllQueryable()
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(i => i.Food)     
+                    .ThenInclude(i => i.Food)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
     }

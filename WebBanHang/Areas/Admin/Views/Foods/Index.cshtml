@@ -6,13 +6,13 @@
 <div class="col-12 grid-margin">
     <div class="row mb-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <a asp-action="Create" class="btn btn-primary">Thêm món ăn</a>
+
 
             <form asp-action="Index" method="get" class="d-flex align-items-center">
 
                 <!-- Dropdown sắp xếp -->
                 @{
-                    string sortBy = ViewBag.SortBy ?? "name" ;
+                    string sortBy = ViewBag.SortBy ?? "name";
                 }
 
                 <select name="sortBy" class="form-select me-2">
@@ -24,7 +24,7 @@
                 </select>
 
 
-                @Html.DropDownList("categoryId",(SelectList)ViewBag.Categories, "Tất cả danh mục", new { @class = "form-select me-2" })
+                @Html.DropDownList("categoryId", (SelectList)ViewBag.Categories, "Tất cả danh mục", new { @class = "form-select me-2" })
 
                 <!-- Thanh tìm kiếm -->
                 <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control me-2" placeholder="Tìm kiếm" />
@@ -35,7 +35,10 @@
 
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Danh Sách Món Ăn</h4>
+            <div class="page-header">
+                <h4 class="card-title">Danh Sách Món Ăn</h4>
+                <a asp-action="Create" class="btn btn-primary"><i class="mdi mdi-plus"></i>Thêm món ăn</a>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -50,13 +53,13 @@
                             <th>Ngày tạo</th>
                             <th>Ngày cập nhật</th>
                             <th>Hình ảnh</th>
-                            <th></th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var food in Model)
                         {
-                            <tr style="@(food.IsAvailable ? "" : " color: #6c757d; opacity: 0.2;")">
+                            <tr style="@(food.IsAvailable ? "" : "color :#6c757d; opacity: 0.2;")">
                                 <td>@food.FoodId</td>
                                 <td>@food.FoodName</td>
                                 <td>@food.Description</td>
@@ -71,7 +74,7 @@
                                 <td>@food.CreatedAt.ToString("dd/MM/yyyy")</td>
                                 <td>@food.UpdatedAt.ToString("dd/MM/yyyy")</td>
                                 <td>
-                                    @if(food.ImageUrl == null)  
+                                    @if (food.ImageUrl == null)
                                     {
                                         <span><i>no image</i></span>
                                     }
@@ -79,7 +82,7 @@
                                     {
                                         <img src="@food.ImageUrl" class="me-2" alt="image" style="width:40px;height:40px;object-fit:cover;border-radius:5px;">
                                     }
-                                    
+
                                 </td>
                                 <td>
                                     <a asp-action="Edit" asp-route-foodId="@food.FoodId" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
@@ -90,24 +93,29 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center mt-3">
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                            <a class="page-link"
-                               asp-action="Index"
-                               asp-route-page="@i"
-                               asp-route-categoryId="@ViewBag.CurrentCategory"
-                               asp-route-searchTerm="@ViewBag.SearchTerm">
-                                @i
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </nav>
         </div>
     </div>
+
 </div>
+<!-- Phân trang -->
+@section PhanTrang {
+    @if (ViewBag.totalPages > 1)
+    {
+        <div class="product__pagination">
+            @for (int i = 1; i <= ViewBag.totalPages; i++)
+            {
+
+                <a class="@(i==ViewBag.CurrentPage ? "press":"")"
+                   asp-action="Index"
+                   asp-route-page="@i"
+                   asp-route-categoryId="@ViewBag.CurrentCategory">
+                    @i
+                </a>
+
+            }
+
+        </div>
+
+    }
+
+}

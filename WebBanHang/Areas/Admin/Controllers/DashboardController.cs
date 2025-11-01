@@ -32,10 +32,7 @@ namespace WebBanHang.Areas.Admin.Controllers
         {
             try
             {
-                var allOrders = await _context.Orders
-                    .Include(o => o.User)
-                    .Include(o => o.OrderDetails)
-                    .ToListAsync();
+                var allOrders = await _orderService.GetAllOrders();
 
                 var today = DateTime.Today;
                 var thisMonth = new DateTime(today.Year, today.Month, 1);
@@ -68,11 +65,11 @@ namespace WebBanHang.Areas.Admin.Controllers
                 var topCustomers = _context.Orders
                     .Include(o => o.User)
                     .Where(o => o.User != null)
-                    .GroupBy(o => new { o.User.Id, o.User.UserName })
+                    .GroupBy(o => new { o.User.Id, o.User.FulName })
                     .Select(g => new
                     {
                         UserId = g.Key.Id,
-                        UserName = g.Key.UserName,
+                        UserName = g.Key.FulName,
                         TotalSpent = g.Sum(o => o.TotalAmount),
                         OrderCount = g.Count()
                     })
@@ -87,7 +84,8 @@ namespace WebBanHang.Areas.Admin.Controllers
                     .Select(i => today.AddDays(-i))
                     .Reverse()
                     .ToList();
-
+                //Tilte
+                ViewBag.Tilte = "Dashboard";
                 var revenueData = last7Days.Select(date => new
                 {
                     Date = date.ToString("dd/MM"),

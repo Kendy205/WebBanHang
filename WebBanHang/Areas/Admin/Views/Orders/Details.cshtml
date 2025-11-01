@@ -17,18 +17,144 @@
     var statusList = new[] { "Pending", "Confirmed", "Delivering", "Completed", "Cancelled" };
     decimal computedTotal = Model.OrderDetails?.Sum(d => d.Quantity * d.Price) ?? 0m;
 }
-
 <div class="row">
     <div class="col-12 grid-margin">
         <div class="card">
             <div class="card-body">
+
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h4 class="card-title mb-0">Đơn: @(Model.OrderCode ?? $"#{Model.OrderId}")</h4>
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    Trạng thái:
+                                    <span id="statusBadge" class="@Badge(Model.Status)">@Model.Status</span>
+                                </div>
+                                <div class="mb-2">Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                <div class="mb-2">Cập nhật: @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                <div class="mb-2">Khách: @(Model.User?.FulName ?? $"{Model.User?.FirstName} {Model.User?.LastName}".Trim() ?? Model.User?.Email ?? "—")</div>
+                                <div class="mb-2">SĐT: @(Model.User?.PhoneNumber ?? Model.PhoneNumber ?? "-")</div>
+                                <div class="mb-2">Địa chỉ: @(Model.User?.Address ?? Model.ShippingAddress ?? "—")</div>
+
+                                <div class="mb-2">Thanh toán: @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "—" : Model.PaymentMethod)</div>
+                                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                                {
+                                    <div class="mb-2">Ghi chú: @Model.Notes</div>
+                                }
+
+                                <form asp-area="Admin" asp-controller="Orders" asp-action="UpdateStatus"
+                                      method="post" class="d-flex align-items-end gap-3 mt-4 flex-wrap">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@Model.OrderId" />
+
+                                    <div class="flex-grow-1">
+                                        <label class="form-label fw-semibold mb-1 d-block">Thay đổi trạng thái</label>
+                                        <select name="status"
+                                                class="form-select"
+                                                style="width: 200px; max-width: 100%;"
+                                                required>
+                                            @foreach (var s in new[] { "Pending", "Confirmed", "Delivering", "Completed", "Cancelled" })
+                                            {
+                                                if (s == Model.Status)
+                                                {
+                                                    <option value="@s" selected>@s</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@s">@s</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <button class="btn btn-primary px-4" type="submit">Cập nhật</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <div class="card h-100">
+                            <div class="card-body">
+
+                                <div class="table-responsive">
+                                    <table class="table w-100 table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Món ăn</th>
+                                                <th class="text-end">Số lượng</th>
+                                                <th class="text-end">Đơn giá</th>
+                                                <th class="text-end">Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                int i = 0;
+                                            }
+                                            @if (Model.OrderDetails != null)
+                                            {
+                                                foreach (var d in Model.OrderDetails)
+                                                {
+                                                    i++;
+                                                    var name = string.IsNullOrWhiteSpace(d.FoodName) ? (d.Food?.FoodName ?? "—") : d.FoodName;
+                                                    var sub = d.Quantity * d.Price;
+
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@name</td>
+                                                        <td class="text-end">@d.Quantity</td>
+                                                        <td class="text-end">@d.Price.ToString("N0")</td>
+                                                        <td class="text-end">@sub.ToString("N0")</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="4" class="text-end">Tổng tiền</th>
+                                                <th class="text-end">@computedTotal.ToString("N0")</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <a class="btn btn-outline-secondary"
+                                       asp-area="Admin" asp-controller="Orders" asp-action="Index">Quay lại</a>
+                                    <a class="btn btn-outline-primary"
+                                       asp-area="Admin" asp-controller="Orders" asp-action="Print"
+                                       asp-route-orderId="@Model.OrderId" target="_blank">In đơn</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@* 
+<div class="row">
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body" style="overflow:hidden">
 
                 <!-- Header  -->
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h4 class="card-title mb-0">Đơn: @(Model.OrderCode ?? $"#{Model.OrderId}")</h4>
                 </div>
 
-                <div class="row g-3">
+                <div class="row">
                     <!-- Thông tin đơn -->
                     <div class="col-lg-4">
                         <div class="card h-100">
@@ -40,8 +166,9 @@
                                 <div class="mb-2">Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
                                 <div class="mb-2">Cập nhật: @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
                                 <div class="mb-2">Khách: @(Model.User?.FulName ?? $"{Model.User?.FirstName} {Model.User?.LastName}".Trim() ?? Model.User?.Email ?? "—")</div>
-                                <div class="mb-2">SĐT: @Model.PhoneNumber</div>
-                                <div class="mb-2">Địa chỉ: @Model.ShippingAddress</div>
+                                <div class="mb-2">SĐT: @(Model.User?.PhoneNumber ?? Model.PhoneNumber ?? "-")</div>
+                                <div class="mb-2">Địa chỉ: @(Model.User?.Address ?? Model.ShippingAddress ?? "—")</div>
+
                                 <div class="mb-2">Thanh toán: @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "—" : Model.PaymentMethod)</div>
                                 @if (!string.IsNullOrWhiteSpace(Model.Notes))
                                 {
@@ -83,7 +210,7 @@
                     </div>
 
                     <!-- Chi tiết sản phẩm -->
-                    <div class="col-lg-8">
+                    <div class="col-lg-7">
                         <div class="card h-100">
                             <div class="card-body">
                                 <div>
@@ -91,7 +218,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Stt</th>
-                                                <th>Món/cSản phẩm</th>
+                                                <th>Món/Sản phẩm</th>
                                                 <th class="text-end">Số lượng</th>
                                                 <th class="text-end">Đơn giá</th>
                                                 <th class="text-end">Thành tiền</th>
@@ -146,4 +273,4 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
