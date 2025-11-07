@@ -69,7 +69,7 @@
                         text: 'Tính năng này yêu cầu bạn phải đăng nhập trước.', 
                         showConfirmButton: true, // Hiển thị nút xác nhận
                         confirmButtonText: 'Đăng nhập ngay', // Đổi tên nút
-                        timer: 5000, 
+                        timer: 1000, 
                         timerProgressBar: true,
 
                     }).then((result) => {

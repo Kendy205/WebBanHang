@@ -9,10 +9,25 @@
     string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     string currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+    int cartItemCount = 0;
+    decimal cartTotalAmount = 0m;
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        // Lấy thông tin User
+        var user = await UserManager.GetUserAsync(User);
+        if (user != null)
+        {
+            // Gọi CartService để lấy giỏ hàng
+            var cart = await CartService.GetCartByUserId(user.Id);
+            cartItemCount = cart?.TotalItems ?? 0;
+            cartTotalAmount = cart?.TotalAmount ?? 0m;
+        }
+    }
 }
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@inject ICartService CartService 
+@inject ICartService CartService
 <header class="header" style="background-color:antiquewhite;margin-bottom:2px">
     <div class="header__top">
         <div class="container">
@@ -20,13 +35,13 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="header__top__left">
                         <ul>
-                            @if(SignInManager.IsSignedIn(User))
+                            @if (SignInManager.IsSignedIn(User))
                             {
                                 <li>
                                     <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage"><i class="fa fa-user" aria-hidden="true"></i> @UserManager.GetUserName(User)!</a>
                                 </li>
                             }
-                            
+
                         </ul>
                     </div>
                 </div>
@@ -38,30 +53,20 @@
                             <a href="#"><i class="fa fa-linkedin"></i></a>
                             <a href="#"><i class="fa fa-pinterest-p"></i></a>
                         </div>
-                        @* <div class="header__top__right__language">
-                            <img src="~/_LayoutUser/img/language.png" alt="">
-                            <div>English</div>
-                            <span class="arrow_carrot-down"></span>
-                            <ul>
-                                <li><a href="#">Spanis</a></li>
-                                <li><a href="#">English</a></li>
-                            </ul>
-                        </div> *@
+
                         <div class="header__top__right__auth">
                             @if (SignInManager.IsSignedIn(User))
                             {
-                               
+
                                 <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                                     <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0"><i class="fa fa-sign-out" aria-hidden="true"></i>Logout</button>
                                 </form>
                             }
                             else
                             {
-                                @* <button type="button" class="btn btn-primary btn-lg fa fa-user" data-toggle="modal" data-target="#modelId">
-                                    Login
-                                </button> *@
+
                                 <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login"><i class="fa fa-user"></i> Login</a>
-                                @* <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register"><i class="fas fa-sign-out-alt">> Register</a> *@
+
                             }
                         </div>
                     </div>
@@ -99,35 +104,18 @@
             </div>
             <div class="col-lg-3">
                 <div class="header__cart">
-                    @{
-                        // CHỈ LẤY DỮ LIỆU NẾU NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP
-                        int cartItemCount = 0;
-                        decimal cartTotalAmount = 0m;
 
-                        if (SignInManager.IsSignedIn(User))
-                        {
-                            // Lấy thông tin User
-                            var user = await UserManager.GetUserAsync(User);
-                            if (user != null)
-                            {
-                                // Gọi CartService để lấy giỏ hàng
-                                var cart = await CartService.GetCartByUserId(user.Id);
-                                cartItemCount = cart?.TotalItems ?? 0;
-                                cartTotalAmount = cart?.TotalAmount ?? 0m;
-                            }
-                        }
-                    }
 
                     <ul>
                         <li>
                             <a asp-area="Customer" asp-controller="Cart" asp-action="Index">
                                 <i class="fa fa-shopping-bag"></i>
-                                <span id="header-cart-count">@cartItemCount</span> @* <--- Hiển thị số lượng *@
+                                <span id="header-cart-count">@cartItemCount</span>
                             </a>
                         </li>
                     </ul>
                     <div class="header__cart__price">
-                        Tổng tiền: <span id="header-cart-total">@cartTotalAmount.ToString("F2")</span> @* <--- Hiển thị tổng tiền *@
+                        Tổng tiền: <span id="header-cart-total">@cartTotalAmount.ToString("F2")</span>
                     </div>
                 </div>
             </div>

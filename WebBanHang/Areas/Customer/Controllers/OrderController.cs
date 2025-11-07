@@ -29,21 +29,17 @@ namespace WebBanHang.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
-        // Helper: lấy userId chuẩn, nhanh
+  
         private string? CurrentUserId => _userManager.GetUserId(User);
-        // Hoặc nếu bạn thích async:
-        // private async Task<string?> GetCurrentUserIdAsync() => (await _userManager.GetUserAsync(User))?.Id;
-
-        // =============================
-        // GET: Customer/Orders
-        // =============================
+        
+        
         public async Task<IActionResult> Index(string status = "")
         {
             var userId = CurrentUserId;
             if (string.IsNullOrEmpty(userId))
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
 
-            // 1) Lỗi where trước đây là do thiếu await:
+          
             var orders = await _orderService.GetOrdersByUserIdAsync(userId);
 
             if (!string.IsNullOrWhiteSpace(status))
@@ -53,19 +49,16 @@ namespace WebBanHang.Areas.Customer.Controllers
             return View(orders.ToList());
         }
 
-        // =============================
-        // GET: Customer/Orders/Details/5
-        // =============================
+       
         public async Task<IActionResult> Details(int id)
         {
             var userId = CurrentUserId;
             if (string.IsNullOrEmpty(userId))
             {
                 TempData["Error"] = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
-                return RedirectToAction("Login", "Account", new { area = "" });
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
             }
 
-            // 2) Lỗi userId tại đây là do order là Task<Order> => cần await
             var order = await _orderService.GetOrderByIdAsync(id);
             if (order == null)
             {
@@ -80,9 +73,7 @@ namespace WebBanHang.Areas.Customer.Controllers
 
             return View(order);
         }
-        // =============================
-        // GET: Customer/Order/Checkout (Trang thanh toán)
-        // =============================
+      
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
@@ -102,9 +93,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             return View();
         }
 
-        // =============================
-        // POST: Customer/Order/Checkout
-        // =============================
+     
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(string shippingAddress, string phoneNumber,
@@ -166,9 +155,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             }
         }
 
-        // =============================
-        // GET: Customer/Orders/OrderSuccess/5
-        // =============================
+       
         [HttpGet]
         public async Task<IActionResult> OrderSuccess(int id)
         {
@@ -188,9 +175,7 @@ namespace WebBanHang.Areas.Customer.Controllers
 
             return View(order);
         }
-        // =============================
-        // POST: Customer/Order/CancelOrder/5
-        // =============================
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelOrder(int id)
@@ -227,9 +212,7 @@ namespace WebBanHang.Areas.Customer.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // =============================
-        // GET: Customer/Order/TrackOrder?orderCode=ORD20251010001
-        // =============================
+        
         [HttpGet]
         public async Task<IActionResult> TrackOrder(string? orderCode)
         {

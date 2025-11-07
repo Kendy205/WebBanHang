@@ -40,11 +40,11 @@
     <!-- Header Section End -->
     <!-- Hero Section Begin -->
     <div class="container">
-        <div class="row" style="position:relative;">
+        <div class="row" style="position:relative;display:flex;justify-content:space-around">
             <!-- ===== Sidebar ===== -->
-            <div class="col-lg-3 col-md-2 text-left" style="margin:8px ;background-color:ghostwhite;">
+            <div class="col-lg-3 col-md-4 text-left p-1" style="background-color:ghostwhite;">
 
-                <div class="hero__categories">
+                <div class="hero__categories mb-2">
                     <div class="hero__categories__all">
                         <i class="fa fa-bars"></i>
                         <span>All departments</span>
@@ -57,16 +57,16 @@
                 <form asp-action="Index" asp-controller="Food" asp-area="Customer" method="get">
                     <div class="mb-2">
                         <label for="minPrice" class="form-label">Giá thấp nhất</label>
-                        <input type="number" name="minPrice" id="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" />
+                        <input type="number" name="minPrice" id="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="Hãy nhập giá thấp nhất !" />
                     </div>
                     <div class="mb-2">
                         <label for="maxPrice" class="form-label">Giá cao nhất</label>
-                        <input type="number" name="maxPrice" id="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="100000" />
+                        <input type="number" name="maxPrice" id="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="Hãy nhập giá cao nhất!" />
                     </div>
                     <button style="background-color:rgb(127, 173, 57)"
                         type="submit" 
                         class="btn btn-sm btn-success w-100 mt-2" 
-                        asp-action="Index">
+                        >
                         Lọc
                     </button>
                 </form>
@@ -88,12 +88,14 @@
                 </form>
             </div>
             <!-- ===== Danh sách món ăn ===== -->
-            <div class="col-lg-8 col-md-7 p-1" style=" overflow:hidden">
+            <div class="col-lg-9 col-md-8 p-1" style=" overflow:hidden;">
                 <h4 class="mb-3" style="font-weight:bold">@ViewData["Title"]</h4>
                 <div class="row mb-5" style="background-color:ghostwhite">
-
-                    @RenderBody()
-
+                    
+                        <div class="container-fluid">
+                            @RenderBody()
+                        </div>
+                   
                 </div>
                 <div class="row pl-3">
                     <div class="col-12"

@@ -2,7 +2,11 @@
 @{
     ViewData["Title"] = "Giỏ hàng của bạn";
 }
-
+<style>
+    a.product_hover :hover {
+        color: rgb(127, 173, 57);
+    }
+</style>
 <div class="container mt-5 mb-5">
     <h2 class="mb-4 text-center">🛒 Giỏ hàng của bạn</h2>
     <div class="row">
@@ -30,7 +34,9 @@
                                     <td class="shoping__cart__item">
                                         <a asp-controller="Food"
                                            asp-action="Details"
-                                           asp-route-id="@item.FoodId">
+                                           asp-route-id="@item.FoodId"
+                                           style="text-decoration:none;color:black"
+                                           class="product_hover">
                                             <img src="@item.Food?.ImageUrl"
                                                  class="img-thumbnail"
                                                  style="max-height:80px;" />
@@ -82,16 +88,24 @@
                                 @(Model?.TotalAmount.ToString("N0") ?? "0") ₫
                             </td>
                         </tr>
+                        
                     </tfoot>
                 </table>
-
-                <div class="d-flex justify-content-between">
+                <div class="row justify-content-end mb-2">
+                    
+                            <button type="button" id="btn-clear-cart" class="btn btn-outline-danger me-2">
+                                🗑️ Xóa toàn bộ
+                            </button>
+                    
+                </div>
+                <div class="row justify-content-between mb-1">
                     <a href="/Customer/Home" class="btn btn-secondary">← Tiếp tục mua sắm</a>
                     <div>
-                        <button type="button" id="btn-clear-cart" class="btn btn-outline-danger me-2">🗑️ Xóa toàn bộ</button>
-                        <a asp-area="Customer" asp-controller="Order" asp-action="checkout" class="btn btn-success">Đặt Hàng</a>
+                        <a asp-area="Customer" asp-controller="Order" asp-action="index" class="site-btn">Dơn hàng của tôi</a>
+                        <a asp-area="Customer" asp-controller="Order" asp-action="checkout" class="site-btn">Đặt Hàng</a>
                     </div>
                 </div>
+               
 
             </div>
         </div>
@@ -262,8 +276,7 @@
                 }
             }
 
-            // Hàm này có thể đã có trong site.js, đảm bảo nó tồn tại
-            // Nếu chưa có, bạn có thể định nghĩa nó ở đây hoặc trong site.js
+
             function updateHeaderCart() {
                 $.get('/api/cart/summary', function(res) {
                     if (res.success) {

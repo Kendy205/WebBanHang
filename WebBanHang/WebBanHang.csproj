@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
-    <Folder Include="wwwroot\img\food\" />
+    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
 </Project>

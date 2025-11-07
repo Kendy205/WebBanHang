@@ -33,7 +33,6 @@ namespace WebBanHang.BLL.Services
 
             var order = new Order
             {
-                // KHÔNG tự gán OrderId nếu dùng Identity!
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 ShippingAddress = shippingAddress,
@@ -69,7 +68,7 @@ namespace WebBanHang.BLL.Services
 
                 var od = new OrderDetail
                 {
-                    // KHÔNG gán OrderDetailId nếu dùng Identity
+                  
                     OrderId = order.OrderId,
                     FoodId = i.FoodId,
                     FoodName = foodName,

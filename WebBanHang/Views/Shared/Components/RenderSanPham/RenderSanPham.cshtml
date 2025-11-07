@@ -14,8 +14,8 @@
 <div 
     class="@columnClass mix @Model.Category.CategoryName.ToLower().Replace(" ", "")"
 >
-    <div class="featured__item">
-        <div class="featured__item__pic set-bg" data-setbg="@Model.ImageUrl">
+    <div class="featured__item" >
+        <div class="featured__item__pic set-bg" data-setbg="@Model.ImageUrl" style="border-radius:10px;background-color:#fff">
             <ul class="featured__item__pic__hover">
                 <li><a asp-area="Customer" asp-controller="Food" asp-action="Details" asp-route-id="@Model.FoodId"><i class="fa fa-heart"></i></a></li>
                 <li><a href="#"><i class="fa fa-retweet"></i></a></li>
@@ -28,7 +28,7 @@
         </div>
         <div class="featured__item__text">
             <h6><a href="#">@Model.FoodName</a></h6>
-            <h5>@Model.Price.ToString("N0")</h5>
+            <h5>@string.Format("{0:N0}", Model.Price) VND</h5>
         </div>
     </div>
 </div>

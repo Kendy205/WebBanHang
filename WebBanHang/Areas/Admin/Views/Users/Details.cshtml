@@ -1,3 +1,24 @@
 ﻿@model WebBanHang.DAL.Data.ApplicationUser
-<partial name="~/Views/Shared/Partials/_ProfileUser.cshtml" model="Model" />
-<a asp-action="Index" class="btn btn-light btn-lg">Quay lại danh sách</a>
+<style>
+    .btn-back {
+        margin-top: 20px;
+        /* background-color: rgb(221, 160, 255); */
+        color: rgb(218, 158, 255);
+        width: fit-content;
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    a.btn-back:hover {
+        background-color: rgb(218, 158, 255);
+        color: white;
+    }
+</style>
+<div class="row">
+    <div class="row">
+        <partial name="~/Views/Shared/Partials/_ProfileUser.cshtml" model="Model" />
+    </div>
+    
+</div>
