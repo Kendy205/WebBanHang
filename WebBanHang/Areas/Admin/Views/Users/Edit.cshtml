@@ -7,36 +7,27 @@
 
 <div class="container my-4">
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header text-avatar">
             <h4 class="mb-0">Chỉnh sửa Người dùng: @Model.FulName</h4>
         </div>
         <div class="card-body">
 
-            @* FORM CHÍNH - Bắt buộc phải có enctype để upload file *@
             <form method="post" asp-action="Edit" asp-route-userId="@Model.Id" enctype="multipart/form-data">
-
                 <div class="row">
-                    <div class="col-md-8 mx-auto">
+                    <div class="col-md-12 mx-auto">
                         <div class="pt-3">
-
-                            @* Hiển thị lỗi validation tổng thể *@
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                             @* Trường ẩn (ID) để đảm bảo POST đúng người dùng *@
                             <input type="hidden" asp-for="Id" />
 
-                            @* Trường ẩn (imgUrl) để giữ lại đường dẫn ảnh cũ nếu người dùng không upload ảnh mới *@
                             <input type="hidden" asp-for="@Model.ImgUrl" />
-
-                            @* ======================================================= *@
-                            @* 1. TRƯỜNG AVATAR (UPLOAD FILE) *@
-                            @* ======================================================= *@
                             <div class="form-group">
                                 <label>Ảnh đại diện (Avatar)</label>
-                                @* Thẻ input type="file" phải có name rõ ràng (ví dụ: NewAvatarFile) *@
+                
                                 <input type="file" name="NewAvatarFile" id="imageFile" class="form-control form-control-lg" accept="image/*" />
 
-                                @* Hiển thị ảnh Avatar hiện tại (ảnh cũ) *@
+           
                                 <label class="d-block mt-3">Ảnh hiện tại/Xem trước:</label>
                                 @{
                                     var imgSrc = string.IsNullOrEmpty(@Model.ImgUrl) ? "" : @Model.ImgUrl;
@@ -47,44 +38,34 @@
                                      alt="Current/New Avatar" />
                             </div>
 
-                            @* ======================================================= *@
-                            @* 2. TRƯỜNG HỌ TÊN *@
-                            @* ======================================================= *@
+                           
                             <div class="form-group">
                                 <label asp-for="FulName"></label>
                                 <input asp-for="FulName" class="form-control form-control-lg" />
                                 <span asp-validation-for="FulName" class="text-danger"></span>
                             </div>
 
-                            @* ======================================================= *@
-                            @* 3. TRƯỜNG EMAIL (READONLY) *@
-                            @* ======================================================= *@
+                            
                             <div class="form-group">
                                 <label asp-for="Email"></label>
                                 <input asp-for="Email" class="form-control form-control-lg" readonly />
                             </div>
 
-                            @* ======================================================= *@
-                            @* 4. TRƯỜNG SỐ ĐIỆN THOẠI *@
-                            @* ======================================================= *@
+                           
                             <div class="form-group">
                                 <label asp-for="PhoneNumber"></label>
                                 <input asp-for="PhoneNumber" class="form-control form-control-lg" />
                                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                             </div>
 
-                            @* ======================================================= *@
-                            @* 5. TRƯỜNG ĐỊA CHỈ *@
-                            @* ======================================================= *@
+                           
                             <div class="form-group">
                                 <label asp-for="Address"></label>
                                 <input asp-for="Address" class="form-control form-control-lg" />
                                 <span asp-validation-for="Address" class="text-danger"></span>
                             </div>
 
-                            @* ======================================================= *@
-                            @* 6. DROPDOWN CHỌN QUYỀN (ROLE) *@
-                            @* ======================================================= *@
+                            
                             <div class="form-group">
                                 <label>Quyền (Roles)</label>
                                 <select name="role" class="form-control form-control-lg"
@@ -98,10 +79,10 @@
                 </div>
 
                 <div class="form-group pt-4">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="mdi mdi-content-save"></i> Lưu Thay Đổi
+                    <button type="submit" class="btn btn-outline-primary btn-icon-text" fdprocessedid="0r7dp">
+                        <i class="mdi mdi-file-check btn-icon-prepend"></i> Cập nhật
                     </button>
-                    <a asp-action="Index" class="btn btn-secondary btn-lg ml-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-icon-text">
                         <i class="mdi mdi-arrow-left"></i> Quay lại Danh sách
                     </a>
                 </div>
@@ -110,9 +91,7 @@
     </div>
 </div>
 
-@* ======================================================= *@
-@* SCRIPT XEM TRƯỚC ẢNH VÀ VALIDATION *@
-@* ======================================================= *@
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

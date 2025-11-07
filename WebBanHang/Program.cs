@@ -48,7 +48,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    // Đường dẫn login của Identity nằm trong Area "Identity"
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Error/AccessDenied";
     options.LogoutPath = "/Identity/Account/Logout";
@@ -59,8 +58,6 @@ builder.Services.ConfigureApplicationCookie(options =>
         {
             // Thì không chuyển hướng, mà trả về lỗi 401 Unauthorized
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            
-
         }
         else
         {
@@ -70,6 +67,16 @@ builder.Services.ConfigureApplicationCookie(options =>
         return Task.CompletedTask;
     };
 });
+//Setup CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowLocalhost",
+//        policy => policy
+//            .WithOrigins("http://localhost:3000") //cho phep localhost 3000
+//            .AllowCredentials() // cho phep gui cookie
+//            .AllowAnyHeader()//cho phep all header
+//            .AllowAnyMethod()); // cho phep all method 
+//});
 //fake email sender
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 //Register UnitOfWork
@@ -99,7 +106,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var logger = services.GetRequiredService<ILogger<DbSeeder>>();
     var seeder = new DbSeeder(context, userManager, roleManager, logger);
-    await seeder.SeedAsync();
+    // await seeder.SeedAsync();
 
     //await seeder.ResetAndSeedAsync();
 }
@@ -108,9 +115,6 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    
-    
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 // Hien thi 404Error neu khong tim thay link

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Core.Types;
 using WebBanHang.BLL.IServices;
 using WebBanHang.DAL.Data;
@@ -48,12 +49,12 @@ namespace WebBanHang.Areas.Customer.Controllers
         {
             return View();
         }
-
+        //[Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Contact(string name, string email, string message)
         {
-            TempData["Success"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.";
+            TempData["Success"] = "Chức năng này đang được phát triển !";
             return RedirectToAction("Contact");
         }
 

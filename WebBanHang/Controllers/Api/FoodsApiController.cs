@@ -15,10 +15,8 @@ namespace WebBanHang.Controllers.Api
             _foodService = foodService;
         }
 
-        // ======================================================
         // GET: /api/foods
-        // Lấy danh sách món ăn với bộ lọc và phân trang (tương tự action Index)
-        // ======================================================
+    
         [HttpGet]
         public async Task<IActionResult> GetFoods(
             [FromQuery] int? categoryId,
@@ -62,10 +60,8 @@ namespace WebBanHang.Controllers.Api
             }
         }
 
-        // ======================================================
         // GET: /api/foods/5
-        // Lấy chi tiết một món ăn (tương tự action Details)
-        // ======================================================
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFoodDetails(int id)
         {
@@ -116,10 +112,7 @@ namespace WebBanHang.Controllers.Api
             }
         }
 
-        // ======================================================
         // GET: /api/foods/search
-        // Tìm kiếm món ăn (tương tự action Search)
-        // ======================================================
         [HttpGet("search")]
         public async Task<IActionResult> SearchFoods(
             [FromQuery] string keyword,
@@ -168,11 +161,10 @@ namespace WebBanHang.Controllers.Api
             }
         }
 
-        // ======================================================
+
         // GET: /api/foods/top-rated
-        // Lấy các món ăn được đánh giá cao nhất
-        // ======================================================
-        [HttpGet("top-rated")]
+
+        [HttpGet("toprated")]
         public async Task<IActionResult> GetTopRatedFoods([FromQuery] int count = 6)
         {
             try

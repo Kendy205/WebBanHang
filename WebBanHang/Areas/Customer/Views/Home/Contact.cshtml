@@ -1,8 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Liên Hệ - Đặt Đồ Ăn Online";
-   // Layout = "~/Views/Shared/_LayoutUser.cshtml";
+    // Layout = "~/Views/Shared/_LayoutUser.cshtml";
 }
-
+<style>
+    a.contact {
+        border: 1px solid #ddd;
+    }
+</style>
+<partial name="_toastr" />
 <div class="container mt-4">
     <div class="jumbotron text-center">
         <h1 class="display-5">Liên Hệ Với Chúng Tôi</h1>
@@ -41,18 +46,10 @@
                 <p><i class="fas fa-phone"></i> 0123 456 789</p>
                 <p><i class="fas fa-envelope"></i> support@doanonline.vn</p>
                 <hr />
-                <p>Theo dõi chúng tôi tại:</p>
-                <a href="#" class="me-3"><i class="fab fa-facebook fa-lg"></i></a>
-                <a href="#" class="me-3"><i class="fab fa-instagram fa-lg"></i></a>
-                <a href="#" class="me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                
             </div>
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success mt-4 text-center">
-            @TempData["Success"]
-        </div>
-    }
+
 </div>

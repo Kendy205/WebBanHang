@@ -1,41 +1,67 @@
 ﻿@using WebBanHang.DAL.Data
 @model ApplicationUser
-<div class="row">
-    <div class="col-md-8">
-        <div class="pt-3">
-            <div class="form-group">
-              
-                @* Hiển thị dữ liệu trong input chỉ đọc để nhất quán giao diện *@
-                @* <input asp-for="imgUrl" class="form-control form-control-lg" readonly /> *@
-                <img src="@Model.imgUrl"style="height:100px;width:100px;" />
-            </div>
-            <div class="form-group">
-                <label asp-for="FulName"></label>
-                @* Hiển thị dữ liệu trong input chỉ đọc để nhất quán giao diện *@
-                <input asp-for="FulName" class="form-control form-control-lg" readonly />
-            </div>
 
-            <div class="form-group">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" class="form-control form-control-lg" readonly />
-            </div>
 
-            <div class="form-group">
-                <label asp-for="PhoneNumber"></label>
-                <input asp-for="PhoneNumber" class="form-control form-control-lg" readonly />
-            </div>
 
-            <div class="form-group">
-                <label>Quyền (Roles)</label>
-                @{
-                    var roles = "Không có quyền nào";
-                    if (ViewBag.UserRoles != null && ((IEnumerable<string>)ViewBag.UserRoles).Any())
-                    {
-                        roles = string.Join(", ", (IEnumerable<string>)ViewBag.UserRoles);
-                    }
+<div class="page-header">
+    <h3 class="page-title"> Chi tiết người dùng </h3>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                @if (!string.IsNullOrEmpty(Model.imgUrl))
+                {
+                    <img src="@Model.imgUrl" alt="image" class="img-fluid rounded shadow" />
                 }
-                <input type="text" class="form-control form-control-lg" value="@roles" readonly />
+                else
+                {
+                    <p class="text-muted">Không có ảnh</p>
+                }
+            </div>
+            <div class="col-md-8">
+                <h4> <b>Họ tên</b> : @Model.FulName</h4>
+                <p><b>Email</b> : @Model.Email</p>
+                <p><b>Phone</b> : @Model.PhoneNumber</p>
+                <p><b>Địa chỉ:</b> @Model.Address</p>
+                <p>
+                    <b>Quyền :</b>
+                    @{
+                        var roles = "Không có quyền nào";
+                        if (ViewBag.UserRoles != null && ((IEnumerable<string>)ViewBag.UserRoles).Any())
+                        {
+                            roles = string.Join(", ", (IEnumerable<string>)ViewBag.UserRoles);
+                        }
+                    }
+                    @roles
+                </p>
+                <p><b>Ngày tạo:</b> @Model.CreateAt</p>
             </div>
         </div>
+        <a asp-action="Edit" asp-route-userId="@Model.Id" class="btn btn-warning mt-3">Chỉnh sửa</a>
+        <a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

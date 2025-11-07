@@ -17,6 +17,7 @@
     var statusList = new[] { "Pending", "Confirmed", "Delivering", "Completed", "Cancelled" };
     decimal computedTotal = Model.OrderDetails?.Sum(d => d.Quantity * d.Price) ?? 0m;
 }
+<partial name="_toastr" />
 <div class="row">
     <div class="col-12 grid-margin">
         <div class="card">
