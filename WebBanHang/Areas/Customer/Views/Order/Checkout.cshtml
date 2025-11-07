@@ -63,18 +63,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label d-block">Phương thức thanh toán *</label>
+                            <label class="form-label d-block">Phương thức thanh toán (hiện tại chỉ dùng COD)</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="pmCOD" value="COD" @(method == "COD" ? "checked" : null) />
                                 <label class="form-check-label" for="pmCOD">Thanh toán khi nhận hàng (COD)</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="pmBank" value="BankTransfer" @(method == "BankTransfer" ? "checked" : null) />
-                                <label class="form-check-label" for="pmBank">Chuyển khoản ngân hàng</label>
+                                <label class="form-check-label" for="pmBank">Chuyển khoản ngân hàng(đang phát triển)</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="pmCard" value="Card" @(method == "Card" ? "checked" : null) />
-                                <label class="form-check-label" for="pmCard">Thẻ (Visa/Master/JCB)</label>
+                                <label class="form-check-label" for="pmCard">Thẻ (Visa/Master/JCB) (đang phát triển)</label>
                             </div>
                             @if (ViewData.ModelState.ContainsKey("paymentMethod"))
                             {

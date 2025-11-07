@@ -20,7 +20,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <h3 class="mb-0 text-success">🎉 Đặt hàng thành công!</h3>
                 <div>
-                    <a asp-area="Customer" asp-controller="Order" asp-action="Index" class="btn btn-outline-secondary btn-sm">Danh sách đơn</a>
+                    @* <a asp-area="Customer" asp-controller="Order" asp-action="Index" class="btn btn-outline-secondary btn-sm">Danh sách đơn</a> *@
                     <a asp-area="Customer" asp-controller="Order" asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-primary btn-sm">Xem chi tiết</a>
                 </div>
             </div>
