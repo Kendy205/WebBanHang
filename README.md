@@ -92,7 +92,7 @@ SQL Server 2017 hoặc cao hơn
 .NET Framework 8 trở lên
 
 Bước 1: Clone Repository
-git clone https://github.com/your-repo/webbanhang.git
+git clone https://github.com/Kendy205/WebBanHang.git
 
 Bước 2: Restore NuGet Packages
 bash# Trong Package Manager Console (Visual Studio)
