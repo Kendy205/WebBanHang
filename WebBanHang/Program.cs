@@ -97,7 +97,7 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
-//setup 
+//setup database 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -106,7 +106,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var logger = services.GetRequiredService<ILogger<DbSeeder>>();
     var seeder = new DbSeeder(context, userManager, roleManager, logger);
-    // await seeder.SeedAsync();
+     await seeder.SeedAsync();
 
     //await seeder.ResetAndSeedAsync();
 }
