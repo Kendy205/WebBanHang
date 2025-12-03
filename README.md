@@ -1,4 +1,4 @@
-
+📁 Cấu Trúc Dự Án
 ```text WebBanHang (Solution)
 ├── WebBanHang (Main MVC Project)
 │   ├── Areas/
@@ -82,3 +82,35 @@
         ├── Order.cs
         ├── OrderDetail.cs
         └── Payment.cs
+
+
+📥 Cài Đặt
+Yêu Cầu
+
+Visual Studio 2019 hoặc cao hơn
+SQL Server 2017 hoặc cao hơn
+.NET Framework 8 trở lên
+
+Bước 1: Clone Repository
+git clone https://github.com/Kendy205/WebBanHang.git
+
+Bước 2: Restore NuGet Packages
+bash# Trong Package Manager Console (Visual Studio)
+Update-Package
+
+Bước 3: Cập nhật Connection String
+Mở Web.config và cập nhật connection string trong app.setting
+
+Bước 4: Tạo Database (nở package console)
+Update-Database
+
+Bước 5: Chạy Application
+bash# Nhấn F5 hoặc Ctrl+F5 để debug
+s
+Bước 6: Tài Khoản Mặc Định
+Admin:
+Email: admin@foodorder.com
+Password: Admin@123
+Customer:
+Email: customer1@gmail.com
+Password: Customer@123
